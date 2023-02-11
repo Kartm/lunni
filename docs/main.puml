@@ -1,0 +1,20 @@
+@startuml
+class BankTransaction {
++ id
++ date
++ description
++ amount
++ comment
+}
+
+class TransactionMerge {
++ id
++ from_transaction
++ to_transaction
++ amount
++ comment
+}
+
+TransactionMerge::from_transaction --> BankTransaction::id : test
+TransactionMerge::to_transaction --> BankTransaction::id : test2
+@enduml
