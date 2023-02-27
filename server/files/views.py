@@ -1,7 +1,11 @@
 import pandas as pd
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from rest_framework import status
+
+from files.models import Entry
+from files.serializers import EntrySerializer
 
 
 @require_POST
@@ -9,7 +13,7 @@ from django.views.decorators.http import require_POST
 def home(request, *args, **kwargs):
     in_memory_file = request.FILES.get('file')
     bytes_io = in_memory_file.file
-    df = pd.read_csv(bytes_io, skiprows=25, sep=';', index_col=False, parse_dates=['#Data operacji'])
+    df = pd.read_csv(bytes_io, skiprows=25, sep=';', index_col=False,)
 
     # take only necessary columns
     df = df.iloc[:, :5]
@@ -35,6 +39,21 @@ def home(request, *args, **kwargs):
             .replace(" ", "")
     ).astype(float)
 
-    print(df.info())
+    converted_entries = df.rename(
+        columns={
+            'Date': 'date',
+            'Description': 'description',
+            'Account': 'account',
+            'Category': 'category',
+            'Amount': 'amount',
+        }
+    ).to_dict('records')
 
-    return HttpResponse()
+    response_data = {
+        'loaded_rows': EntrySerializer(converted_entries, many=True).data
+    }
+
+    return JsonResponse(
+        response_data,
+        status=status.HTTP_201_CREATED,
+    )

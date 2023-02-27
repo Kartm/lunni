@@ -1,10 +1,9 @@
 from django.db import models
 
-class Person(models.Model):
+
+class Entry(models.Model):
     date = models.DateField()
     description = models.CharField(max_length=255)
-    #
-    # date
-    # description
-    # category
-    # amount
+    account = models.CharField(max_length=255)
+    category = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=19, decimal_places=2)
