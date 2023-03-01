@@ -4,8 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from rest_framework import status
 
-from files.models import Entry
-from files.serializers import EntrySerializer
+from merger.models import PlainTransaction
+from merger.serializers import PlainTransactionSerializer
 
 
 @require_POST
@@ -50,7 +50,7 @@ def home(request, *args, **kwargs):
     ).to_dict('records')
 
     response_data = {
-        'loaded_rows': EntrySerializer(converted_entries, many=True).data
+        'loaded_rows': PlainTransactionSerializer(converted_entries, many=True).data
     }
 
     return JsonResponse(

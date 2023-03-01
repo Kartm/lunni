@@ -6,9 +6,9 @@ from django.test.client import MULTIPART_CONTENT, encode_multipart, BOUNDARY
 from rest_framework.utils import json
 
 
-class FilesTestCase(APITestCase):
+class MergerTestCase(APITestCase):
     def test_upload_file(self):
-        url = reverse('files-home')
+        url = reverse('merger-home')
         with open(os.path.dirname(__file__) + '/../operations.csv', 'rb') as file:
             response = self.client.post(
                 path=url,

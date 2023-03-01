@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from files.models import Entry
+from merger.models import PlainTransaction
 
 
-class EntrySerializer(serializers.ModelSerializer):
+class PlainTransactionSerializer(serializers.ModelSerializer):
     amount = serializers.FloatField()
 
     class Meta:
-        model = Entry
+        model = PlainTransaction
         fields = ['id', 'date', 'description', 'account', 'category', 'amount']

@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Entry(models.Model):
+class PlainTransaction(models.Model):
     date = models.DateField()
     description = models.CharField(max_length=255)
     account = models.CharField(max_length=255)
