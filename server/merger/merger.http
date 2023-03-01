@@ -1,0 +1,7 @@
+POST http://localhost:8000/api/merger/merge/
+
+{
+    "from_transaction": 2,
+    "to_transaction": 1,
+    "amount": 3.2
+}

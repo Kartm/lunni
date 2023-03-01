@@ -1,5 +1,6 @@
 import React from "react";
 import {Table} from "antd";
+import {Transaction} from "../../models/merger";
 
 const dataSource = [
     {
@@ -34,7 +35,11 @@ const columns = [
     },
 ];
 
+type EntryTableProps = {
+    data: Transaction[];
+}
 
-export const EntryTable = () => {
+export const EntryTable = ({data}: EntryTableProps) => {
+    console.log(data)
     return <Table dataSource={dataSource} columns={columns} />;
 }

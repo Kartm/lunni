@@ -8,7 +8,7 @@ from rest_framework.utils import json
 
 class MergerTestCase(APITestCase):
     def test_upload_file(self):
-        url = reverse('merger-home')
+        url = reverse('merger-upload')
         with open(os.path.dirname(__file__) + '/../operations.csv', 'rb') as file:
             response = self.client.post(
                 path=url,
