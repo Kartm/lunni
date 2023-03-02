@@ -13,15 +13,27 @@ class TransactionLogSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_amount(instance):
-        to_amount = TransactionLogMerge.objects.filter(to_transaction=instance).aggregate(sum=Sum('amount', default=0))['sum']
-        from_amount = TransactionLogMerge.objects.filter(from_transaction=instance).aggregate(sum=Sum('amount', default=0))['sum']
+        to_amount = TransactionLogMerge.objects.filter(
+            to_transaction=instance
+        ).aggregate(
+            sum=Sum('amount', default=0)
+        )['sum']
+
+        from_amount = TransactionLogMerge.objects.filter(
+            from_transaction=instance
+        ).aggregate(
+            sum=Sum('amount', default=0)
+        )['sum']
 
         return instance.amount + to_amount - from_amount
 
-    # todo consider annotated field
-
 
 class TransactionLogMergeSerializer(serializers.ModelSerializer):
+    amount = serializers.IntegerField(
+        min_value=0,
+    )
+
     class Meta:
         model = TransactionLogMerge
         fields = ['from_transaction', 'to_transaction', 'amount']
+

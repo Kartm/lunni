@@ -1,7 +1,10 @@
 import json
+from decimal import Decimal
 
 import pandas as pd
-from django.http import HttpResponse, JsonResponse
+from django.core.exceptions import BadRequest
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from rest_framework import status
@@ -36,10 +39,10 @@ def upload(request, *args, **kwargs):
     # todo improve performance
     df['Amount'] = df['Amount'].apply(
         lambda amount:
-            amount.replace("PLN", "")
-            .replace(",", ".")
-            .replace(" ", "")
-    ).astype(float)
+        amount.replace("PLN", "")
+        .replace(",", "")
+        .replace(" ", "")
+    ).astype(int)
 
     converted_entries = df.rename(
         columns={
@@ -88,10 +91,15 @@ def merge(request, *args, **kwargs):
     serializer = TransactionLogMergeSerializer(data=body)
     serializer.is_valid()
 
-    # todo check if amount exceeds allowed amount
-    # todo check if amount is posiitive
+    from_transaction_serialized = TransactionLogSerializer(
+        serializer.validated_data.get('from_transaction')
+    )
 
+    attempted_amount_transfer = serializer.validated_data.get('amount')
+    available_amount = from_transaction_serialized.data.get('amount')
 
+    if attempted_amount_transfer > available_amount:
+        raise BadRequest('Cannot transfer from transaction more than the available transaction value')
 
     serializer.save()
 

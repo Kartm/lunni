@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import PositiveIntegerField, IntegerField
 
 
 class TransactionLog(models.Model):
@@ -7,7 +8,7 @@ class TransactionLog(models.Model):
     description = models.CharField(max_length=512)
     account = models.CharField(max_length=255)
     category = models.CharField(max_length=255)
-    amount = models.DecimalField(max_digits=19, decimal_places=2)
+    amount = IntegerField()
 
 
 class TransactionLogMerge(models.Model):
@@ -22,7 +23,4 @@ class TransactionLogMerge(models.Model):
         on_delete=models.RESTRICT,
         related_name='merge_transaction_to_set',
     )
-    amount = models.DecimalField(
-        max_digits=19,
-        decimal_places=2,
-    )
+    amount = PositiveIntegerField()
