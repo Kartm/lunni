@@ -1,6 +1,6 @@
 import {axios} from "../../config";
 import {RcFile} from "antd/lib/upload";
-import {TransactionResponse} from "./merger.dto";
+import {TransactionMergeRequest, TransactionResponse} from "./merger.dto";
 import {AxiosResponse} from "axios";
 
 export const uploadFile = (file: RcFile) => {
@@ -15,3 +15,5 @@ export const uploadFile = (file: RcFile) => {
 }
 
 export const getTransactions = () => axios.get<TransactionResponse>('/merger/transactions/').then(response => response.data)
+
+export const postMergeTransactions = (merge: TransactionMergeRequest) => axios.post<TransactionResponse>('/merger/merge/', merge).then(response => response.data)
