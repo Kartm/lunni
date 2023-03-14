@@ -30,7 +30,7 @@ export const MergeButton = ({mergeSelection, data, onMerge}: MergeButtonProps) =
         onMerge(source!.id, target!.id, value!);
     }
 
-    return <Space>
+    return <Space.Compact>
         <InputNumber
             disabled={!source || !target}
             value={value}
@@ -40,14 +40,6 @@ export const MergeButton = ({mergeSelection, data, onMerge}: MergeButtonProps) =
             onChange={setValue}
         />
         <Button
-            type="ghost"
-            onClick={() => {
-                setValue(99);
-            }}
-        >
-            Reset
-        </Button>
-        <Button
             type="primary"
             disabled={!source || !target}
             onClick={() => {
@@ -56,5 +48,5 @@ export const MergeButton = ({mergeSelection, data, onMerge}: MergeButtonProps) =
         >
             Merge
         </Button>
-    </Space>
+    </Space.Compact>
 }

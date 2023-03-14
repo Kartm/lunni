@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UploadOutlined } from '@ant-design/icons';
-import { Button, message, Upload } from 'antd';
+import {Button, message, Space, Upload} from 'antd';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 
 type FileUploadProps = {
@@ -31,7 +31,7 @@ export const FileUpload = ({isUploading, onFileUpload}:FileUploadProps) => {
     };
 
     return (
-        <>
+        <Space.Compact>
             <Upload {...props} maxCount={1}>
                 <Button icon={<UploadOutlined />}>Select File</Button>
             </Upload>
@@ -40,10 +40,9 @@ export const FileUpload = ({isUploading, onFileUpload}:FileUploadProps) => {
                 onClick={handleUpload}
                 disabled={fileList.length === 0}
                 loading={isUploading}
-                style={{ marginTop: 16 }}
             >
-                {isUploading ? 'Uploading' : 'Start Upload'}
+                {isUploading ? 'Uploading' : 'Upload'}
             </Button>
-        </>
+        </Space.Compact>
     );
 };

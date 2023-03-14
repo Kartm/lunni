@@ -6,6 +6,7 @@ import {useGetTransactions} from "../../hooks/merger/useGetTransactions";
 import {MergeButton} from "../../components/MergeButton";
 import {Key} from "antd/es/table/interface";
 import {useMergeMutations} from "../../hooks/merger/useMergeTransactions";
+import {Space} from "antd";
 
 export const MergerPage = () => {
     const {isLoading: isUploadFileLoading, mutate} = useUploadFile();
@@ -26,8 +27,13 @@ export const MergerPage = () => {
     }, [mergeTransactions.isSuccess])
 
     return <div>
-        <FileUpload isUploading={isUploadFileLoading} onFileUpload={fileUpload => mutate(fileUpload)}/>
-        <MergeButton mergeSelection={mergeSelection} data={data?.transactions || []} onMerge={handleMerge}/>
+        <div style={{ marginBottom: 16 }}>
+            <FileUpload isUploading={isUploadFileLoading} onFileUpload={fileUpload => mutate(fileUpload)}/>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+            <MergeButton mergeSelection={mergeSelection} data={data?.transactions || []} onMerge={handleMerge}/>
+        </div>
+
         <EntryTable isLoading={isGetTransactionsLoading || isUploadFileLoading} data={data?.transactions || []} onMergeSelectionChange={setMergeSelection}/>
     </div>
 
