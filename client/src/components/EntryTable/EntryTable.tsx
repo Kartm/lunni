@@ -26,7 +26,7 @@ const columns: ColumnsType<DataType> = [
     key: "description",
     ellipsis: true,
     render: (description: string) => (
-      <Tooltip title={description}>{description}</Tooltip>
+      <span title={description}>{description}</span>
     ),
   },
   {
