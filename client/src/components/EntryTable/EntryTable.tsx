@@ -48,6 +48,7 @@ const columns: ColumnsType<DataType> = [
 type EntryTableProps = {
     isLoading?: boolean;
     data: Transaction[];
+    mergeSelection: Key[];
     onMergeSelectionChange: (keys: Key[]) => void;
 }
 
@@ -87,22 +88,16 @@ const MyTable: typeof Table = styled(Table)`
   }
 `
 
-export const EntryTable = ({isLoading, data, onMergeSelectionChange}: EntryTableProps) => {
-    const [selectedRowKeys, onSelectedRowKeysChange] = useState<Key[]>([]);
-
+export const EntryTable = ({isLoading, data, mergeSelection, onMergeSelectionChange}: EntryTableProps) => {
     const dataSource: DataType[] = data.map(d => ({...d, key: d.id}));
 
-    useEffect(() => {
-        onMergeSelectionChange(selectedRowKeys);
-    }, [selectedRowKeys])
-
-    return <MyTable loading={isLoading} dataSource={dataSource} columns={columns} rowClassName={record => isRowDisabled(record, dataSource, selectedRowKeys) ? "disabled-row" : ""} rowSelection={{
+    return <MyTable loading={isLoading} dataSource={dataSource} columns={columns} rowClassName={record => isRowDisabled(record, dataSource, mergeSelection) ? "disabled-row" : ""} rowSelection={{
         type: 'checkbox',
         hideSelectAll: true,
-        onChange: (selectedRowKeys) => onSelectedRowKeysChange(selectedRowKeys),
-        selectedRowKeys,
+        onChange: (selectedRowKeys) => onMergeSelectionChange(selectedRowKeys),
+        selectedRowKeys: mergeSelection,
         getCheckboxProps: (record) => ({
-            disabled: isRowDisabled(record, dataSource, selectedRowKeys)
+            disabled: isRowDisabled(record, dataSource, mergeSelection)
         }),
     }} pagination={{pageSize: 50}}/>;
 }

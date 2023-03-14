@@ -34,7 +34,7 @@ export const MergerPage = () => {
             <MergeButton mergeSelection={mergeSelection} data={data?.transactions || []} onMerge={handleMerge}/>
         </div>
 
-        <EntryTable isLoading={isGetTransactionsLoading || isUploadFileLoading} data={data?.transactions || []} onMergeSelectionChange={setMergeSelection}/>
+        <EntryTable isLoading={isGetTransactionsLoading || isUploadFileLoading || mergeTransactions.isLoading} data={data?.transactions || []} mergeSelection={mergeSelection} onMergeSelectionChange={setMergeSelection}/>
     </div>
 
 }
