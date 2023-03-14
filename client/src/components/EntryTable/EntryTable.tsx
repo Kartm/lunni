@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Table, Tooltip, Typography } from "antd";
 import { Transaction } from "../../models/merger";
 import { Key } from "antd/es/table/interface";
@@ -63,36 +63,29 @@ const isRowDisabled = (
   dataSource: DataType[],
   selectedRowKeys: Key[]
 ) => {
-  const already2Selected =
-    !selectedRowKeys.includes(record.key) && selectedRowKeys.length >= 2;
+  switch (selectedRowKeys.length) {
+    case 0: {
+      return false;
+    }
+    case 1: {
+      const selectedRow = dataSource.find((d) => d.key === selectedRowKeys[0])!;
 
-  if (already2Selected) {
-    return true;
-  }
-
-  if (selectedRowKeys.length === 1) {
-    const selectedRow = dataSource.find((d) => d.key === selectedRowKeys[0]);
-
-    if (selectedRow) {
-      if (selectedRow.key !== record.key) {
-        const bothSame = record.amount * selectedRow.amount > 0;
-
-        if (bothSame) {
-          return true;
-        }
+      if (selectedRow.key === record.key) {
+        return false;
       }
+
+      return record.amount * selectedRow.amount > 0;
+    }
+    default: {
+      return !selectedRowKeys.includes(record.key);
     }
   }
-
-  return false;
 };
 
 const MyTable: typeof Table = styled(Table)`
   .disabled-row {
-    //opacity: 0.25;
     color: #9a9a9a;
-    //pointer-events: none;
-    background-color: #cbcbcb;
+    pointer-events: none;
   }
 `;
 
@@ -102,7 +95,10 @@ export const EntryTable = ({
   mergeSelection,
   onMergeSelectionChange,
 }: EntryTableProps) => {
-  const dataSource: DataType[] = data.map((d) => ({ ...d, key: d.id }));
+  const dataSource: DataType[] = useMemo(
+    () => data.map((d) => ({ ...d, key: d.id })),
+    [data]
+  );
 
   return (
     <MyTable
