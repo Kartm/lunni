@@ -10,7 +10,7 @@ type MergeButtonProps = {
 }
 
 export const MergeButton = ({mergeSelection, data, onMerge}: MergeButtonProps) => {
-    const [value, setValue] = useState<number | null>(null);
+    const [value, setValue] = useState<number | null>(0);
 
     const source = useMemo(
         () => data.find(transaction => mergeSelection.includes(transaction.id) && transaction.amount > 0), [mergeSelection, data])
@@ -19,7 +19,7 @@ export const MergeButton = ({mergeSelection, data, onMerge}: MergeButtonProps) =
 
     useEffect(() => {
         if (source) {
-            setValue(source.amount / 100);
+            setValue(source.amount);
         } else {
             setValue(null);
         }
@@ -30,18 +30,33 @@ export const MergeButton = ({mergeSelection, data, onMerge}: MergeButtonProps) =
         onMerge(source!.id, target!.id, value!);
     }
 
+    const numberFormatter = (value?: number) => `PLN ${(parseInt(
+            value?.toString() || '0',
+            10
+        ) / 100)
+        .toFixed(2)}`
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+    const numberParser = (value?: string) => parseInt(
+        value!.replace(/\$\s?|(,*)/g, ''),
+        10
+    ) * 100;
+
     return <Space.Compact>
         <InputNumber
             disabled={!source || !target}
             value={value}
-            min={1}
-            // precision={2}
+            step={1}
+            min={0}
             max={source?.amount}
             onChange={setValue}
+            formatter={numberFormatter}
+            parser={numberParser}
         />
+
         <Button
             type="primary"
-            disabled={!source || !target}
+            disabled={!source || !target || value === 0}
             onClick={() => {
                 handleMergeButton()
             }}
