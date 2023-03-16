@@ -4,6 +4,12 @@ from rest_framework import serializers
 from merger.models import TransactionLog, TransactionLogMerge
 
 
+class CreateTransactionLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransactionLog
+        fields = ['date', 'description', 'account', 'category', 'amount']
+
+
 class TransactionLogSerializer(serializers.ModelSerializer):
     amount = serializers.SerializerMethodField()
 

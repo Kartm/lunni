@@ -1,7 +1,8 @@
+from io import StringIO, BytesIO
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
-import os.path
 from django.test.client import MULTIPART_CONTENT, encode_multipart, BOUNDARY
 from rest_framework.utils import json
 
@@ -9,29 +10,79 @@ from rest_framework.utils import json
 class MergerTestCase(APITestCase):
     def test_upload_file(self):
         url = reverse('merger-upload')
-        with open(os.path.dirname(__file__) + '/../operations.csv', 'rb') as file:
-            response = self.client.post(
-                path=url,
-                data=encode_multipart(
-                    data=dict(file=file),
-                    boundary=BOUNDARY,
-                ),
-                content_type=MULTIPART_CONTENT,
-            )
 
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        operations_file = """mBank S.A. Bankowość Detaliczna;
+Skrytka Pocztowa 2108;
+90-959 Łódź 2;
+www.mBank.pl;
+mLinia: 801 300 800;
++48 (42) 6 300 800;
 
-            loaded_entries = json.loads(response.content)['loaded_rows']
-            response_first_entry = loaded_entries[0]
-            self.assertJSONEqual(
-                json.dumps(response_first_entry),
+
+#Klient;
+ŁUKASZ BLACHNICKI;
+
+Lista operacji;
+
+#Za okres:;
+XXXXXXX;
+
+#zgodnie z wybranymi filtrami wyszukiwania;
+#dla rachunków:;
+Prywatne - XXXX;
+
+#Lista nie jest dokumentem w rozumieniu art. 7 Ustawy Prawo Bankowe (Dz. U. Nr 140 z 1997 roku, poz.939 z późniejszymi zmianami), ponieważ operacje można samodzielnie edytować.;
+
+#Waluta;#Wpływy;#Wydatki;
+PLN;XXXXXXXXXX
+
+#Data operacji;#Opis operacji;#Rachunek;#Kategoria;#Kwota;
+2023-02-11;"Zwrot za maka";"Prywatne";"Wpływy";15,80 PLN;;
+2023-02-10;"McDonalds";"Prywatne";"Jedzenie poza domem";-31,60 PLN;;
+2023-02-10;"MPK Wrocław";"Prywatne";"Transport";-1,20 PLN;;
+        """
+        sio = StringIO(operations_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        response = self.client.post(
+            path=url,
+            data=encode_multipart(
+                data=dict(file=bio),
+                boundary=BOUNDARY,
+            ),
+            content_type=MULTIPART_CONTENT,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        loaded_entries = json.loads(response.content)['loaded_rows']
+        self.assertJSONEqual(
+            json.dumps(loaded_entries),
+            [
+                {
+                    'date': '2023-02-11',
+                    'description': 'Zwrot za maka',
+                    'account': 'Prywatne',
+                    'category': 'Wpływy',
+                    'amount': 1580
+                },
                 {
                     'date': '2023-02-10',
-                    'description': 'McDonalds 61600265  ZAKUP PRZY UŻYCIU KARTY - INTERNET                                                  transakcja nierozliczona',
-                    'account': 'Prywatne 8811 ... 3099',
+                    'description': 'McDonalds',
+                    'account': 'Prywatne',
                     'category': 'Jedzenie poza domem',
-                    'amount': -31.6
-                }
-            )
+                    'amount': -3160
+                },
+                {
+                    'date': '2023-02-10',
+                    'description': 'MPK Wrocław',
+                    'account': 'Prywatne',
+                    'category': 'Transport',
+                    'amount': -120
+                },
+            ]
+        )
 
-            self.assertEqual(len(loaded_entries), 1394)
+        self.assertEqual(len(loaded_entries), 3)
+
+    # todo merge test

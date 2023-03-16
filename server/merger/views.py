@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST, require_GET
 from rest_framework import status
 
 from merger.models import TransactionLog
-from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer
+from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer
 
 
 @require_POST
@@ -20,7 +20,7 @@ def upload(request, *args, **kwargs):
     bytes_io = in_memory_file.file
     df = pd.read_csv(bytes_io, skiprows=25, sep=';', index_col=False,)
 
-    # take only necessary columns
+    # take only necessary rows
     df = df.iloc[:, :5]
 
     # rename headers
@@ -54,9 +54,9 @@ def upload(request, *args, **kwargs):
         }
     ).to_dict('records')
 
-    serializer = TransactionLogSerializer(data=converted_entries, many=True)
+    serializer = CreateTransactionLogSerializer(data=converted_entries, many=True)
     serializer.is_valid()
-    serializer.save()
+    serializer.save() # fails...
 
     response_data = {
         'loaded_rows': serializer.data
