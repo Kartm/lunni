@@ -1,7 +1,5 @@
 import factory
 
-from merger.models import TransactionLog
-
 
 class TransactionLogFactory(factory.django.DjangoModelFactory):
     class Meta:

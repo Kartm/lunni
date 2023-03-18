@@ -1,10 +1,8 @@
 import json
-from decimal import Decimal
 
 import pandas as pd
 from django.core.exceptions import BadRequest
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from rest_framework import status

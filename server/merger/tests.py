@@ -1,6 +1,5 @@
 from io import StringIO, BytesIO
 
-from mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
@@ -8,7 +7,6 @@ from django.test.client import MULTIPART_CONTENT, encode_multipart, BOUNDARY
 from rest_framework.utils import json
 
 from merger.factories import TransactionLogFactory
-from merger.models import TransactionLog
 
 
 class MergerTestCase(APITestCase):
