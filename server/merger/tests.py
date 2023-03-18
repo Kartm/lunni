@@ -1,10 +1,14 @@
 from io import StringIO, BytesIO
 
+from mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from django.test.client import MULTIPART_CONTENT, encode_multipart, BOUNDARY
 from rest_framework.utils import json
+
+from merger.factories import TransactionLogFactory
+from merger.models import TransactionLog
 
 
 class MergerTestCase(APITestCase):
@@ -85,4 +89,59 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(len(loaded_entries), 3)
 
-    # todo merge test
+    def test_get_transactions(self):
+        transaction1 = TransactionLogFactory(
+            id=1,
+            amount=300
+        )
+        transaction2 = TransactionLogFactory(
+            id=2,
+            amount=-50
+        )
+
+        url = reverse('merger-merge')
+
+        merge_body = {
+            'from_transaction': 1,
+            'to_transaction': 2,
+            'amount': 49
+        }
+
+        response = self.client.post(
+            path=url,
+            data=json.dumps(merge_body),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        url = reverse('merger-transactions')
+
+        response = self.client.get(
+            path=url,
+        )
+
+        loaded_entries = json.loads(response.content)
+        self.assertJSONEqual(
+            json.dumps(loaded_entries),
+            {
+                'transactions': [
+                    {
+                        "id": 1,
+                        "date": "2023-01-05",
+                        "description": "desc",
+                        "account": "prywatnte",
+                        "category": "lol wydatkii",
+                        "amount": 251
+                    },
+                    {
+                        "id": 2,
+                        "date": "2023-01-05",
+                        "description": "desc",
+                        "account": "prywatnte",
+                        "category": "lol wydatkii",
+                        "amount": -1
+                    }
+                ]
+            }
+        )
