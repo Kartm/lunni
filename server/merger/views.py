@@ -5,7 +5,9 @@ from django.core.exceptions import BadRequest
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
+from django.views.generic import ListView
 from rest_framework import status
+from rest_framework.generics import ListAPIView
 
 from merger.models import TransactionLog
 from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer
@@ -65,21 +67,11 @@ def upload(request, *args, **kwargs):
         status=status.HTTP_201_CREATED,
     )
 
-@require_GET
-@csrf_exempt
-def transactions(request, *args, **kwargs):
-    data = TransactionLog.objects.all()
-    serializer = TransactionLogSerializer(data=data, many=True)
-    serializer.is_valid()
 
-    response_data = {
-        'transactions': serializer.data
-    }
+class TransactionsListView(ListAPIView):
+    queryset = TransactionLog.objects.all()
+    serializer_class = TransactionLogSerializer
 
-    return JsonResponse(
-        response_data,
-        status=status.HTTP_200_OK,
-    )
 
 @require_POST
 @csrf_exempt

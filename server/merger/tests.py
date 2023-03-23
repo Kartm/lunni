@@ -88,11 +88,49 @@ PLN;XXXXXXXXXX
         self.assertEqual(len(loaded_entries), 3)
 
     def test_get_transactions(self):
-        transaction1 = TransactionLogFactory(
+        TransactionLogFactory(
             id=1,
             amount=300
         )
-        transaction2 = TransactionLogFactory(
+        TransactionLogFactory(
+            id=2,
+            amount=-50
+        )
+
+        url = reverse('merger-transactions')
+
+        response = self.client.get(
+            path=url,
+        )
+
+        self.assertJSONEqual(
+            response.content,
+            [
+                {
+                    "id": 1,
+                    "date": "2023-01-05",
+                    "description": "desc",
+                    "account": "prywatnte",
+                    "category": "lol wydatkii",
+                    "amount": 300
+                },
+                {
+                    "id": 2,
+                    "date": "2023-01-05",
+                    "description": "desc",
+                    "account": "prywatnte",
+                    "category": "lol wydatkii",
+                    "amount": -50
+                }
+            ]
+        )
+
+    def test_merge_transactions(self):
+        TransactionLogFactory(
+            id=1,
+            amount=300
+        )
+        TransactionLogFactory(
             id=2,
             amount=-50
         )
@@ -119,27 +157,24 @@ PLN;XXXXXXXXXX
             path=url,
         )
 
-        loaded_entries = json.loads(response.content)
         self.assertJSONEqual(
-            json.dumps(loaded_entries),
-            {
-                'transactions': [
-                    {
-                        "id": 1,
-                        "date": "2023-01-05",
-                        "description": "desc",
-                        "account": "prywatnte",
-                        "category": "lol wydatkii",
-                        "amount": 251
-                    },
-                    {
-                        "id": 2,
-                        "date": "2023-01-05",
-                        "description": "desc",
-                        "account": "prywatnte",
-                        "category": "lol wydatkii",
-                        "amount": -1
-                    }
-                ]
-            }
+            response.content,
+            [
+                {
+                    "id": 1,
+                    "date": "2023-01-05",
+                    "description": "desc",
+                    "account": "prywatnte",
+                    "category": "lol wydatkii",
+                    "amount": 251
+                },
+                {
+                    "id": 2,
+                    "date": "2023-01-05",
+                    "description": "desc",
+                    "account": "prywatnte",
+                    "category": "lol wydatkii",
+                    "amount": -1
+                }
+            ]
         )
