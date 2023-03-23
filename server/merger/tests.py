@@ -56,36 +56,7 @@ PLN;XXXXXXXXXX
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        loaded_entries = json.loads(response.content)['loaded_rows']
-        self.assertJSONEqual(
-            json.dumps(loaded_entries),
-            [
-                {
-                    'date': '2023-02-11',
-                    'description': 'Zwrot za maka',
-                    'account': 'Prywatne',
-                    'category': 'Wpływy',
-                    'amount': 1580
-                },
-                {
-                    'date': '2023-02-10',
-                    'description': 'McDonalds',
-                    'account': 'Prywatne',
-                    'category': 'Jedzenie poza domem',
-                    'amount': -3160
-                },
-                {
-                    'date': '2023-02-10',
-                    'description': 'MPK Wrocław',
-                    'account': 'Prywatne',
-                    'category': 'Transport',
-                    'amount': -120
-                },
-            ]
-        )
-
-        self.assertEqual(len(loaded_entries), 3)
+        self.assertJSONEqual(response.content, {})
 
     def test_get_transactions(self):
         TransactionLogFactory(
