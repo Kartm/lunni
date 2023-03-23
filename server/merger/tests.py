@@ -76,24 +76,28 @@ PLN;XXXXXXXXXX
 
         self.assertJSONEqual(
             response.content,
-            [
-                {
-                    "id": 1,
-                    "date": "2023-01-05",
-                    "description": "desc",
-                    "account": "prywatnte",
-                    "category": "lol wydatkii",
-                    "amount": 300
-                },
-                {
-                    "id": 2,
-                    "date": "2023-01-05",
-                    "description": "desc",
-                    "account": "prywatnte",
-                    "category": "lol wydatkii",
-                    "amount": -50
-                }
-            ]
+            {
+                'count': 2,
+                'total_pages': 1,
+                'results': [
+                    {
+                        "id": 1,
+                        "date": "2023-01-05",
+                        "description": "desc",
+                        "account": "prywatnte",
+                        "category": "lol wydatkii",
+                        "amount": 300
+                    },
+                    {
+                        "id": 2,
+                        "date": "2023-01-05",
+                        "description": "desc",
+                        "account": "prywatnte",
+                        "category": "lol wydatkii",
+                        "amount": -50
+                    }
+                ]
+            }
         )
 
     def test_merge_transactions(self):
@@ -130,22 +134,26 @@ PLN;XXXXXXXXXX
 
         self.assertJSONEqual(
             response.content,
-            [
-                {
-                    "id": 1,
-                    "date": "2023-01-05",
-                    "description": "desc",
-                    "account": "prywatnte",
-                    "category": "lol wydatkii",
-                    "amount": 251
-                },
-                {
-                    "id": 2,
-                    "date": "2023-01-05",
-                    "description": "desc",
-                    "account": "prywatnte",
-                    "category": "lol wydatkii",
-                    "amount": -1
-                }
-            ]
+            {
+                'count': 2,
+                'total_pages': 1,
+                'results': [
+                    {
+                        "id": 1,
+                        "date": "2023-01-05",
+                        "description": "desc",
+                        "account": "prywatnte",
+                        "category": "lol wydatkii",
+                        "amount": 251
+                    },
+                    {
+                        "id": 2,
+                        "date": "2023-01-05",
+                        "description": "desc",
+                        "account": "prywatnte",
+                        "category": "lol wydatkii",
+                        "amount": -1
+                    }
+                ]
+            }
         )
