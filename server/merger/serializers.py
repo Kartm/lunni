@@ -39,6 +39,17 @@ class TransactionLogMergeSerializer(serializers.ModelSerializer):
         min_value=0,
     )
 
+    def validate(self, data):
+        from_transaction = data.get('from_transaction')
+
+        attempted_amount_transfer = data.get('amount')
+        available_amount = getattr(from_transaction, 'amount')
+
+        if attempted_amount_transfer > available_amount:
+            raise serializers.ValidationError('Cannot transfer from transaction more than the available transaction value')
+
+        return data
+
     class Meta:
         model = TransactionLogMerge
         fields = ['from_transaction', 'to_transaction', 'amount']

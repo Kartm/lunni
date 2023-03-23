@@ -7,9 +7,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from django.views.generic import ListView
 from rest_framework import status
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
 
-from merger.models import TransactionLog
+from merger.models import TransactionLog, TransactionLogMerge
 from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer
 
 
@@ -73,31 +73,6 @@ class TransactionsListView(ListAPIView):
     serializer_class = TransactionLogSerializer
 
 
-@require_POST
-@csrf_exempt
-def merge(request, *args, **kwargs):
-    body = json.loads(request.body.decode('utf-8'))
-
-    serializer = TransactionLogMergeSerializer(data=body)
-    serializer.is_valid()
-
-    from_transaction_serialized = TransactionLogSerializer(
-        serializer.validated_data.get('from_transaction')
-    )
-
-    attempted_amount_transfer = serializer.validated_data.get('amount')
-    available_amount = from_transaction_serialized.data.get('amount')
-
-    if attempted_amount_transfer > available_amount:
-        raise BadRequest('Cannot transfer from transaction more than the available transaction value')
-
-    serializer.save()
-
-    response_data = {
-        'transaction_merge': serializer.data
-    }
-
-    return JsonResponse(
-        response_data,
-        status=status.HTTP_201_CREATED,
-    )
+class TransactionsMergeCreateView(CreateAPIView):
+    queryset = TransactionLogMerge.objects.all()
+    serializer_class = TransactionLogMergeSerializer
