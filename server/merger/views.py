@@ -30,7 +30,7 @@ def upload(request, *args, **kwargs):
 
 
 class TransactionsListView(ListAPIView):
-    queryset = TransactionLog.objects.all()
+    queryset = TransactionLog.objects.all().order_by('-date', 'amount')
     serializer_class = TransactionLogSerializer
 
 

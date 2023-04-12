@@ -1,7 +1,7 @@
 from django.db.models import Sum
 from rest_framework import serializers
 
-from merger.models import TransactionLog, TransactionLogMerge
+from merger.models import TransactionLog, TransactionLogMerge, TransactionCategory
 
 
 class CreateTransactionLogSerializer(serializers.ModelSerializer):
@@ -10,8 +10,15 @@ class CreateTransactionLogSerializer(serializers.ModelSerializer):
         fields = ['date', 'description', 'account', 'category', 'amount']
 
 
+class TransactionCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransactionCategory
+        fields = ['id', 'name']
+
+
 class TransactionLogSerializer(serializers.ModelSerializer):
     amount = serializers.SerializerMethodField()
+    category = TransactionCategorySerializer()
 
     class Meta:
         model = TransactionLog

@@ -81,20 +81,26 @@ PLN;XXXXXXXXXX
                 'total_pages': 1,
                 'results': [
                     {
-                        "id": 1,
-                        "date": "2023-01-05",
-                        "description": "desc",
-                        "account": "prywatnte",
-                        "category": None,
-                        "amount": 300
-                    },
-                    {
                         "id": 2,
                         "date": "2023-01-05",
                         "description": "desc",
                         "account": "prywatnte",
-                        "category": None,
+                        "category": {
+                            'id': 2,
+                            'name': 'food'
+                        },
                         "amount": -50
+                    },
+                    {
+                        "id": 1,
+                        "date": "2023-01-05",
+                        "description": "desc",
+                        "account": "prywatnte",
+                        "category": {
+                            'id': 1,
+                            'name': 'food'
+                        },
+                        "amount": 300
                     }
                 ]
             }
@@ -139,20 +145,26 @@ PLN;XXXXXXXXXX
                 'total_pages': 1,
                 'results': [
                     {
-                        "id": 1,
-                        "date": "2023-01-05",
-                        "description": "desc",
-                        "account": "prywatnte",
-                        "category": None,
-                        "amount": 251
-                    },
-                    {
                         "id": 2,
                         "date": "2023-01-05",
                         "description": "desc",
                         "account": "prywatnte",
-                        "category": None,
+                        "category": {
+                            'id': 2,
+                            'name': 'food'
+                        },
                         "amount": -1
+                    },
+                    {
+                        "id": 1,
+                        "date": "2023-01-05",
+                        "description": "desc",
+                        "account": "prywatnte",
+                        "category": {
+                            'id': 1,
+                            'name': 'food'
+                        },
+                        "amount": 251
                     }
                 ]
             }
