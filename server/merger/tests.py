@@ -85,7 +85,7 @@ PLN;XXXXXXXXXX
                         "date": "2023-01-05",
                         "description": "desc",
                         "account": "prywatnte",
-                        "category": "lol wydatkii",
+                        "category": None,
                         "amount": 300
                     },
                     {
@@ -93,7 +93,7 @@ PLN;XXXXXXXXXX
                         "date": "2023-01-05",
                         "description": "desc",
                         "account": "prywatnte",
-                        "category": "lol wydatkii",
+                        "category": None,
                         "amount": -50
                     }
                 ]
@@ -143,7 +143,7 @@ PLN;XXXXXXXXXX
                         "date": "2023-01-05",
                         "description": "desc",
                         "account": "prywatnte",
-                        "category": "lol wydatkii",
+                        "category": None,
                         "amount": 251
                     },
                     {
@@ -151,7 +151,7 @@ PLN;XXXXXXXXXX
                         "date": "2023-01-05",
                         "description": "desc",
                         "account": "prywatnte",
-                        "category": "lol wydatkii",
+                        "category": None,
                         "amount": -1
                     }
                 ]

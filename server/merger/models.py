@@ -1,17 +1,37 @@
 from django.db import models
 from django.db.models import PositiveIntegerField, IntegerField
+from django_extensions.db.models import TimeStampedModel
 
 
-class TransactionLog(models.Model):
+class TransactionCategoryMatcher(TimeStampedModel):
+    id = models.AutoField(primary_key=True)
+    regex_expression = models.CharField(max_length=255)
+
+
+class TransactionCategory(TimeStampedModel):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+
+
+class TransactionLog(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     date = models.DateField()
     description = models.CharField(max_length=512)
     account = models.CharField(max_length=255)
-    category = models.CharField(max_length=255)
+    category = models.ForeignKey(
+        TransactionCategory,
+        on_delete=models.RESTRICT,
+        related_name='category_set',
+        null=True
+    )
     amount = IntegerField()
 
 
-class TransactionLogMerge(models.Model):
+# todo order by date
+# todo handle PKO files
+# todo category positive negative
+
+class TransactionLogMerge(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     from_transaction = models.ForeignKey(
         TransactionLog,
