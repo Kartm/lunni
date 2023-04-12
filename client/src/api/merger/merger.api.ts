@@ -1,14 +1,17 @@
 import { axios } from "../../config";
 import { RcFile } from "antd/lib/upload";
-import { TransactionMergeRequest, TransactionResponse } from "./merger.dto";
-import { AxiosResponse } from "axios";
+import {
+  TransactionMergeRequest,
+  TransactionResponse,
+  UploadFileResponse,
+} from "./merger.dto";
 
 export const uploadFile = (file: RcFile) => {
   const formData = new FormData();
   formData.append("file", file);
 
   return axios
-    .post("/merger/upload/", formData, {
+    .post<UploadFileResponse>("/merger/upload/", formData, {
       headers: {
         "Content-Type": "multipart/form-data; boundary=WebAppBoundary",
       },

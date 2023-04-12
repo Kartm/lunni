@@ -6,7 +6,6 @@ import { useGetTransactions } from "../../hooks/merger/useGetTransactions";
 import { MergeButton } from "../../components/MergeButton";
 import { Key } from "antd/es/table/interface";
 import { useMergeMutations } from "../../hooks/merger/useMergeTransactions";
-import { Space } from "antd";
 
 export const MergerPage = () => {
   const { isLoading: isUploadFileLoading, mutate } = useUploadFile();
