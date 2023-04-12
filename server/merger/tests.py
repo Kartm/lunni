@@ -87,7 +87,8 @@ PLN;XXXXXXXXXX
                         "account": "prywatnte",
                         "category": {
                             'id': 2,
-                            'name': 'food'
+                            'name': 'food',
+                            'variant': 'NEG'
                         },
                         "amount": -50
                     },
@@ -98,7 +99,8 @@ PLN;XXXXXXXXXX
                         "account": "prywatnte",
                         "category": {
                             'id': 1,
-                            'name': 'food'
+                            'name': 'food',
+                            'variant': 'NEG'
                         },
                         "amount": 300
                     }
@@ -151,7 +153,8 @@ PLN;XXXXXXXXXX
                         "account": "prywatnte",
                         "category": {
                             'id': 2,
-                            'name': 'food'
+                            'name': 'food',
+                            'variant': 'NEG'
                         },
                         "amount": -1
                     },
@@ -162,7 +165,8 @@ PLN;XXXXXXXXXX
                         "account": "prywatnte",
                         "category": {
                             'id': 1,
-                            'name': 'food'
+                            'name': 'food',
+                            'variant': 'NEG'
                         },
                         "amount": 251
                     }

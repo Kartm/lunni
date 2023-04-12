@@ -13,7 +13,7 @@ class CreateTransactionLogSerializer(serializers.ModelSerializer):
 class TransactionCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TransactionCategory
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'variant']
 
 
 class TransactionLogSerializer(serializers.ModelSerializer):

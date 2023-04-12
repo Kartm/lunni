@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Table, Tooltip, Typography } from "antd";
+import React, { useMemo } from "react";
+import { Table, Typography } from "antd";
 import { Transaction } from "../../models/merger";
 import { Key } from "antd/es/table/interface";
 import styled from "styled-components";
@@ -27,6 +27,25 @@ const columns: ColumnsType<DataType> = [
     ellipsis: true,
     render: (description: string) => (
       <span title={description}>{description}</span>
+    ),
+  },
+  {
+    title: "Category",
+    dataIndex: "category",
+    key: "category",
+    width: 150,
+    render: (category: DataType["category"]) => (
+      <Text
+        type={
+          category?.variant === "POS"
+            ? "success"
+            : category?.variant === "NEG"
+            ? "danger"
+            : "secondary"
+        }
+      >
+        {category?.name || "(none)"}
+      </Text>
     ),
   },
   {

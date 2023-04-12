@@ -8,10 +8,21 @@ class TransactionCategoryMatcher(TimeStampedModel):
     regex_expression = models.CharField(max_length=255)
 
 
+
 class TransactionCategory(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
 
+    class CategoryVariant(models.TextChoices):
+        POSITIVE = 'POS',
+        NEGATIVE = 'NEG',
+        IGNORE = 'IGN'
+
+    variant = models.CharField(
+        max_length=3,
+        choices=CategoryVariant.choices,
+        default=CategoryVariant.NEGATIVE,
+    )
 
 class TransactionLog(TimeStampedModel):
     id = models.AutoField(primary_key=True)

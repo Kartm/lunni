@@ -6,6 +6,7 @@ class TransactionCategoryFactory(factory.django.DjangoModelFactory):
         model = 'merger.TransactionCategory'
 
     name = 'food'
+    variant = 'NEG'
 
 
 class TransactionLogFactory(factory.django.DjangoModelFactory):

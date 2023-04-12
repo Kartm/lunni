@@ -1,6 +1,7 @@
 export type TransactionCategory = {
   id: number;
   name: string;
+  variant: "POS" | "NEG" | "IGN";
 };
 
 export type Transaction = {
