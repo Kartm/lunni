@@ -3,12 +3,6 @@ from django.db.models import PositiveIntegerField, IntegerField
 from django_extensions.db.models import TimeStampedModel
 
 
-class TransactionCategoryMatcher(TimeStampedModel):
-    id = models.AutoField(primary_key=True)
-    regex_expression = models.CharField(max_length=255)
-
-
-
 class TransactionCategory(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -27,6 +21,18 @@ class TransactionCategory(TimeStampedModel):
     def __str__(self):
         return '({}) {}, {}'.format(self.id, self.name, self.variant)
 
+
+class TransactionCategoryMatcher(TimeStampedModel):
+    id = models.AutoField(primary_key=True)
+    regex_expression = models.CharField(max_length=255)
+    category = models.ForeignKey(
+        TransactionCategory,
+        on_delete=models.RESTRICT,
+        related_name='category_matcher_set',
+        null=True
+    )
+
+
 class TransactionLog(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     date = models.DateField()
@@ -35,7 +41,7 @@ class TransactionLog(TimeStampedModel):
     category = models.ForeignKey(
         TransactionCategory,
         on_delete=models.RESTRICT,
-        related_name='category_set',
+        related_name='transaction_log_set',
         null=True
     )
     amount = IntegerField()
