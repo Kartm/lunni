@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.test.client import MULTIPART_CONTENT, encode_multipart, BOUNDARY
 from rest_framework.utils import json
 
-from merger.factories import TransactionLogFactory
+from merger.factories import TransactionLogFactory, TransactionCategoryFactory, TransactionCategoryMatcherFactory
 
 
 class MergerTestCase(APITestCase):
@@ -169,6 +169,75 @@ PLN;XXXXXXXXXX
                             'variant': 'NEG'
                         },
                         "amount": 251
+                    }
+                ]
+            }
+        )
+
+    def test_rematch_categories(self):
+        TransactionLogFactory(
+            id=1,
+            amount=300,
+            description='gift',
+            category=None
+        )
+        TransactionLogFactory(
+            id=2,
+            amount=-50,
+            description='spotify payment',
+            category=None
+        )
+        subscriptionsCategory = TransactionCategoryFactory(
+            id=1,
+            name='subscriptions',
+            variant='NEG'
+        )
+        TransactionCategoryMatcherFactory(
+            id=1,
+            regex_expression='spotify',
+            category=subscriptionsCategory
+        )
+
+        url = reverse('rematch-categories')
+
+        response = self.client.post(
+            path=url,
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        url = reverse('merger-transactions')
+
+        response = self.client.get(
+            path=url,
+        )
+
+        self.assertJSONEqual(
+            response.content,
+            {
+                'count': 2,
+                'total_pages': 1,
+                'results': [
+                    {
+                        "id": 2,
+                        "date": "2023-01-05",
+                        "description": "spotify payment",
+                        "account": "prywatnte",
+                        "category": {
+                            'id': 1,
+                            'name': 'subscriptions',
+                            'variant': 'NEG'
+                        },
+                        "amount": -50
+                    },
+                    {
+                        "id": 1,
+                        "date": "2023-01-05",
+                        "description": "gift",
+                        "account": "prywatnte",
+                        "category": None,
+                        "amount": 300
                     }
                 ]
             }

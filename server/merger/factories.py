@@ -9,6 +9,14 @@ class TransactionCategoryFactory(factory.django.DjangoModelFactory):
     variant = 'NEG'
 
 
+class TransactionCategoryMatcherFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'merger.TransactionCategoryMatcher'
+
+    regex_expression = 'des'
+    category = factory.SubFactory(TransactionCategoryFactory)
+
+
 class TransactionLogFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'merger.TransactionLog'

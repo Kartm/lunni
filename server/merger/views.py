@@ -3,12 +3,12 @@ from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView
 
 from merger.helpers import file_to_entries
-from merger.models import TransactionLog, TransactionLogMerge
+from merger.models import TransactionLog, TransactionLogMerge, TransactionCategoryMatcher
 from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer
 
 
@@ -37,3 +37,17 @@ class TransactionsListView(ListAPIView):
 class TransactionsMergeCreateView(CreateAPIView):
     queryset = TransactionLogMerge.objects.all()
     serializer_class = TransactionLogMergeSerializer
+
+
+@require_POST
+@csrf_exempt
+def rematch_categories(request, *args, **kwargs):
+    TransactionLog.objects.update(category=None)
+
+    for matcher in TransactionCategoryMatcher.objects.all():
+        TransactionLog.objects.filter(description__regex=matcher.regex_expression).update(category=matcher.category)
+
+    return JsonResponse(
+        data={},
+        status=status.HTTP_200_OK,
+    )
