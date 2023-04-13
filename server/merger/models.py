@@ -24,6 +24,9 @@ class TransactionCategory(TimeStampedModel):
         default=CategoryVariant.NEGATIVE,
     )
 
+    def __str__(self):
+        return '({}) {}, {}'.format(self.id, self.name, self.variant)
+
 class TransactionLog(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     date = models.DateField()
@@ -37,6 +40,8 @@ class TransactionLog(TimeStampedModel):
     )
     amount = IntegerField()
 
+    def __str__(self):
+        return '({}) {}, {}, {}'.format(self.id, self.date, self.category, self.description)
 
 # todo order by date
 # todo handle PKO files
