@@ -1,11 +1,12 @@
 import { EntryTable } from "../../components/EntryTable";
 import React, { useEffect, useState } from "react";
-import { FileUpload } from "../../components/FileUpload/FileUpload";
+import { FileUpload } from "../../components/FileUpload";
 import { useUploadFile } from "../../hooks/merger/useUploadFile";
 import { useGetTransactions } from "../../hooks/merger/useGetTransactions";
 import { MergeButton } from "../../components/MergeButton";
 import { Key } from "antd/es/table/interface";
 import { useMergeMutations } from "../../hooks/merger/useMergeTransactions";
+import { RematchCategoriesButton } from "../../components/RematchCategoriesButton";
 
 export const MergerPage = () => {
   const { isLoading: isUploadFileLoading, mutate } = useUploadFile();
@@ -39,6 +40,9 @@ export const MergerPage = () => {
           data={data?.results || []}
           onMerge={handleMerge}
         />
+      </div>
+      <div style={{ marginBottom: 16 }}>
+        <RematchCategoriesButton />
       </div>
 
       <EntryTable

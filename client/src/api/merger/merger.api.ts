@@ -28,3 +28,6 @@ export const postMergeTransactions = (merge: TransactionMergeRequest) =>
   axios
     .post<TransactionResponse>("/merger/merge/", merge)
     .then((response) => response.data);
+
+export const postRematchCategories = () =>
+  axios.post("/merger/categories/rematch/").then((response) => response.data);
