@@ -32,6 +32,9 @@ class TransactionCategoryMatcher(TimeStampedModel):
         null=True
     )
 
+    def __str__(self):
+        return '({}) <{}>, {}'.format(self.id, self.regex_expression, self.category.name)
+
 
 class TransactionLog(TimeStampedModel):
     id = models.AutoField(primary_key=True)

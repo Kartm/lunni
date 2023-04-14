@@ -1,15 +1,20 @@
+import re
 from io import BytesIO
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.db.models import Count, Max, F, Q
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 from rest_framework import status
-from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, RetrieveAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from merger.helpers import file_to_entries
-from merger.models import TransactionLog, TransactionLogMerge, TransactionCategoryMatcher
-from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer
+from merger.models import TransactionLog, TransactionLogMerge, TransactionCategoryMatcher, TransactionCategory
+from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer, \
+    TransactionCategorySerializer, TransactionCategoryMatcherSerializer
 
 
 @require_POST
@@ -34,6 +39,16 @@ class TransactionsListView(ListAPIView):
     serializer_class = TransactionLogSerializer
 
 
+class TransactionCategoryListCreateView(ListCreateAPIView):
+    queryset = TransactionLog.objects.all().order_by('-created')
+    serializer_class = TransactionCategorySerializer
+
+
+class TransactionCategoryMatcherListCreateView(ListCreateAPIView):
+    queryset = TransactionLog.objects.all().order_by('-created')
+    serializer_class = TransactionCategoryMatcherSerializer
+
+
 class TransactionsMergeCreateView(CreateAPIView):
     queryset = TransactionLogMerge.objects.all()
     serializer_class = TransactionLogMergeSerializer
@@ -45,9 +60,17 @@ def rematch_categories(request, *args, **kwargs):
     TransactionLog.objects.update(category=None)
 
     for matcher in TransactionCategoryMatcher.objects.all():
-        TransactionLog.objects.filter(description__regex=matcher.regex_expression).update(category=matcher.category)
+        TransactionLog.objects.filter(description__iregex=matcher.regex_expression).update(category=matcher.category)
 
     return JsonResponse(
         data={},
         status=status.HTTP_200_OK,
     )
+
+
+class TransactionCategoryStatsView(APIView):
+    def get(self, request):
+        # todo case... use a serializer to handle that
+        qs = TransactionLog.objects.values(categoryName=F('category__name')).annotate(totalCount=Count('pk'))
+
+        return Response([dict(q) for q in qs])

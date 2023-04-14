@@ -15,6 +15,7 @@ export const useRematchCategories = () => {
     mutationFn: () => postRematchCategories(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["get-transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["categories-stats"] });
     },
   });
 };

@@ -1,4 +1,4 @@
-import { Transaction } from "../../models/merger";
+import { CategoryStats, Transaction } from "../../models/merger";
 import { Paginated } from "../../models/common/paginated.type";
 
 export type UploadFileResponse = {};
@@ -10,3 +10,5 @@ export type TransactionMergeRequest = {
   to_transaction: number;
   amount: number;
 };
+
+export type CategoryStatsResponse = CategoryStats;

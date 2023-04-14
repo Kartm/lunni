@@ -30,6 +30,8 @@ def file_to_entries(file: BytesIO):
         .replace(" ", "")
     ).astype(int)
 
+    # trim description (check INTERCITY.PL          BLIK for example)
+
     renamed_entries = df.rename(
         columns={
             'Date': 'date',

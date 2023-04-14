@@ -1,6 +1,7 @@
 import { axios } from "../../config";
 import { RcFile } from "antd/lib/upload";
 import {
+  CategoryStatsResponse,
   TransactionMergeRequest,
   TransactionResponse,
   UploadFileResponse,
@@ -31,3 +32,8 @@ export const postMergeTransactions = (merge: TransactionMergeRequest) =>
 
 export const postRematchCategories = () =>
   axios.post("/merger/categories/rematch/").then((response) => response.data);
+
+export const getCategoryStats = () =>
+  axios
+    .get<CategoryStatsResponse>("/merger/categories/stats/")
+    .then((response) => response.data);

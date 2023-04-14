@@ -1,7 +1,7 @@
 from django.db.models import Sum
 from rest_framework import serializers
 
-from merger.models import TransactionLog, TransactionLogMerge, TransactionCategory
+from merger.models import TransactionLog, TransactionLogMerge, TransactionCategory, TransactionCategoryMatcher
 
 
 class CreateTransactionLogSerializer(serializers.ModelSerializer):
@@ -14,6 +14,14 @@ class TransactionCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TransactionCategory
         fields = ['id', 'name', 'variant']
+
+
+class TransactionCategoryMatcherSerializer(serializers.ModelSerializer):
+    category = TransactionCategorySerializer()
+
+    class Meta:
+        model = TransactionCategoryMatcher
+        fields = ['id', 'regex_expression', 'category']
 
 
 class TransactionLogSerializer(serializers.ModelSerializer):
@@ -53,11 +61,11 @@ class TransactionLogMergeSerializer(serializers.ModelSerializer):
         available_amount = getattr(from_transaction, 'amount')
 
         if attempted_amount_transfer > available_amount:
-            raise serializers.ValidationError('Cannot transfer from transaction more than the available transaction value')
+            raise serializers.ValidationError(
+                'Cannot transfer from transaction more than the available transaction value')
 
         return data
 
     class Meta:
         model = TransactionLogMerge
         fields = ['from_transaction', 'to_transaction', 'amount']
-

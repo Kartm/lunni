@@ -12,3 +12,8 @@ export type Transaction = {
   description: string;
   amount: number;
 };
+
+export type CategoryStats = Array<{
+  categoryName: string | null;
+  totalCount: number;
+}>;
