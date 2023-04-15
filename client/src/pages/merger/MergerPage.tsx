@@ -9,10 +9,17 @@ import { useMergeMutations } from "../../hooks/merger/useMergeTransactions";
 import { RematchCategoriesButton } from "../../components/RematchCategoriesButton";
 
 export const MergerPage = () => {
-  const { isLoading: isUploadFileLoading, mutate } = useUploadFile();
-  const { data, isLoading: isGetTransactionsLoading } = useGetTransactions();
   const [mergeSelection, setMergeSelection] = useState<Key[]>([]);
+  const [pagination, setPagination] = useState<{
+    page: number;
+    pageSize: number;
+  }>({ page: 1, pageSize: 50 });
   const mergeTransactions = useMergeMutations();
+  const { isLoading: isUploadFileLoading, mutate } = useUploadFile();
+  const { data, isLoading: isGetTransactionsLoading } = useGetTransactions(
+    pagination.page,
+    pagination.pageSize
+  );
 
   const handleMerge = (sourceId: number, targetId: number, amount: number) => {
     mergeTransactions.mutate({
@@ -51,9 +58,13 @@ export const MergerPage = () => {
           isUploadFileLoading ||
           mergeTransactions.isLoading
         }
+        totalEntries={data?.count}
         data={data?.results || []}
         mergeSelection={mergeSelection}
         onMergeSelectionChange={setMergeSelection}
+        onPaginationChange={(page, pageSize) =>
+          setPagination({ page, pageSize })
+        }
       />
     </div>
   );

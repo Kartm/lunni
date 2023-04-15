@@ -69,10 +69,12 @@ const columns: ColumnsType<DataType> = [
 ];
 
 type EntryTableProps = {
+  totalEntries?: number;
   isLoading?: boolean;
   data: Transaction[];
   mergeSelection: Key[];
   onMergeSelectionChange: (keys: Key[]) => void;
+  onPaginationChange: (page: number, pageSize: number) => void;
 };
 
 type DataType = Transaction & { key: Key };
@@ -111,8 +113,10 @@ const MyTable: typeof Table = styled(Table)`
 export const EntryTable = ({
   isLoading,
   data,
+  totalEntries,
   mergeSelection,
   onMergeSelectionChange,
+  onPaginationChange,
 }: EntryTableProps) => {
   const dataSource: DataType[] = useMemo(
     () => data.map((d) => ({ ...d, key: d.id })),
@@ -136,7 +140,14 @@ export const EntryTable = ({
           disabled: isRowDisabled(record, dataSource, mergeSelection),
         }),
       }}
-      pagination={{ pageSize: 50 }}
+      pagination={{
+        total: totalEntries,
+        defaultPageSize: 50,
+        showSizeChanger: true,
+        pageSizeOptions: [50, 100, 500, 1000],
+        onChange: onPaginationChange,
+        position: ["topRight"],
+      }}
     />
   );
 };

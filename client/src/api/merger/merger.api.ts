@@ -20,9 +20,11 @@ export const uploadFile = (file: RcFile) => {
     .then((response) => response.data);
 };
 
-export const getTransactions = () =>
+export const getTransactions = (page: number, pageSize: number) =>
   axios
-    .get<TransactionResponse>("/merger/transactions/")
+    .get<TransactionResponse>(
+      `/merger/transactions/?page=${page}&page_size=${pageSize}`
+    )
     .then((response) => response.data);
 
 export const postMergeTransactions = (merge: TransactionMergeRequest) =>
