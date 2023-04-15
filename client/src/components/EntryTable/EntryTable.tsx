@@ -8,12 +8,12 @@ import { ColumnsType } from "antd/lib/table";
 const { Text } = Typography;
 
 const columns: ColumnsType<DataType> = [
-  {
-    title: "Id",
-    dataIndex: "id",
-    key: "id",
-    width: 80,
-  },
+  // {
+  //   title: "Id",
+  //   dataIndex: "id",
+  //   key: "id",
+  //   width: 80,
+  // },
   {
     title: "Date",
     dataIndex: "date",
@@ -82,14 +82,14 @@ type DataType = Transaction & { key: Key };
 const isRowDisabled = (
   record: DataType,
   dataSource: DataType[],
-  selectedRowKeys: Key[]
+  selectedRows: DataType[]
 ) => {
-  switch (selectedRowKeys.length) {
+  switch (selectedRows.length) {
     case 0: {
       return false;
     }
     case 1: {
-      const selectedRow = dataSource.find((d) => d.key === selectedRowKeys[0])!;
+      const selectedRow = selectedRows[0];
 
       if (selectedRow.key === record.key) {
         return false;
@@ -98,7 +98,7 @@ const isRowDisabled = (
       return record.amount * selectedRow.amount > 0;
     }
     default: {
-      return !selectedRowKeys.includes(record.key);
+      return !selectedRows.includes(record);
     }
   }
 };
@@ -123,21 +123,32 @@ export const EntryTable = ({
     [data]
   );
 
+  const rowDisabled = useMemo(() => {
+    const selectedRows = dataSource.filter((d) =>
+      mergeSelection.includes(d.key)
+    );
+
+    return new Map(
+      dataSource.map((record) => [
+        record,
+        isRowDisabled(record, dataSource, selectedRows),
+      ])
+    );
+  }, [dataSource, mergeSelection]);
+
   return (
     <MyTable
       loading={isLoading}
       dataSource={dataSource}
       columns={columns}
-      rowClassName={(record) =>
-        isRowDisabled(record, dataSource, mergeSelection) ? "disabled-row" : ""
-      }
+      rowClassName={(record) => (rowDisabled.get(record) ? "disabled-row" : "")}
       rowSelection={{
         type: "checkbox",
         hideSelectAll: true,
         onChange: (selectedRowKeys) => onMergeSelectionChange(selectedRowKeys),
         selectedRowKeys: mergeSelection,
         getCheckboxProps: (record) => ({
-          disabled: isRowDisabled(record, dataSource, mergeSelection),
+          disabled: rowDisabled.get(record),
         }),
       }}
       pagination={{
