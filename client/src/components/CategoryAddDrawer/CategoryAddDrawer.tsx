@@ -1,9 +1,11 @@
 import {
   Button,
+  Card,
   Col,
   Drawer,
   Form,
   Input,
+  List,
   Row,
   Select,
   Space,
@@ -21,6 +23,7 @@ import { useCreateCategory } from "../../hooks/merger/useCreateCategory";
 import { useCategoryList } from "../../hooks/merger/useCategoryList";
 import { useCreateCategoryMatcher } from "../../hooks/merger/useCreateCategoryMatcher";
 import { CategoryMatcherCreateRequest } from "../../api/merger";
+import { useGetRegexMatches } from "../../hooks/merger/useGetRegexMatches";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -41,6 +44,9 @@ export const CategoryAddDrawer = ({
   const { mutate } = useCreateCategory();
 
   const { mutate: createMatcher } = useCreateCategoryMatcher();
+
+  const regexExpression = Form.useWatch(["regexExpression"], form);
+  const { data: regexMatchesList } = useGetRegexMatches(regexExpression);
 
   useEffect(() => {
     if (!record) {
@@ -90,6 +96,20 @@ export const CategoryAddDrawer = ({
             >
               <TextArea placeholder="Please enter regex expression" autoSize />
             </Form.Item>
+            {regexMatchesList?.count} matches:
+            <List
+              bordered
+              dataSource={regexMatchesList?.results}
+              itemLayout="horizontal"
+              renderItem={(item) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={item.date}
+                    description={`${item.description}, ${item.amount}`}
+                  />
+                </List.Item>
+              )}
+            />
           </Col>
         </Row>
         <Row gutter={16}>

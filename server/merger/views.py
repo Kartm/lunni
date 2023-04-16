@@ -76,3 +76,13 @@ class TransactionCategoryStatsView(APIView):
         qs = TransactionLog.objects.values(categoryName=F('category__name')).annotate(totalCount=Count('pk'))
 
         return Response([dict(q) for q in qs])
+
+
+class TransactionLogRegexMatchListView(ListAPIView):
+    serializer_class = TransactionLogSerializer
+    # todo add limited serializer for better performance
+
+    def get_queryset(self):
+        queryset = TransactionLog.objects.all()
+        regex_expression = self.request.query_params.get('regex_expression')
+        return queryset.filter(description__iregex=regex_expression)

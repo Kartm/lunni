@@ -34,7 +34,6 @@ export const SelectWithAdder = ({
   onAddOption,
   ...props
 }: SelectWithAdderProps) => {
-  const [items, setItems] = useState(["jack", "lucy"]);
   const [name, setName] = useState("");
   const inputRef = useRef<InputRef>(null);
 
@@ -46,7 +45,6 @@ export const SelectWithAdder = ({
     e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
   ) => {
     e.preventDefault();
-    setItems([...items, name || `New item ${index++}`]);
     onAddOption(name);
     setName("");
     setTimeout(() => {
@@ -75,7 +73,6 @@ export const SelectWithAdder = ({
           </Space>
         </>
       )}
-      options={items.map((item) => ({ label: item, value: item }))}
       {...props}
     />
   );

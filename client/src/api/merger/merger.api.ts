@@ -57,3 +57,10 @@ export const createCategoryMatcher = (data: CategoryMatcherCreateRequest) =>
   axios
     .post<CategoryMatcherCreateRequest>(`/merger/categories/matchers/`, data)
     .then((response) => response.data);
+
+export const getRegexMatches = (regexExpression: string) =>
+  axios
+    .get<TransactionResponse>(
+      `/merger/transactions/regex-match/?regex_expression=${regexExpression}`
+    )
+    .then((response) => response.data);
