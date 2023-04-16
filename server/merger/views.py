@@ -29,7 +29,7 @@ def upload(request, *args, **kwargs):
     serializer.save()
 
     return JsonResponse(
-        data={},
+        data={'converted_entries': converted_entries},
         status=status.HTTP_201_CREATED,
     )
 

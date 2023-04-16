@@ -30,7 +30,10 @@ def file_to_entries(file: BytesIO):
         .replace(" ", "")
     ).astype(int)
 
-    # trim description (check INTERCITY.PL          BLIK for example)
+    df['Description'] = df['Description'].apply(
+        lambda description:
+        " ".join(description.split())
+    ).astype(str)
 
     renamed_entries = df.rename(
         columns={

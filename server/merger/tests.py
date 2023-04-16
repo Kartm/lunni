@@ -39,9 +39,8 @@ Prywatne - XXXX;
 PLN;XXXXXXXXXX
 
 #Data operacji;#Opis operacji;#Rachunek;#Kategoria;#Kwota;
-2023-02-11;"Zwrot za maka";"Prywatne";"Wpływy";15,80 PLN;;
-2023-02-10;"McDonalds";"Prywatne";"Jedzenie poza domem";-31,60 PLN;;
-2023-02-10;"MPK Wrocław";"Prywatne";"Transport";-1,20 PLN;;
+2023-02-11;"Zwrot za Maka";"Prywatne";"Wpływy";15,80 PLN;;
+2023-02-10;"Stacja Grawitacja Cz-wa  ZAKUP PRZY UŻYCIU KARTY W KRAJU                                                     transakcja nierozliczona";"Prywatne";"Jedzenie poza domem";-31,60 PLN;;
         """
         sio = StringIO(operations_file)
         bio = BytesIO(sio.read().encode('utf8'))
@@ -56,7 +55,24 @@ PLN;XXXXXXXXXX
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertJSONEqual(response.content, {})
+        self.assertJSONEqual(response.content, {
+            'converted_entries': [
+                    {
+                        "date": "2023-02-11",
+                        "description": "Zwrot za Maka",
+                        "account": "Prywatne",
+                        "category": "Wpływy",
+                        "amount": 1580
+                    },
+                    {
+                        "date": "2023-02-10",
+                        "description": "Stacja Grawitacja Cz-wa ZAKUP PRZY UŻYCIU KARTY W KRAJU transakcja nierozliczona",
+                        "account": "Prywatne",
+                        "category": "Jedzenie poza domem",
+                        "amount": -3160
+                    }
+                ]
+        })
 
     def test_get_transactions(self):
         TransactionLogFactory(
