@@ -1,4 +1,9 @@
-import { CategoryStats, Transaction } from "../../models/merger";
+import {
+  CategoryMatcher,
+  CategoryStats,
+  Transaction,
+  TransactionCategory,
+} from "../../models/merger";
 import { Paginated } from "../../models/common/paginated.type";
 
 export type UploadFileResponse = {};
@@ -12,3 +17,14 @@ export type TransactionMergeRequest = {
 };
 
 export type CategoryStatsResponse = CategoryStats;
+
+export type CategoriesResponse = Paginated<TransactionCategory>;
+
+export type CategoryCreateRequest = Omit<TransactionCategory, "id">;
+
+export type CategoryMatcherCreateRequest = Omit<
+  CategoryMatcher,
+  "id" | "category"
+> & {
+  category_id: TransactionCategory["id"];
+};

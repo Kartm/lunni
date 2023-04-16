@@ -1,4 +1,4 @@
-import { EntryTable } from "../../components/EntryTable";
+import { DataType, EntryTable } from "../../components/EntryTable";
 import React, { useEffect, useState } from "react";
 import { FileUpload } from "../../components/FileUpload";
 import { useUploadFile } from "../../hooks/merger/useUploadFile";
@@ -7,6 +7,7 @@ import { MergeButton } from "../../components/MergeButton";
 import { Key } from "antd/es/table/interface";
 import { useMergeMutations } from "../../hooks/merger/useMergeTransactions";
 import { RematchCategoriesButton } from "../../components/RematchCategoriesButton";
+import { CategoryAddDrawer } from "../../components/CategoryAddDrawer";
 
 export const MergerPage = () => {
   const [mergeSelection, setMergeSelection] = useState<Key[]>([]);
@@ -27,6 +28,11 @@ export const MergerPage = () => {
       to_transaction: targetId,
       amount: amount * 1,
     });
+  };
+
+  const [categoryAddRecord, setCategoryAddRecord] = useState<DataType>();
+  const onCategoryAdd = (record: DataType) => {
+    setCategoryAddRecord(record);
   };
 
   useEffect(() => {
@@ -51,6 +57,10 @@ export const MergerPage = () => {
       <div style={{ marginBottom: 16 }}>
         <RematchCategoriesButton />
       </div>
+      <CategoryAddDrawer
+        record={categoryAddRecord}
+        onClose={() => setCategoryAddRecord(undefined)}
+      />
 
       <EntryTable
         isLoading={
@@ -65,6 +75,7 @@ export const MergerPage = () => {
         onPaginationChange={(page, pageSize) =>
           setPagination({ page, pageSize })
         }
+        onCategoryAdd={onCategoryAdd}
       />
     </div>
   );

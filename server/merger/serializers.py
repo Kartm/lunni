@@ -1,5 +1,7 @@
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from merger.models import TransactionLog, TransactionLogMerge, TransactionCategory, TransactionCategoryMatcher
 
@@ -17,11 +19,12 @@ class TransactionCategorySerializer(serializers.ModelSerializer):
 
 
 class TransactionCategoryMatcherSerializer(serializers.ModelSerializer):
-    category = TransactionCategorySerializer()
+    category = TransactionCategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(source='category', queryset=TransactionCategory.objects.all())
 
     class Meta:
         model = TransactionCategoryMatcher
-        fields = ['id', 'regex_expression', 'category']
+        fields = ['id', 'regex_expression', 'category', 'category_id']
 
 
 class TransactionLogSerializer(serializers.ModelSerializer):

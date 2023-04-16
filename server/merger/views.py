@@ -40,13 +40,15 @@ class TransactionsListView(ListAPIView):
 
 
 class TransactionCategoryListCreateView(ListCreateAPIView):
-    queryset = TransactionLog.objects.all().order_by('-created')
+    queryset = TransactionCategory.objects.all().order_by('-created')
     serializer_class = TransactionCategorySerializer
+    page_size = 1000
 
 
 class TransactionCategoryMatcherListCreateView(ListCreateAPIView):
-    queryset = TransactionLog.objects.all().order_by('-created')
+    queryset = TransactionCategoryMatcher.objects.all().order_by('-created')
     serializer_class = TransactionCategoryMatcherSerializer
+    page_size = 1000
 
 
 class TransactionsMergeCreateView(CreateAPIView):

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Table, Typography } from "antd";
+import { Button, Table, Typography } from "antd";
 import { Transaction } from "../../models/merger";
 import { Key } from "antd/es/table/interface";
 import styled from "styled-components";
@@ -7,7 +7,11 @@ import { ColumnsType } from "antd/lib/table";
 
 const { Text } = Typography;
 
-const columns: ColumnsType<DataType> = [
+const getColumns = ({
+  onCategoryAdd,
+}: {
+  onCategoryAdd: (record: DataType) => void;
+}): ColumnsType<DataType> => [
   // {
   //   title: "Id",
   //   dataIndex: "id",
@@ -34,7 +38,7 @@ const columns: ColumnsType<DataType> = [
     dataIndex: "category",
     key: "category",
     width: 150,
-    render: (category: DataType["category"]) => (
+    render: (category: DataType["category"], record) => (
       <Text
         type={
           category?.variant === "POS"
@@ -44,7 +48,11 @@ const columns: ColumnsType<DataType> = [
             : "secondary"
         }
       >
-        {category?.name || "(none)"}
+        {category?.name || (
+          <>
+            (none)<Button onClick={() => onCategoryAdd(record)}>add</Button>
+          </>
+        )}
       </Text>
     ),
   },
@@ -68,6 +76,8 @@ const columns: ColumnsType<DataType> = [
   },
 ];
 
+export type DataType = Transaction & { key: Key };
+
 type EntryTableProps = {
   totalEntries?: number;
   isLoading?: boolean;
@@ -75,9 +85,8 @@ type EntryTableProps = {
   mergeSelection: Key[];
   onMergeSelectionChange: (keys: Key[]) => void;
   onPaginationChange: (page: number, pageSize: number) => void;
+  onCategoryAdd: (record: DataType) => void;
 };
-
-type DataType = Transaction & { key: Key };
 
 const isRowDisabled = (
   record: DataType,
@@ -117,6 +126,7 @@ export const EntryTable = ({
   mergeSelection,
   onMergeSelectionChange,
   onPaginationChange,
+  onCategoryAdd,
 }: EntryTableProps) => {
   const dataSource: DataType[] = useMemo(
     () => data.map((d) => ({ ...d, key: d.id })),
@@ -140,7 +150,7 @@ export const EntryTable = ({
     <MyTable
       loading={isLoading}
       dataSource={dataSource}
-      columns={columns}
+      columns={getColumns({ onCategoryAdd })}
       rowClassName={(record) => (rowDisabled.get(record) ? "disabled-row" : "")}
       rowSelection={{
         type: "checkbox",
