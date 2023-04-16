@@ -15,7 +15,6 @@ def file_to_entries(file: BytesIO):
             '#Data operacji': 'Date',
             '#Opis operacji': 'Description',
             '#Rachunek': 'Account',
-            '#Kategoria': 'Category',
             '#Kwota': 'Amount',
         }
     )
@@ -40,7 +39,6 @@ def file_to_entries(file: BytesIO):
             'Date': 'date',
             'Description': 'description',
             'Account': 'account',
-            'Category': 'category',
             'Amount': 'amount',
         }
     ).to_dict('records')

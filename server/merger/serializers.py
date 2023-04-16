@@ -9,7 +9,7 @@ from merger.models import TransactionLog, TransactionLogMerge, TransactionCatego
 class CreateTransactionLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransactionLog
-        fields = ['date', 'description', 'account', 'category', 'amount']
+        fields = ['date', 'description', 'account', 'amount']
 
 
 class TransactionCategorySerializer(serializers.ModelSerializer):
