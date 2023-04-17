@@ -2,7 +2,8 @@ import re
 from io import BytesIO
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db.models import Count, Max, F, Q
+from django.db.models import Count, Max, F, Q, Value, CharField
+from django.db.models.functions import Concat
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
@@ -61,8 +62,10 @@ class TransactionsMergeCreateView(CreateAPIView):
 def rematch_categories(request, *args, **kwargs):
     TransactionLog.objects.update(category=None)
 
+
     for matcher in TransactionCategoryMatcher.objects.all():
-        TransactionLog.objects.filter(description__iregex=matcher.regex_expression).update(category=matcher.category)
+        queryset = TransactionLog.objects.annotate(search_field=Concat('date', Value(' '), 'description', output_field=CharField()))
+        queryset.filter(search_field__iregex=matcher.regex_expression).update(category=matcher.category)
 
     return JsonResponse(
         data={},
@@ -83,6 +86,7 @@ class TransactionLogRegexMatchListView(ListAPIView):
     # todo add limited serializer for better performance
 
     def get_queryset(self):
-        queryset = TransactionLog.objects.all()
         regex_expression = self.request.query_params.get('regex_expression')
-        return queryset.filter(description__iregex=regex_expression)
+
+        queryset = TransactionLog.objects.annotate(search_field=Concat('date', Value(' '), 'description', output_field=CharField()))
+        return queryset.filter(search_field__iregex=regex_expression)

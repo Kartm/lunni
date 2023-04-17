@@ -54,7 +54,7 @@ export const CategoryAddDrawer = ({
     }
 
     form.setFieldsValue({
-      regexExpression: record.description,
+      regexExpression: `${record.date} ${record.description}`,
     });
   }, [record]);
 
