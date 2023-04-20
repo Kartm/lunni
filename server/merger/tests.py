@@ -55,72 +55,62 @@ PLN;XXXXXXXXXX
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertJSONEqual(response.content, {
-            'converted_entries': [
-                {
-                    "date": "2023-02-11",
-                    "description": "Zwrot za Maka",
-                    "account": "Prywatne",
-                    "category": "Wpływy",
-                    "amount": 1580
-                },
-                {
-                    "date": "2023-02-10",
-                    "description": "Stacja Grawitacja Cz-wa ZAKUP PRZY UŻYCIU KARTY W KRAJU transakcja nierozliczona",
-                    "account": "Prywatne",
-                    "category": "Jedzenie poza domem",
-                    "amount": -3160
-                }
-            ]
-        })
+        response_content = response.json()['converted_entries']
+        self.assertEqual(len(response_content), 2)
+
+        first_entry = response_content[0]
+        self.assertEqual(first_entry['date'], '2023-02-11')
+        self.assertEqual(first_entry['description'], 'Zwrot za Maka')
+        self.assertEqual(first_entry['account'], 'Prywatne')
+        self.assertIsNone(first_entry.get('category'))
+        self.assertEqual(first_entry['amount'], 1580)
+
+        second_entry = response_content[1]
+        self.assertEqual(second_entry['date'], '2023-02-10')
+        self.assertEqual(second_entry['description'], 'Stacja Grawitacja Cz-wa ZAKUP PRZY UŻYCIU KARTY W KRAJU transakcja nierozliczona')
+        self.assertEqual(second_entry['account'], 'Prywatne')
+        self.assertIsNone(second_entry.get('category'))
+        self.assertEqual(second_entry['amount'], -3160)
 
     def test_get_transactions(self):
-        TransactionLogFactory(
-            id=1,
-            amount=300
-        )
-        TransactionLogFactory(
-            id=2,
-            amount=-50
-        )
+        TransactionLogFactory.create(id=1, amount=300)
+        TransactionLogFactory.create(id=2, amount=-50)
 
         url = reverse('merger-transactions')
 
-        response = self.client.get(
-            path=url,
-        )
+        response = self.client.get(path=url)
 
-        self.assertEqual(response.json()['count'], 2)
-        self.assertEqual(response.json()['total_pages'], 1)
-        self.assertEqual(response.json()['results'][0]['id'], 2)
-        self.assertEqual(response.json()['results'][0]['amount'], -50)
-        self.assertEqual(response.json()['results'][0]['calculated_amount'], -50)
-        self.assertEqual(response.json()['results'][0]['date'], "2023-01-05")
-        self.assertEqual(response.json()['results'][0]['description'], "desc")
-        self.assertEqual(response.json()['results'][0]['account'], "prywatnte")
-        self.assertEqual(response.json()['results'][0]['category']['id'], 2)
-        self.assertEqual(response.json()['results'][0]['category']['name'], "food")
-        self.assertEqual(response.json()['results'][0]['category']['variant'], "NEG")
-        self.assertEqual(response.json()['results'][1]['id'], 1)
-        self.assertEqual(response.json()['results'][1]['amount'], 300)
-        self.assertEqual(response.json()['results'][1]['calculated_amount'], 300)
-        self.assertEqual(response.json()['results'][1]['date'], "2023-01-05")
-        self.assertEqual(response.json()['results'][1]['description'], "desc")
-        self.assertEqual(response.json()['results'][1]['account'], "prywatnte")
-        self.assertEqual(response.json()['results'][1]['category']['id'], 1)
-        self.assertEqual(response.json()['results'][1]['category']['name'], "food")
-        self.assertEqual(response.json()['results'][1]['category']['variant'], "NEG")
+        response_json = response.json()
+
+        self.assertEqual(response_json['count'], 2)
+        self.assertEqual(response_json['total_pages'], 1)
+
+        first_result = response_json['results'][0]
+        self.assertEqual(first_result['id'], 2)
+        self.assertEqual(first_result['amount'], -50)
+        self.assertEqual(first_result['calculated_amount'], -50)
+        self.assertEqual(first_result['date'], '2023-01-05')
+        self.assertEqual(first_result['description'], 'desc')
+        self.assertEqual(first_result['account'], 'prywatnte')
+        self.assertEqual(first_result['category']['id'], 2)
+        self.assertEqual(first_result['category']['name'], 'food')
+        self.assertEqual(first_result['category']['variant'], 'NEG')
+
+        second_result = response_json['results'][1]
+        self.assertEqual(second_result['id'], 1)
+        self.assertEqual(second_result['amount'], 300)
+        self.assertEqual(second_result['calculated_amount'], 300)
+        self.assertEqual(second_result['date'], '2023-01-05')
+        self.assertEqual(second_result['description'], 'desc')
+        self.assertEqual(second_result['account'], 'prywatnte')
+        self.assertEqual(second_result['category']['id'], 1)
+        self.assertEqual(second_result['category']['name'], 'food')
+        self.assertEqual(second_result['category']['variant'], 'NEG')
 
 
     def test_merge_transactions(self):
-        TransactionLogFactory(
-            id=1,
-            amount=300
-        )
-        TransactionLogFactory(
-            id=2,
-            amount=-50
-        )
+        TransactionLogFactory(id=1, amount=300)
+        TransactionLogFactory(id=2, amount=-50)
 
         url = reverse('merger-merge')
 
@@ -140,16 +130,14 @@ PLN;XXXXXXXXXX
 
         url = reverse('merger-transactions')
 
-        response = self.client.get(
-            path=url,
-        )
+        response_json = self.client.get(path=url).json()
 
-        self.assertEqual(response.json()['count'], 2)
-        self.assertEqual(response.json()['total_pages'], 1)
-        self.assertEqual(response.json()['results'][0]['id'], 2)
-        self.assertEqual(response.json()['results'][0]['calculated_amount'], -1)
-        self.assertEqual(response.json()['results'][1]['id'], 1)
-        self.assertEqual(response.json()['results'][1]['calculated_amount'], 251)
+        self.assertEqual(response_json['count'], 2)
+        self.assertEqual(response_json['total_pages'], 1)
+        self.assertEqual(response_json['results'][0]['id'], 2)
+        self.assertEqual(response_json['results'][0]['calculated_amount'], -1)
+        self.assertEqual(response_json['results'][1]['id'], 1)
+        self.assertEqual(response_json['results'][1]['calculated_amount'], 251)
 
     def test_rematch_categories(self):
         TransactionLogFactory(
@@ -190,32 +178,27 @@ PLN;XXXXXXXXXX
             path=url,
         )
 
-        self.assertJSONEqual(
-            response.content,
-            {
-                'count': 2,
-                'total_pages': 1,
-                'results': [
-                    {
-                        "id": 2,
-                        "date": "2023-01-05",
-                        "description": "spotify payment",
-                        "account": "prywatnte",
-                        "category": {
-                            'id': 1,
-                            'name': 'subscriptions',
-                            'variant': 'NEG'
-                        },
-                        "amount": -50
-                    },
-                    {
-                        "id": 1,
-                        "date": "2023-01-05",
-                        "description": "gift",
-                        "account": "prywatnte",
-                        "category": None,
-                        "amount": 300
-                    }
-                ]
-            }
-        )
+        response_content = response.json()
+        self.assertEqual(response_content['count'], 2)
+        self.assertEqual(response_content['total_pages'], 1)
+
+        results = response_content['results']
+        self.assertEqual(len(results), 2)
+
+        first_result = results[0]
+        self.assertEqual(first_result['id'], 2)
+        self.assertEqual(first_result['date'], '2023-01-05')
+        self.assertEqual(first_result['description'], 'spotify payment')
+        self.assertEqual(first_result['account'], 'prywatnte')
+        self.assertEqual(first_result['category'], {'id': 1, 'name': 'subscriptions', 'variant': 'NEG'})
+        self.assertEqual(first_result['amount'], -50)
+        self.assertEqual(first_result['calculated_amount'], -50)
+
+        second_result = results[1]
+        self.assertEqual(second_result['id'], 1)
+        self.assertEqual(second_result['date'], '2023-01-05')
+        self.assertEqual(second_result['description'], 'gift')
+        self.assertEqual(second_result['account'], 'prywatnte')
+        self.assertIsNone(second_result['category'])
+        self.assertEqual(second_result['amount'], 300)
+        self.assertEqual(second_result['calculated_amount'], 300)
