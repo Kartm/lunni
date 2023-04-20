@@ -7,6 +7,7 @@ export type TransactionCategory = {
 export type Transaction = {
   id: number;
   account: string;
+  calculated_amount: string; // transaction merges taken into account
   category: TransactionCategory | null;
   date: string;
   description: string;

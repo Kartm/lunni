@@ -64,7 +64,7 @@ const getColumns = ({
   },
   {
     title: "Amount",
-    dataIndex: "amount",
+    dataIndex: "calculated_amount",
     key: "amount",
     width: 150,
     align: "right",

@@ -57,21 +57,21 @@ PLN;XXXXXXXXXX
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertJSONEqual(response.content, {
             'converted_entries': [
-                    {
-                        "date": "2023-02-11",
-                        "description": "Zwrot za Maka",
-                        "account": "Prywatne",
-                        "category": "Wpływy",
-                        "amount": 1580
-                    },
-                    {
-                        "date": "2023-02-10",
-                        "description": "Stacja Grawitacja Cz-wa ZAKUP PRZY UŻYCIU KARTY W KRAJU transakcja nierozliczona",
-                        "account": "Prywatne",
-                        "category": "Jedzenie poza domem",
-                        "amount": -3160
-                    }
-                ]
+                {
+                    "date": "2023-02-11",
+                    "description": "Zwrot za Maka",
+                    "account": "Prywatne",
+                    "category": "Wpływy",
+                    "amount": 1580
+                },
+                {
+                    "date": "2023-02-10",
+                    "description": "Stacja Grawitacja Cz-wa ZAKUP PRZY UŻYCIU KARTY W KRAJU transakcja nierozliczona",
+                    "account": "Prywatne",
+                    "category": "Jedzenie poza domem",
+                    "amount": -3160
+                }
+            ]
         })
 
     def test_get_transactions(self):
@@ -90,39 +90,27 @@ PLN;XXXXXXXXXX
             path=url,
         )
 
-        self.assertJSONEqual(
-            response.content,
-            {
-                'count': 2,
-                'total_pages': 1,
-                'results': [
-                    {
-                        "id": 2,
-                        "date": "2023-01-05",
-                        "description": "desc",
-                        "account": "prywatnte",
-                        "category": {
-                            'id': 2,
-                            'name': 'food',
-                            'variant': 'NEG'
-                        },
-                        "amount": -50
-                    },
-                    {
-                        "id": 1,
-                        "date": "2023-01-05",
-                        "description": "desc",
-                        "account": "prywatnte",
-                        "category": {
-                            'id': 1,
-                            'name': 'food',
-                            'variant': 'NEG'
-                        },
-                        "amount": 300
-                    }
-                ]
-            }
-        )
+        self.assertEqual(response.json()['count'], 2)
+        self.assertEqual(response.json()['total_pages'], 1)
+        self.assertEqual(response.json()['results'][0]['id'], 2)
+        self.assertEqual(response.json()['results'][0]['amount'], -50)
+        self.assertEqual(response.json()['results'][0]['calculated_amount'], -50)
+        self.assertEqual(response.json()['results'][0]['date'], "2023-01-05")
+        self.assertEqual(response.json()['results'][0]['description'], "desc")
+        self.assertEqual(response.json()['results'][0]['account'], "prywatnte")
+        self.assertEqual(response.json()['results'][0]['category']['id'], 2)
+        self.assertEqual(response.json()['results'][0]['category']['name'], "food")
+        self.assertEqual(response.json()['results'][0]['category']['variant'], "NEG")
+        self.assertEqual(response.json()['results'][1]['id'], 1)
+        self.assertEqual(response.json()['results'][1]['amount'], 300)
+        self.assertEqual(response.json()['results'][1]['calculated_amount'], 300)
+        self.assertEqual(response.json()['results'][1]['date'], "2023-01-05")
+        self.assertEqual(response.json()['results'][1]['description'], "desc")
+        self.assertEqual(response.json()['results'][1]['account'], "prywatnte")
+        self.assertEqual(response.json()['results'][1]['category']['id'], 1)
+        self.assertEqual(response.json()['results'][1]['category']['name'], "food")
+        self.assertEqual(response.json()['results'][1]['category']['variant'], "NEG")
+
 
     def test_merge_transactions(self):
         TransactionLogFactory(
@@ -156,39 +144,12 @@ PLN;XXXXXXXXXX
             path=url,
         )
 
-        self.assertJSONEqual(
-            response.content,
-            {
-                'count': 2,
-                'total_pages': 1,
-                'results': [
-                    {
-                        "id": 2,
-                        "date": "2023-01-05",
-                        "description": "desc",
-                        "account": "prywatnte",
-                        "category": {
-                            'id': 2,
-                            'name': 'food',
-                            'variant': 'NEG'
-                        },
-                        "amount": -1
-                    },
-                    {
-                        "id": 1,
-                        "date": "2023-01-05",
-                        "description": "desc",
-                        "account": "prywatnte",
-                        "category": {
-                            'id': 1,
-                            'name': 'food',
-                            'variant': 'NEG'
-                        },
-                        "amount": 251
-                    }
-                ]
-            }
-        )
+        self.assertEqual(response.json()['count'], 2)
+        self.assertEqual(response.json()['total_pages'], 1)
+        self.assertEqual(response.json()['results'][0]['id'], 2)
+        self.assertEqual(response.json()['results'][0]['calculated_amount'], -1)
+        self.assertEqual(response.json()['results'][1]['id'], 1)
+        self.assertEqual(response.json()['results'][1]['calculated_amount'], 251)
 
     def test_rematch_categories(self):
         TransactionLogFactory(
