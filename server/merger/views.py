@@ -37,15 +37,16 @@ def upload(request, *args, **kwargs):
 
 
 class TransactionsListView(ListAPIView):
-    amount_sums = TransactionLogMerge.objects.annotate(s=Sum(Case(
-        When(from_transaction=OuterRef('pk'), then=F('amount') * -1),
-        When(to_transaction=OuterRef('pk'), then=F('amount')),
-        default=0,
-        output_field=IntegerField()
-    ))).values('s')
+    from_sums = TransactionLogMerge.objects.filter(
+        from_transaction=OuterRef('pk')
+    ).annotate(s=Sum(F('amount'))).values('s')
+
+    to_sums = TransactionLogMerge.objects.filter(
+        to_transaction=OuterRef('pk')
+    ).annotate(s=Sum(F('amount'))).values('s')
 
     queryset = TransactionLog.objects.annotate(
-        calculated_amount=Coalesce(Subquery(amount_sums), 0) + F('amount'),
+        calculated_amount=Coalesce(Subquery(from_sums), 0) * (-1) + Coalesce(Subquery(to_sums), 0) + F('amount'),
     ).exclude(calculated_amount__exact=0).order_by('-date', 'amount')
     serializer_class = TransactionLogSerializer
 
@@ -85,15 +86,16 @@ def rematch_categories(request, *args, **kwargs):
 
 class TransactionCategoryStatsView(APIView):
     def get(self, request):
-        amount_sums = TransactionLogMerge.objects.annotate(s=Sum(Case(
-            When(from_transaction=OuterRef('pk'), then=F('amount') * -1),
-            When(to_transaction=OuterRef('pk'), then=F('amount')),
-            default=0,
-            output_field=IntegerField()
-        ))).values('s')
+        from_sums = TransactionLogMerge.objects.filter(
+            from_transaction=OuterRef('pk')
+        ).annotate(s=Sum(F('amount'))).values('s')
+
+        to_sums = TransactionLogMerge.objects.filter(
+            to_transaction=OuterRef('pk')
+        ).annotate(s=Sum(F('amount'))).values('s')
 
         qs = TransactionLog.objects.annotate(
-            calculated_amount=Coalesce(Subquery(amount_sums), 0) + F('amount'),
+            calculated_amount=Coalesce(Subquery(from_sums), 0) * (-1) + Coalesce(Subquery(to_sums), 0) + F('amount'),
         ).exclude(calculated_amount__exact=0).order_by('-date', 'amount').values(categoryName=F('category__name')).annotate(totalCount=Count('pk'))
 
         return Response([dict(q) for q in qs])
