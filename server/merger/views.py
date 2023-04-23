@@ -1,4 +1,5 @@
 import re
+from collections import Counter
 from io import BytesIO
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -96,9 +97,11 @@ class TransactionCategoryStatsView(APIView):
 
         qs = TransactionLog.objects.annotate(
             calculated_amount=Coalesce(Subquery(from_sums), 0) * (-1) + Coalesce(Subquery(to_sums), 0) + F('amount'),
-        ).exclude(calculated_amount__exact=0).order_by('-date', 'amount').values(categoryName=F('category__name')).annotate(totalCount=Count('pk'))
+        ).exclude(calculated_amount__exact=0).order_by('-date', 'amount')
 
-        return Response([dict(q) for q in qs])
+        count_summary = [{'categoryName': count[0], 'totalCount': count[1]} for count in Counter(list(qs.values_list('category__name', flat=True))).items()]
+
+        return Response(count_summary)
 
 
 class TransactionLogRegexMatchListView(ListAPIView):
