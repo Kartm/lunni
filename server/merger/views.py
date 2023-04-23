@@ -1,16 +1,14 @@
-import re
 from collections import Counter
 from io import BytesIO
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db.models import Count, Max, F, Q, Value, CharField, Sum, DecimalField, OuterRef, Subquery, Case, When, \
-    IntegerField
+from django.db.models import F, Q, Value, CharField, Sum, OuterRef, Subquery
 from django.db.models.functions import Concat, Coalesce
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST
 from rest_framework import status
-from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -38,16 +36,29 @@ def upload(request, *args, **kwargs):
 
 
 class TransactionsListView(ListAPIView):
-    from_sums = TransactionLogMerge.objects.filter(
-        from_transaction=OuterRef('pk')
-    ).annotate(s=Sum(F('amount'))).values('s')
-
-    to_sums = TransactionLogMerge.objects.filter(
-        to_transaction=OuterRef('pk')
-    ).annotate(s=Sum(F('amount'))).values('s')
+    # from_sums = TransactionLogMerge.objects.filter(
+    #     from_transaction=OuterRef('pk')
+    # ).annotate(s=Sum(F('amount'))).values('s')
+    #
+    # to_sums = TransactionLogMerge.objects.filter(
+    #     to_transaction=OuterRef('pk')
+    # ).annotate(s=Sum(F('amount'))).values('s')
+    #
+    # queryset = TransactionLog.objects.annotate(
+    #     calculated_amount=Coalesce(Subquery(from_sums), 0) * (-1) + Coalesce(Subquery(to_sums), 0) + F('amount'),
+    # ).exclude(calculated_amount__exact=0).order_by('-date', 'amount')
 
     queryset = TransactionLog.objects.annotate(
-        calculated_amount=Coalesce(Subquery(from_sums), 0) * (-1) + Coalesce(Subquery(to_sums), 0) + F('amount'),
+        calculated_amount=
+            F('amount') -
+            Coalesce(
+                Sum('frommerge__amount', filter=Q(frommerge__from_transaction=F('id'))),
+                0
+            ) +
+            Coalesce(
+                Sum('tomerge__amount', filter=Q(tomerge__to_transaction=F('id'))),
+                0
+            )
     ).exclude(calculated_amount__exact=0).order_by('-date', 'amount')
     serializer_class = TransactionLogSerializer
 

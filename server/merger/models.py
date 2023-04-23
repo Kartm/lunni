@@ -52,20 +52,18 @@ class TransactionLog(TimeStampedModel):
     def __str__(self):
         return '({}) {}, {}, {}'.format(self.id, self.date, self.category, self.description)
 
-# todo order by date
 # todo handle PKO files
-# todo category positive negative
 
 class TransactionLogMerge(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     from_transaction = models.ForeignKey(
         TransactionLog,
         on_delete=models.RESTRICT,
-        related_name='merge_transaction_from_set',
+        related_name='frommerge',
     )
     to_transaction = models.ForeignKey(
         TransactionLog,
         on_delete=models.RESTRICT,
-        related_name='merge_transaction_to_set',
+        related_name='tomerge',
     )
     amount = PositiveIntegerField()
