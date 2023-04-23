@@ -111,5 +111,18 @@ class TransactionLogRegexMatchListView(ListAPIView):
     def get_queryset(self):
         regex_expression = self.request.query_params.get('regex_expression')
 
-        queryset = TransactionLog.objects.annotate(search_field=Concat('date', Value(' '), 'description', output_field=CharField()))
-        return queryset.filter(search_field__iregex=regex_expression)
+        from_sums = TransactionLogMerge.objects.filter(
+            from_transaction=OuterRef('pk')
+        ).annotate(s=Sum(F('amount'))).values('s')
+
+        to_sums = TransactionLogMerge.objects.filter(
+            to_transaction=OuterRef('pk')
+        ).annotate(s=Sum(F('amount'))).values('s')
+
+        qs = TransactionLog.objects.annotate(
+            calculated_amount=Coalesce(Subquery(from_sums), 0) * (-1) + Coalesce(Subquery(to_sums), 0) + F('amount'),
+        ).exclude(calculated_amount__exact=0).order_by('-date', 'amount')
+
+        qs = qs.annotate(search_field=Concat('date', Value(' '), 'description', output_field=CharField()))
+        return qs.filter(search_field__iregex=regex_expression)
+
