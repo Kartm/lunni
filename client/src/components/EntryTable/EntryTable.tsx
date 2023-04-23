@@ -86,6 +86,7 @@ type EntryTableProps = {
   onMergeSelectionChange: (keys: Key[]) => void;
   onPaginationChange: (page: number, pageSize: number) => void;
   onCategoryAdd: (record: DataType) => void;
+  summary: () => React.ReactNode;
 };
 
 const isRowDisabled = (
@@ -127,6 +128,7 @@ export const EntryTable = ({
   onMergeSelectionChange,
   onPaginationChange,
   onCategoryAdd,
+  summary,
 }: EntryTableProps) => {
   const dataSource: DataType[] = useMemo(
     () => data.map((d) => ({ ...d, key: d.id })),
@@ -169,6 +171,20 @@ export const EntryTable = ({
         onChange: onPaginationChange,
         position: ["topRight"],
       }}
+      scroll={{ x: 1200 }}
+      summary={() =>
+        summary ? (
+          <Table.Summary fixed={"bottom"}>
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0} colSpan={2}></Table.Summary.Cell>
+              <Table.Summary.Cell index={2} colSpan={8}>
+                {summary()}
+              </Table.Summary.Cell>
+            </Table.Summary.Row>
+          </Table.Summary>
+        ) : null
+      }
+      sticky
     />
   );
 };

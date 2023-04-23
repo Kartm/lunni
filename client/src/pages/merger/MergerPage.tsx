@@ -47,16 +47,7 @@ export const MergerPage = () => {
           onFileUpload={(fileUpload) => mutate(fileUpload)}
         />
       </div>
-      <div style={{ marginBottom: 16 }}>
-        <MergeButton
-          mergeSelection={mergeSelection}
-          data={data?.results || []}
-          onMerge={handleMerge}
-        />
-      </div>
-      <div style={{ marginBottom: 16 }}>
-        <RematchCategoriesButton />
-      </div>
+
       <CategoryAddDrawer
         record={categoryAddRecord}
         onClose={() => setCategoryAddRecord(undefined)}
@@ -76,6 +67,20 @@ export const MergerPage = () => {
           setPagination({ page, pageSize })
         }
         onCategoryAdd={onCategoryAdd}
+        summary={() => (
+          <div>
+            <div style={{ marginBottom: 16 }}>
+              <MergeButton
+                mergeSelection={mergeSelection}
+                data={data?.results || []}
+                onMerge={handleMerge}
+              />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <RematchCategoriesButton />
+            </div>
+          </div>
+        )}
       />
     </div>
   );
