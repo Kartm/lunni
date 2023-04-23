@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models import PositiveIntegerField, IntegerField
 from django_extensions.db.models import TimeStampedModel
 
+from merger.managers import TransactionLogManager
+
 
 class TransactionCategory(TimeStampedModel):
     id = models.AutoField(primary_key=True)
@@ -48,6 +50,7 @@ class TransactionLog(TimeStampedModel):
         null=True
     )
     amount = IntegerField()
+    objects = TransactionLogManager()
 
     def __str__(self):
         return '({}) {}, {}, {}'.format(self.id, self.date, self.category, self.description)

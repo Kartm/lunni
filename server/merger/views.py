@@ -36,30 +36,7 @@ def upload(request, *args, **kwargs):
 
 
 class TransactionsListView(ListAPIView):
-    # from_sums = TransactionLogMerge.objects.filter(
-    #     from_transaction=OuterRef('pk')
-    # ).annotate(s=Sum(F('amount'))).values('s')
-    #
-    # to_sums = TransactionLogMerge.objects.filter(
-    #     to_transaction=OuterRef('pk')
-    # ).annotate(s=Sum(F('amount'))).values('s')
-    #
-    # queryset = TransactionLog.objects.annotate(
-    #     calculated_amount=Coalesce(Subquery(from_sums), 0) * (-1) + Coalesce(Subquery(to_sums), 0) + F('amount'),
-    # ).exclude(calculated_amount__exact=0).order_by('-date', 'amount')
-
-    queryset = TransactionLog.objects.annotate(
-        calculated_amount=
-            F('amount') -
-            Coalesce(
-                Sum('frommerge__amount', filter=Q(frommerge__from_transaction=F('id'))),
-                0
-            ) +
-            Coalesce(
-                Sum('tomerge__amount', filter=Q(tomerge__to_transaction=F('id'))),
-                0
-            )
-    ).exclude(calculated_amount__exact=0).order_by('-date', 'amount')
+    queryset = TransactionLog.objects.all()
     serializer_class = TransactionLogSerializer
 
 
@@ -98,17 +75,7 @@ def rematch_categories(request, *args, **kwargs):
 
 class TransactionCategoryStatsView(APIView):
     def get(self, request):
-        from_sums = TransactionLogMerge.objects.filter(
-            from_transaction=OuterRef('pk')
-        ).annotate(s=Sum(F('amount'))).values('s')
-
-        to_sums = TransactionLogMerge.objects.filter(
-            to_transaction=OuterRef('pk')
-        ).annotate(s=Sum(F('amount'))).values('s')
-
-        qs = TransactionLog.objects.annotate(
-            calculated_amount=Coalesce(Subquery(from_sums), 0) * (-1) + Coalesce(Subquery(to_sums), 0) + F('amount'),
-        ).exclude(calculated_amount__exact=0).order_by('-date', 'amount')
+        qs = TransactionLog.objects.all()
 
         count_summary = [{'categoryName': count[0], 'totalCount': count[1]} for count in Counter(list(qs.values_list('category__name', flat=True))).items()]
 
@@ -122,18 +89,8 @@ class TransactionLogRegexMatchListView(ListAPIView):
     def get_queryset(self):
         regex_expression = self.request.query_params.get('regex_expression')
 
-        from_sums = TransactionLogMerge.objects.filter(
-            from_transaction=OuterRef('pk')
-        ).annotate(s=Sum(F('amount'))).values('s')
-
-        to_sums = TransactionLogMerge.objects.filter(
-            to_transaction=OuterRef('pk')
-        ).annotate(s=Sum(F('amount'))).values('s')
-
-        qs = TransactionLog.objects.annotate(
-            calculated_amount=Coalesce(Subquery(from_sums), 0) * (-1) + Coalesce(Subquery(to_sums), 0) + F('amount'),
-        ).exclude(calculated_amount__exact=0).order_by('-date', 'amount')
-
-        qs = qs.annotate(search_field=Concat('date', Value(' '), 'description', output_field=CharField()))
+        qs = TransactionLog.objects.all().annotate(
+            search_field=Concat('date', Value(' '), 'description', output_field=CharField())
+        )
         return qs.filter(search_field__iregex=regex_expression)
 
