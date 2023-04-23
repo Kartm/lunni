@@ -67,7 +67,8 @@ PLN;XXXXXXXXXX
 
         second_entry = response_content[1]
         self.assertEqual(second_entry['date'], '2023-02-10')
-        self.assertEqual(second_entry['description'], 'Stacja Grawitacja Cz-wa ZAKUP PRZY UŻYCIU KARTY W KRAJU transakcja nierozliczona')
+        self.assertEqual(second_entry['description'],
+                         'Stacja Grawitacja Cz-wa ZAKUP PRZY UŻYCIU KARTY W KRAJU transakcja nierozliczona')
         self.assertEqual(second_entry['account'], 'Prywatne')
         self.assertIsNone(second_entry.get('category'))
         self.assertEqual(second_entry['amount'], -3160)
@@ -106,7 +107,6 @@ PLN;XXXXXXXXXX
         self.assertEqual(second_result['category']['id'], 1)
         self.assertEqual(second_result['category']['name'], 'food')
         self.assertEqual(second_result['category']['variant'], 'NEG')
-
 
     def test_merge_transactions(self):
         TransactionLogFactory(id=1, amount=300)
@@ -155,6 +155,51 @@ PLN;XXXXXXXXXX
         self.assertEqual(response_json['results'][1]['id'], 1)
         self.assertEqual(response_json['results'][1]['calculated_amount'], 251)
 
+    def test_merge_multiple_transactions(self):
+        TransactionLogFactory(id=1, amount=-75)
+        TransactionLogFactory(id=2, amount=50)
+        TransactionLogFactory(id=3, amount=25)
+
+        url = reverse('merger-merge')
+
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    'from_transaction': 2,
+                    'to_transaction': 1,
+                    'amount': 25
+                }
+            ),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    'from_transaction': 3,
+                    'to_transaction': 1,
+                    'amount': 25
+                }
+            ),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        url = reverse('merger-transactions')
+
+        response_json = self.client.get(path=url).json()
+
+        self.assertEqual(response_json['count'], 2)
+        self.assertEqual(response_json['total_pages'], 1)
+        self.assertEqual(response_json['results'][0]['id'], 1)
+        self.assertEqual(response_json['results'][0]['calculated_amount'], -25)
+        self.assertEqual(response_json['results'][1]['id'], 2)
+        self.assertEqual(response_json['results'][1]['calculated_amount'], 25)
 
     def test_rematch_categories(self):
         TransactionLogFactory(
