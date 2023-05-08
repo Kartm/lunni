@@ -6,7 +6,9 @@ import {
 } from "../../models/merger";
 import { Paginated } from "../../models/common/paginated.type";
 
-export type UploadFileResponse = {};
+export type UploadFileResponse = {
+  new_entries: number;
+};
 
 export type UploadFileVariant = "mbank" | "pko";
 

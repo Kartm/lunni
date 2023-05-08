@@ -27,6 +27,7 @@ export const FileUpload = ({ isUploading, onFileUpload }: FileUploadProps) => {
     "variant-select": UploadFileVariant;
     upload: RcFile[];
   }) => {
+    console.log(values);
     onFileUpload(values.upload[0], values["variant-select"]);
   };
 

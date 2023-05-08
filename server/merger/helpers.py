@@ -1,9 +1,17 @@
 from io import BytesIO
+from typing import TypedDict, List
 
 import pandas as pd
 
 
-def file_to_entries(file: BytesIO):
+class Entry(TypedDict):
+    date: str
+    description: str
+    account: str
+    amount: int
+
+
+def file_to_entries(file: BytesIO) -> List[Entry]:
     df = pd.read_csv(file, skiprows=25, sep=';', index_col=False, )
 
     # take only necessary rows

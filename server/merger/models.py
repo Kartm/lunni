@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import PositiveIntegerField, IntegerField
+from django.db.models import PositiveIntegerField, IntegerField, UniqueConstraint
 from django_extensions.db.models import TimeStampedModel
 
 from merger.managers import TransactionLogManager
@@ -7,7 +7,7 @@ from merger.managers import TransactionLogManager
 
 class TransactionCategory(TimeStampedModel):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
     class CategoryVariant(models.TextChoices):
         POSITIVE = 'POS',
@@ -26,7 +26,7 @@ class TransactionCategory(TimeStampedModel):
 
 class TransactionCategoryMatcher(TimeStampedModel):
     id = models.AutoField(primary_key=True)
-    regex_expression = models.CharField(max_length=255)
+    regex_expression = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(
         TransactionCategory,
         on_delete=models.RESTRICT,
@@ -54,9 +54,6 @@ class TransactionLog(TimeStampedModel):
 
     def __str__(self):
         return '({}) {}, {}, {}'.format(self.id, self.date, self.category, self.description)
-
-
-# todo handle PKO files
 
 
 class TransactionLogMerge(TimeStampedModel):

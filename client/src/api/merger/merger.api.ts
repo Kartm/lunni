@@ -11,11 +11,14 @@ import {
   UploadFileVariant,
 } from "./merger.dto";
 
-export const uploadFile = (file: RcFile, variant: UploadFileVariant) => {
+export const uploadFile = async (file: RcFile, variant: UploadFileVariant) => {
   const formData = new FormData();
-  formData.append("file", file);
+  console.log(file);
+  // @ts-ignore
+  formData.append("file", await file.originFileObj);
   formData.append("variant", variant);
 
+  console.log(formData);
   return axios
     .post<UploadFileResponse>("/merger/upload/", formData, {
       headers: {

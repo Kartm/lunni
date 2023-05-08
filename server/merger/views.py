@@ -2,20 +2,31 @@ from collections import Counter
 from io import BytesIO
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.db import IntegrityError
 from django.db.models import F, Q, Value, CharField, Sum, OuterRef, Subquery
 from django.db.models.functions import Concat, Coalesce
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from merger.helpers import file_to_entries
+from merger.helpers import file_to_entries, Entry
 from merger.models import TransactionLog, TransactionLogMerge, TransactionCategoryMatcher, TransactionCategory
 from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer, \
     TransactionCategorySerializer, TransactionCategoryMatcherSerializer
+
+
+# todo find better location for this
+def is_unique(entry: Entry):
+    return not TransactionLog.objects.filter(
+        Q(date=entry['date']) &
+        Q(description=entry['description']) &
+        Q(account=entry['account']) &
+        Q(amount=entry['amount'])
+    ).exists()
 
 
 @require_POST
@@ -25,12 +36,19 @@ def upload(request, *args, **kwargs):
     bytes_io: BytesIO = in_memory_file.file
     converted_entries = file_to_entries(bytes_io)
 
-    serializer = CreateTransactionLogSerializer(data=converted_entries, many=True)
-    serializer.is_valid()
-    serializer.save()
+    unique_entries = 0
+
+    # todo improve performance for large datasets
+    # todo progress bar
+    for entry in converted_entries:
+        if is_unique(entry):
+            serializer = CreateTransactionLogSerializer(data=entry)
+            if serializer.is_valid():
+                serializer.save()
+                unique_entries += 1
 
     return JsonResponse(
-        data={'converted_entries': converted_entries},
+        data={'new_entries': unique_entries},
         status=status.HTTP_201_CREATED,
     )
 
