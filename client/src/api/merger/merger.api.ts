@@ -8,11 +8,13 @@ import {
   TransactionMergeRequest,
   TransactionResponse,
   UploadFileResponse,
+  UploadFileVariant,
 } from "./merger.dto";
 
-export const uploadFile = (file: RcFile) => {
+export const uploadFile = (file: RcFile, variant: UploadFileVariant) => {
   const formData = new FormData();
   formData.append("file", file);
+  formData.append("variant", variant);
 
   return axios
     .post<UploadFileResponse>("/merger/upload/", formData, {

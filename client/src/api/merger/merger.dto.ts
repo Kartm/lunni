@@ -8,6 +8,8 @@ import { Paginated } from "../../models/common/paginated.type";
 
 export type UploadFileResponse = {};
 
+export type UploadFileVariant = "mbank" | "pko";
+
 export type TransactionResponse = Paginated<Transaction>;
 
 export type TransactionMergeRequest = {

@@ -45,7 +45,7 @@ export const MergerPage = () => {
       <div style={{ marginBottom: 16 }}>
         <FileUpload
           isUploading={isUploadFileLoading}
-          onFileUpload={(fileUpload) => mutate(fileUpload)}
+          onFileUpload={(file, variant) => mutate({ file, variant })}
         />
       </div>
 
