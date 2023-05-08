@@ -1,12 +1,15 @@
 import React, { useMemo } from "react";
-import { Button, Table, Tag, Typography } from "antd";
+import { Button, Table, Typography } from "antd";
 import { Transaction } from "../../models/merger";
 import { Key } from "antd/es/table/interface";
 import { ColumnsType } from "antd/lib/table";
 
 const { Text } = Typography;
 
-export type DataType = Transaction & { key: Key; tags: string[] };
+export type DataType = Transaction & {
+  key: Key;
+  mergeComponent: () => React.ReactNode;
+};
 
 type EntryTableProps = {
   totalEntries?: number;
@@ -16,7 +19,7 @@ type EntryTableProps = {
   onMergeSelectionChange: (keys: Key[]) => void;
   onPaginationChange: (page: number, pageSize: number) => void;
   onCategoryAdd: (record: DataType) => void;
-  summary: () => React.ReactNode;
+  mergeComponent: () => React.ReactNode;
 };
 
 export const EntryTable = ({
@@ -27,14 +30,14 @@ export const EntryTable = ({
   onMergeSelectionChange,
   onPaginationChange,
   onCategoryAdd,
-  summary,
+  mergeComponent,
 }: EntryTableProps) => {
   const dataSource: DataType[] = useMemo(
     () =>
       data.map((transaction) => ({
         ...transaction,
         key: transaction.id,
-        tags: getTags(transaction, mergeSelection),
+        mergeComponent,
       })),
     [data, mergeSelection]
   );
@@ -52,6 +55,19 @@ export const EntryTable = ({
     );
   }, [dataSource, mergeSelection]);
 
+  const onRowSelectionChange = (selectedRowKeys: Key[]) => {
+    const selectedRows = dataSource.filter((d) =>
+      selectedRowKeys.includes(d.key)
+    );
+
+    if (selectedRows.length === 1 && selectedRows[0].amount <= 0) {
+      // if unselected "FROM", prevent "TO" from becoming "FROM" and having negative amount
+      onMergeSelectionChange([]);
+    } else {
+      onMergeSelectionChange(selectedRowKeys);
+    }
+  };
+
   return (
     <Table
       loading={isLoading}
@@ -60,7 +76,7 @@ export const EntryTable = ({
       rowSelection={{
         type: "checkbox",
         hideSelectAll: true,
-        onChange: (selectedRowKeys) => onMergeSelectionChange(selectedRowKeys),
+        onChange: (selectedRowKeys) => onRowSelectionChange(selectedRowKeys),
         selectedRowKeys: mergeSelection,
         getCheckboxProps: (record) => ({
           disabled: checkboxToDisabled.get(record),
@@ -72,30 +88,15 @@ export const EntryTable = ({
         showSizeChanger: true,
         pageSizeOptions: [50, 100, 500, 1000],
         onChange: onPaginationChange,
-        position: ["bottomRight"],
+        position: ["topRight"],
       }}
-      scroll={{ x: 1200 }}
-      summary={() =>
-        summary ? (
-          <Table.Summary fixed={"bottom"}>
-            <Table.Summary.Row>
-              <Table.Summary.Cell index={0} colSpan={2}></Table.Summary.Cell>
-              <Table.Summary.Cell index={2} colSpan={8}>
-                {summary()}
-              </Table.Summary.Cell>
-            </Table.Summary.Row>
-          </Table.Summary>
-        ) : null
-      }
-      sticky
+      expandable={{
+        showExpandColumn: false,
+        expandedRowRender: (record) => <div>{record.mergeComponent()}</div>,
+        expandedRowKeys: mergeSelection.length === 2 ? [mergeSelection[0]] : [],
+      }}
     />
   );
-};
-
-const getTags = (transaction: Transaction, mergeSelection: React.Key[]) => {
-  if (transaction.id === mergeSelection[0]) return ["from"];
-  if (transaction.id === mergeSelection[1]) return ["to"];
-  return [];
 };
 
 const isCheckboxDisabled = (
@@ -105,7 +106,7 @@ const isCheckboxDisabled = (
 ) => {
   switch (selectedRows.length) {
     case 0: {
-      return false;
+      return record.amount <= 0;
     }
     case 1: {
       const selectedRow = selectedRows[0];
@@ -127,25 +128,6 @@ const getColumns = ({
 }: {
   onCategoryAdd: (record: DataType) => void;
 }): ColumnsType<DataType> => [
-  {
-    title: "",
-    key: "tags",
-    dataIndex: "tags",
-    width: 120,
-    render: (tags: string[]) => (
-      <span>
-        {tags.map((tag) => {
-          const color = { from: "green", to: "red" }[tag] || "white";
-
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
-      </span>
-    ),
-  },
   {
     title: "Date",
     dataIndex: "date",

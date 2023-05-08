@@ -1,4 +1,4 @@
-import { Button, Col, InputNumber, Row, Slider, Space } from "antd";
+import { Button, InputNumber, Slider, Space } from "antd";
 import { Key } from "antd/es/table/interface";
 import React, { useEffect, useMemo, useState } from "react";
 import { Transaction } from "../../models/merger";
@@ -23,6 +23,8 @@ export const MergeButton = ({
     ],
     [mergeSelection, data]
   );
+
+  const [min, max] = useMemo(() => [0, source?.amount], [source]);
 
   useEffect(() => {
     if (source) {
@@ -56,26 +58,23 @@ export const MergeButton = ({
   return (
     <Space>
       <Slider
-        disabled={!source || !target}
-        min={0}
-        max={source?.amount}
+        min={min}
+        max={max}
         onChange={onChange}
         value={typeof value === "number" ? value : 0}
         style={{ width: 200 }}
         tooltip={{ formatter: formatMoney }}
       />
       <InputNumber
-        disabled={!source || !target}
         value={value}
-        min={0}
-        max={source?.amount}
+        min={min}
+        max={max}
         onChange={onChange}
         formatter={formatMoney}
         parser={parseMoney}
       />
       <Button
         type="primary"
-        disabled={!source || !target || value === 0}
         onClick={() => {
           handleMergeButton();
         }}

@@ -9,7 +9,6 @@ import { useMergeMutations } from "../../hooks/merger/useMergeTransactions";
 import { RematchCategoriesButton } from "../../components/RematchCategoriesButton";
 import { CategoryAddDrawer } from "../../components/CategoryAddDrawer";
 import { Space } from "antd";
-import { Divider } from "antd";
 
 export const MergerPage = () => {
   const [mergeSelection, setMergeSelection] = useState<Key[]>([]);
@@ -55,6 +54,8 @@ export const MergerPage = () => {
         onClose={() => setCategoryAddRecord(undefined)}
       />
 
+      <RematchCategoriesButton />
+
       <EntryTable
         isLoading={
           isGetTransactionsLoading ||
@@ -69,15 +70,13 @@ export const MergerPage = () => {
           setPagination({ page, pageSize })
         }
         onCategoryAdd={onCategoryAdd}
-        summary={() => (
+        mergeComponent={() => (
           <Space>
             <MergeButton
               mergeSelection={mergeSelection}
               data={data?.results || []}
               onMerge={handleMerge}
             />
-            <Divider type="vertical" />
-            <RematchCategoriesButton />
           </Space>
         )}
       />
