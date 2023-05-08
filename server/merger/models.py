@@ -55,6 +55,12 @@ class TransactionLog(TimeStampedModel):
     def __str__(self):
         return '({}) {}, {}, {}'.format(self.id, self.date, self.category, self.description)
 
+    class Meta:
+        # TODO short-term fix, improves upload time from 47s -> 40s
+        indexes = [
+            models.Index(fields=['date', 'description', 'account', 'amount']),
+        ]
+
 
 class TransactionLogMerge(TimeStampedModel):
     id = models.AutoField(primary_key=True)
