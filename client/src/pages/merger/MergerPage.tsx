@@ -8,6 +8,8 @@ import { Key } from "antd/es/table/interface";
 import { useMergeMutations } from "../../hooks/merger/useMergeTransactions";
 import { RematchCategoriesButton } from "../../components/RematchCategoriesButton";
 import { CategoryAddDrawer } from "../../components/CategoryAddDrawer";
+import { Space } from "antd";
+import { Divider } from "antd";
 
 export const MergerPage = () => {
   const [mergeSelection, setMergeSelection] = useState<Key[]>([]);
@@ -68,18 +70,15 @@ export const MergerPage = () => {
         }
         onCategoryAdd={onCategoryAdd}
         summary={() => (
-          <div>
-            <div style={{ marginBottom: 16 }}>
-              <MergeButton
-                mergeSelection={mergeSelection}
-                data={data?.results || []}
-                onMerge={handleMerge}
-              />
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <RematchCategoriesButton />
-            </div>
-          </div>
+          <Space>
+            <MergeButton
+              mergeSelection={mergeSelection}
+              data={data?.results || []}
+              onMerge={handleMerge}
+            />
+            <Divider type="vertical" />
+            <RematchCategoriesButton />
+          </Space>
         )}
       />
     </div>

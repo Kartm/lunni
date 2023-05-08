@@ -1,4 +1,4 @@
-import { Button, InputNumber, Space } from "antd";
+import { Button, Col, InputNumber, Row, Slider, Space } from "antd";
 import { Key } from "antd/es/table/interface";
 import React, { useEffect, useMemo, useState } from "react";
 import { Transaction } from "../../models/merger";
@@ -16,20 +16,11 @@ export const MergeButton = ({
 }: MergeButtonProps) => {
   const [value, setValue] = useState<number | null>(0);
 
-  const source = useMemo(
-    () =>
-      data.find(
-        (transaction) =>
-          mergeSelection.includes(transaction.id) && transaction.amount > 0
-      ),
-    [mergeSelection, data]
-  );
-  const target = useMemo(
-    () =>
-      data.find(
-        (transaction) =>
-          mergeSelection.includes(transaction.id) && transaction.amount < 0
-      ),
+  const [source, target] = useMemo(
+    () => [
+      data.find((transaction) => transaction.id === mergeSelection[0]),
+      data.find((transaction) => transaction.id === mergeSelection[1]),
+    ],
     [mergeSelection, data]
   );
 
@@ -46,32 +37,42 @@ export const MergeButton = ({
     onMerge(source!.id, target!.id, value!);
   };
 
-  function formatMoney(value?: number) {
+  const onChange = (newValue: number | null) => {
+    setValue(newValue);
+  };
+
+  const formatMoney = (value?: number) => {
     if (!value) return "";
     return (value / 100).toFixed(2);
-  }
+  };
 
-  function parseMoney(value?: string) {
+  const parseMoney = (value?: string) => {
     if (!value) return 0;
     const numericValue = parseFloat(value);
     const intValue = Math.round(numericValue * 100);
     return isNaN(intValue) ? 0 : intValue;
-  }
+  };
 
   return (
-    <Space.Compact>
+    <Space>
+      <Slider
+        disabled={!source || !target}
+        min={0}
+        max={source?.amount}
+        onChange={onChange}
+        value={typeof value === "number" ? value : 0}
+        style={{ width: 200 }}
+        tooltip={{ formatter: formatMoney }}
+      />
       <InputNumber
         disabled={!source || !target}
         value={value}
-        step={1}
         min={0}
         max={source?.amount}
-        onChange={setValue}
+        onChange={onChange}
         formatter={formatMoney}
         parser={parseMoney}
-        size="large"
       />
-
       <Button
         type="primary"
         disabled={!source || !target || value === 0}
@@ -81,6 +82,6 @@ export const MergeButton = ({
       >
         Merge
       </Button>
-    </Space.Compact>
+    </Space>
   );
 };
