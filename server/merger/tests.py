@@ -10,7 +10,7 @@ from merger.factories import TransactionLogFactory, TransactionCategoryFactory, 
 
 
 class MergerTestCase(APITestCase):
-    def test_upload_file(self):
+    def test_upload_mbank_file(self):
         url = reverse('merger-upload')
 
         operations_file = """mBank S.A. Bankowość Detaliczna;
@@ -48,14 +48,14 @@ PLN;XXXXXXXXXX
         response = self.client.post(
             path=url,
             data=encode_multipart(
-                data=dict(file=bio),
+                data=dict(file=bio, variant='mbank'),
                 boundary=BOUNDARY,
             ),
             content_type=MULTIPART_CONTENT,
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response_content = response.json()['converted_entries']
+        response_content = response.json()['new_entries']
         self.assertEqual(len(response_content), 2)
 
         first_entry = response_content[0]
@@ -112,23 +112,7 @@ PLN;XXXXXXXXXX
         response = self.client.post(
             path=url,
             data=encode_multipart(
-                data=dict(file=bio),
-                boundary=BOUNDARY,
-            ),
-            content_type=MULTIPART_CONTENT,
-        )
-
-        # self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response_content = response.json()['new_entries']
-        self.assertEqual(response_content, 2)
-
-        sio = StringIO(operations_file)
-        bio = BytesIO(sio.read().encode('utf8'))
-
-        response = self.client.post(
-            path=url,
-            data=encode_multipart(
-                data=dict(file=bio),
+                data=dict(file=bio, variant='mbank'),
                 boundary=BOUNDARY,
             ),
             content_type=MULTIPART_CONTENT,
@@ -136,8 +120,61 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(response_content, 0)
+        self.assertEqual(len(response_content), 2)
 
+        sio = StringIO(operations_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        response = self.client.post(
+            path=url,
+            data=encode_multipart(
+                data=dict(file=bio, variant='mbank'),
+                boundary=BOUNDARY,
+            ),
+            content_type=MULTIPART_CONTENT,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(len(response_content), 0)
+
+    def test_upload_pko_file(self):
+        url = reverse('merger-upload')
+
+        operations_file = """
+"Data operacji","Data waluty","Typ transakcji","Kwota","Waluta","Saldo po transakcji","Opis transakcji","","","",""
+"2023-05-08","2023-05-08","Przelew na rachunek","+20.70","PLN","+23.99","Costam","Nazwa nadawcy: BIURO","Adres nadawcyxxxx","",""
+"2023-05-08","2023-05-08","Przelew na rachunek","+20.70","PLN","+23.99","Rachunek nadawcy: XXXX","Nazwa nadawcy: BIURO","Adres nadawcyxxxx","Tytul: sddsd",""
+        """
+        sio = StringIO(operations_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        response = self.client.post(
+            path=url,
+            data=encode_multipart(
+                data=dict(file=bio, variant='pko'),
+                boundary=BOUNDARY,
+            ),
+            content_type=MULTIPART_CONTENT,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(len(response_content), 2)
+
+        first_entry = response_content[0]
+        self.assertEqual(first_entry['date'], '2023-05-08')
+        self.assertEqual(first_entry['description'], 'Costam')
+        self.assertEqual(first_entry['account'], 'PKO')
+        self.assertIsNone(first_entry.get('category'))
+        self.assertEqual(first_entry['amount'], 2070)
+
+        second_entry = response_content[1]
+        self.assertEqual(second_entry['date'], '2023-05-08')
+        self.assertEqual(second_entry['description'], 'Tytul: sddsd')
+        self.assertEqual(second_entry['account'], 'PKO')
+        self.assertIsNone(second_entry.get('category'))
+        self.assertEqual(second_entry['amount'], 2070)
 
     def test_get_transactions(self):
         TransactionLogFactory.create(id=1, amount=300)
@@ -280,7 +317,6 @@ PLN;XXXXXXXXXX
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
 
     def test_merge_multiple_transactions(self):
         TransactionLogFactory(id=1, amount=-75)

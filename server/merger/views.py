@@ -13,7 +13,7 @@ from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIVie
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from merger.helpers import file_to_entries, Entry
+from merger.helpers import file_to_entries, Entry, pko_file_to_entries
 from merger.models import TransactionLog, TransactionLogMerge, TransactionCategoryMatcher, TransactionCategory
 from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer, \
     TransactionCategorySerializer, TransactionCategoryMatcherSerializer
@@ -33,23 +33,32 @@ def is_unique(entry: Entry):
 @csrf_exempt
 def upload(request, *args, **kwargs):
     in_memory_file: InMemoryUploadedFile = request.FILES.get('file')
+    variant: str = request.POST.get('variant')
     bytes_io: BytesIO = in_memory_file.file
-    converted_entries = file_to_entries(bytes_io)
 
-    unique_entries = 0
+    if variant == 'mbank':
+        converted_entries = file_to_entries(bytes_io)
+    elif variant == 'pko':
+        converted_entries = pko_file_to_entries(bytes_io)
+    else:
+        raise serializers.ValidationError('Unknown variant')
 
     # todo improve performance for large datasets
     # todo progress bar
-    for entry in converted_entries:
-        if is_unique(entry):
-            serializer = CreateTransactionLogSerializer(data=entry)
-            if serializer.is_valid():
-                serializer.save()
-                unique_entries += 1
+    converted_entries = list(filter(is_unique, converted_entries))
+
+    serializer = CreateTransactionLogSerializer(data=converted_entries, many=True)
+    if serializer.is_valid():
+        serializer.save()
+
+        return JsonResponse(
+            data={'new_entries': serializer.data},
+            status=status.HTTP_201_CREATED,
+        )
 
     return JsonResponse(
-        data={'new_entries': unique_entries},
-        status=status.HTTP_201_CREATED,
+        data={},
+        status=status.HTTP_400_BAD_REQUEST,
     )
 
 
