@@ -51,6 +51,10 @@ class TransactionLogMergeSerializer(serializers.ModelSerializer):
         attempted_amount_transfer = data.get('amount')
         available_amount = getattr(from_transaction, 'amount')
 
+        if attempted_amount_transfer <= 0:
+            raise serializers.ValidationError(
+                'Cannot transfer negative amount')
+
         if attempted_amount_transfer > available_amount:
             raise serializers.ValidationError(
                 'Cannot transfer from transaction more than the available transaction value')

@@ -155,6 +155,67 @@ PLN;XXXXXXXXXX
         self.assertEqual(response_json['results'][1]['id'], 1)
         self.assertEqual(response_json['results'][1]['calculated_amount'], 251)
 
+    def test_merge_transactions_prevent_negative_amount(self):
+        TransactionLogFactory(id=1, amount=300)
+        TransactionLogFactory(id=2, amount=-50)
+
+        url = reverse('merger-merge')
+
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    'from_transaction': 1,
+                    'to_transaction': 2,
+                    'amount': -50
+                }
+            ),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_merge_transactions_prevent_overdraw(self):
+        TransactionLogFactory(id=1, amount=300)
+        TransactionLogFactory(id=2, amount=-50)
+
+        url = reverse('merger-merge')
+
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    'from_transaction': 1,
+                    'to_transaction': 2,
+                    'amount': 350
+                }
+            ),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_merge_transactions_prevent_negative_overdraw(self):
+        TransactionLogFactory(id=1, amount=300)
+        TransactionLogFactory(id=2, amount=-50)
+
+        url = reverse('merger-merge')
+
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    'from_transaction': 2,
+                    'to_transaction': 1,
+                    'amount': -30
+                }
+            ),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
     def test_merge_multiple_transactions(self):
         TransactionLogFactory(id=1, amount=-75)
         TransactionLogFactory(id=2, amount=50)

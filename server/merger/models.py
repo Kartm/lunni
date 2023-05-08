@@ -55,7 +55,9 @@ class TransactionLog(TimeStampedModel):
     def __str__(self):
         return '({}) {}, {}, {}'.format(self.id, self.date, self.category, self.description)
 
+
 # todo handle PKO files
+
 
 class TransactionLogMerge(TimeStampedModel):
     id = models.AutoField(primary_key=True)
@@ -70,3 +72,7 @@ class TransactionLogMerge(TimeStampedModel):
         related_name='tomerge',
     )
     amount = PositiveIntegerField()
+
+    def __str__(self):
+        return '({}) {} -> {}, {}'.format(self.id, self.from_transaction.description, self.to_transaction.description,
+                                          self.amount)
