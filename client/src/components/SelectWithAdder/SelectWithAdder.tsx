@@ -20,33 +20,43 @@ import { DataType } from "../EntryTable";
 import TextArea from "antd/es/input/TextArea";
 import { PlusOutlined } from "@ant-design/icons";
 import { SelectProps } from "antd/es/select";
+import { TransactionCategory } from "../../models/merger";
 
 const { Text } = Typography;
 const { Option } = Select;
 
 type SelectWithAdderProps = {
-  onAddOption: (name: string) => void;
+  onAddOption: (name: string, variant: TransactionCategory["variant"]) => void;
 } & SelectProps;
-
-let index = 0;
 
 export const SelectWithAdder = ({
   onAddOption,
   ...props
 }: SelectWithAdderProps) => {
-  const [name, setName] = useState("");
+  const [newOption, setNewOption] = useState({
+    name: "",
+    variant: "NEG" as TransactionCategory["variant"],
+  });
   const inputRef = useRef<InputRef>(null);
 
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
+    setNewOption((old) => ({ ...old, name: event.target.value }));
+  };
+
+  const onVariantChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setNewOption((old) => ({
+      ...old,
+      variant: event.target.value as TransactionCategory["variant"],
+    }));
   };
 
   const addItem = (
     e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
   ) => {
     e.preventDefault();
-    onAddOption(name);
-    setName("");
+    onAddOption(newOption.name, newOption.variant);
+    setNewOption({ name: "", variant: "NEG" });
+
     setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
@@ -54,23 +64,30 @@ export const SelectWithAdder = ({
 
   return (
     <Select
-      style={{ width: 300 }}
-      placeholder="custom dropdown render"
+      {...props}
       dropdownRender={(menu) => (
         <>
           {menu}
           <Divider style={{ margin: "8px 0" }} />
           <Space style={{ padding: "0 8px 4px" }}>
             <Input
-              placeholder="Please enter item"
+              placeholder="Category name"
               ref={inputRef}
-              value={name}
+              value={newOption.name}
               onChange={onNameChange}
             />
-            <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
-              Add item
-            </Button>
+            <Select
+              placeholder="Variant"
+              options={["NEG", "POS", "IGN"].map((o) => ({
+                label: o,
+                value: o,
+              }))}
+              onChange={onVariantChange}
+            />
           </Space>
+          <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
+            Add item
+          </Button>
         </>
       )}
       {...props}

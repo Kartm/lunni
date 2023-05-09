@@ -7,7 +7,7 @@ import {
 import { Paginated } from "../../models/common/paginated.type";
 
 export type UploadFileResponse = {
-  new_entries: number;
+  new_entries: Transaction[];
 };
 
 export type UploadFileVariant = "mbank" | "pko";

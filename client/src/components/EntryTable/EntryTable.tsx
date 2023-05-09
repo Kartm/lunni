@@ -3,6 +3,7 @@ import { Button, Table, Typography } from "antd";
 import { Transaction } from "../../models/merger";
 import { Key } from "antd/es/table/interface";
 import { ColumnsType } from "antd/lib/table";
+import { PlusCircleOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -159,9 +160,13 @@ const getColumns = ({
         }
       >
         {category?.name || (
-          <>
-            (none)<Button onClick={() => onCategoryAdd(record)}>add</Button>
-          </>
+          <Button
+            icon={<PlusCircleOutlined />}
+            size={"small"}
+            type={"ghost"}
+            title={"Category is missing"}
+            onClick={() => onCategoryAdd(record)}
+          />
         )}
       </Text>
     ),
