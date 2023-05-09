@@ -164,6 +164,7 @@ const getColumns = ({
             icon={<PlusCircleOutlined />}
             size={"small"}
             type={"ghost"}
+            title={"Category is missing"}
             onClick={() => onCategoryAdd(record)}
           />
         )}

@@ -12,7 +12,7 @@ import {
   Tag,
   Typography,
 } from "antd";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRematchCategories } from "../../hooks/merger/useRematchCategories";
 import { useCategoryStats } from "../../hooks/merger/useCategoryStats";
 import { SyncOutlined } from "@ant-design/icons";
@@ -24,7 +24,8 @@ import { useCategoryList } from "../../hooks/merger/useCategoryList";
 import { useCreateCategoryMatcher } from "../../hooks/merger/useCreateCategoryMatcher";
 import { CategoryMatcherCreateRequest } from "../../api/merger";
 import { useGetRegexMatches } from "../../hooks/merger/useGetRegexMatches";
-
+import useDebounce from "antd/es/form/hooks/useDebounce";
+import { debounce } from "lodash"; // todo replace this
 const { Text } = Typography;
 const { Option } = Select;
 
@@ -37,7 +38,6 @@ export const CategoryAddDrawer = ({
   record,
   onClose,
 }: CategoryAddDrawerProps) => {
-  // todo initial regex is record's description
   const [form] = Form.useForm();
 
   const { data, isLoading: isListLoading } = useCategoryList();
@@ -45,7 +45,20 @@ export const CategoryAddDrawer = ({
 
   const { mutate: createMatcher } = useCreateCategoryMatcher();
 
-  const regexExpression = Form.useWatch(["regexExpression"], form);
+  const regexExpression = Form.useWatch(["regexExpression"], form) as string;
+  const [debouncedRegex, setDebouncedRegex] = useState(regexExpression);
+
+  function handleRegexChange(regex: string) {
+    debounce(() => {
+      // 😕 debounced function never called
+      setDebouncedRegex(regex);
+    }, 250);
+  }
+
+  useEffect(() => {
+    handleRegexChange(regexExpression);
+  }, [regexExpression]);
+
   const { data: regexMatchesList } = useGetRegexMatches(regexExpression);
 
   useEffect(() => {
@@ -70,66 +83,58 @@ export const CategoryAddDrawer = ({
 
   return (
     <Drawer
-      title="Add category"
+      title="New category matcher"
       placement="right"
       onClose={onClose}
       open={!!record}
+      width={450}
       bodyStyle={{ paddingBottom: 80 }}
       extra={
         <Space>
           <Button onClick={onClose}>Cancel</Button>
           <Button onClick={onSubmit} type="primary">
-            Submit
+            Add
           </Button>
         </Space>
       }
     >
-      <Form layout="vertical" hideRequiredMark form={form}>
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              name="regexExpression"
-              label="Regex expression"
-              rules={[
-                { required: true, message: "Please enter regex expression" },
-              ]}
-            >
-              <TextArea placeholder="Please enter regex expression" autoSize />
-            </Form.Item>
-            {regexMatchesList?.count} matches:
-            <List
-              bordered
-              dataSource={regexMatchesList?.results}
-              itemLayout="horizontal"
-              renderItem={(item) => (
-                <List.Item>
-                  <List.Item.Meta
-                    title={item.date}
-                    description={`${item.description}, ${item.amount}`}
-                  />
-                </List.Item>
-              )}
-            />
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item
-              name="category"
-              label="Category to match"
-              rules={[{ required: true, message: "Please select a category" }]}
-            >
-              <SelectWithAdder
-                loading={isListLoading}
-                options={data?.results?.map((d) => ({
-                  label: `${d.name} (${d.variant})`,
-                  value: d.id,
-                }))}
-                onAddOption={(name) => mutate({ name, variant: "NEG" })}
+      <Form layout="vertical" requiredMark={false} form={form}>
+        <Form.Item
+          name="regexExpression"
+          label="REGEX to select records"
+          rules={[{ required: true, message: "Please enter regex expression" }]}
+        >
+          <TextArea placeholder="Please enter regex expression" autoSize />
+        </Form.Item>
+        <Form.Item
+          name="category"
+          label="Category to assign"
+          rules={[{ required: true, message: "Please select a category" }]}
+        >
+          <SelectWithAdder
+            placeholder="Category"
+            loading={isListLoading}
+            options={data?.results?.map((d) => ({
+              label: `${d.name} (${d.variant})`,
+              value: d.id,
+            }))}
+            onAddOption={(name, variant) => mutate({ name, variant })}
+          />
+        </Form.Item>
+        Currently matches {regexMatchesList?.count} records:
+        <List
+          bordered
+          dataSource={regexMatchesList?.results}
+          itemLayout="horizontal"
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta
+                title={item.date}
+                description={`${item.description}, ${item.amount}`}
               />
-            </Form.Item>
-          </Col>
-        </Row>
+            </List.Item>
+          )}
+        />
       </Form>
     </Drawer>
   );

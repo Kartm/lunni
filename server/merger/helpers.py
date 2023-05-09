@@ -12,7 +12,7 @@ class Entry(TypedDict):
 
 
 def file_to_entries(file: BytesIO) -> List[Entry]:
-    df = pd.read_csv(file, skiprows=25, sep=';', index_col=False)
+    df = pd.read_csv(file, skiprows=25, sep=';', index_col=False, encoding='utf8')
 
     # take only necessary rows
     df = df.iloc[:, :5]
@@ -57,7 +57,7 @@ def file_to_entries(file: BytesIO) -> List[Entry]:
 
 
 def pko_file_to_entries(file: BytesIO) -> List[Entry]:
-    df = pd.read_csv(file, sep=',', index_col=False)
+    df = pd.read_csv(file, sep=',', index_col=False, encoding='cp852')
 
     # rename headers
     df = df.rename(
