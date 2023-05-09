@@ -1,19 +1,133 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Table, Tooltip, Typography } from "antd";
+import React, { useMemo } from "react";
+import { Button, Table, Typography } from "antd";
 import { Transaction } from "../../models/merger";
 import { Key } from "antd/es/table/interface";
-import styled from "styled-components";
 import { ColumnsType } from "antd/lib/table";
 
 const { Text } = Typography;
 
-const columns: ColumnsType<DataType> = [
-  {
-    title: "Id",
-    dataIndex: "id",
-    key: "id",
-    width: 80,
-  },
+export type DataType = Transaction & {
+  key: Key;
+  mergeComponent: () => React.ReactNode;
+};
+
+type EntryTableProps = {
+  totalEntries?: number;
+  isLoading?: boolean;
+  data: Transaction[];
+  mergeSelection: Key[];
+  onMergeSelectionChange: (keys: Key[]) => void;
+  onPaginationChange: (page: number, pageSize: number) => void;
+  onCategoryAdd: (record: DataType) => void;
+  mergeComponent: () => React.ReactNode;
+};
+
+export const EntryTable = ({
+  isLoading,
+  data,
+  totalEntries,
+  mergeSelection,
+  onMergeSelectionChange,
+  onPaginationChange,
+  onCategoryAdd,
+  mergeComponent,
+}: EntryTableProps) => {
+  const dataSource: DataType[] = useMemo(
+    () =>
+      data.map((transaction) => ({
+        ...transaction,
+        key: transaction.id,
+        mergeComponent,
+      })),
+    [data, mergeSelection]
+  );
+
+  const checkboxToDisabled = useMemo(() => {
+    const selectedRows = dataSource.filter((d) =>
+      mergeSelection.includes(d.key)
+    );
+
+    return new Map(
+      dataSource.map((record) => [
+        record,
+        isCheckboxDisabled(record, dataSource, selectedRows),
+      ])
+    );
+  }, [dataSource, mergeSelection]);
+
+  const onRowSelectionChange = (selectedRowKeys: Key[]) => {
+    const selectedRows = dataSource.filter((d) =>
+      selectedRowKeys.includes(d.key)
+    );
+
+    if (selectedRows.length === 1 && selectedRows[0].amount <= 0) {
+      // if unselected "FROM", prevent "TO" from becoming "FROM" and having negative amount
+      onMergeSelectionChange([]);
+    } else {
+      onMergeSelectionChange(selectedRowKeys);
+    }
+  };
+
+  return (
+    <Table
+      loading={isLoading}
+      dataSource={dataSource}
+      columns={getColumns({ onCategoryAdd })}
+      rowSelection={{
+        type: "checkbox",
+        hideSelectAll: true,
+        onChange: (selectedRowKeys) => onRowSelectionChange(selectedRowKeys),
+        selectedRowKeys: mergeSelection,
+        getCheckboxProps: (record) => ({
+          disabled: checkboxToDisabled.get(record),
+        }),
+      }}
+      pagination={{
+        total: totalEntries,
+        defaultPageSize: 50,
+        showSizeChanger: true,
+        pageSizeOptions: [50, 100, 500, 1000],
+        onChange: onPaginationChange,
+        position: ["topRight"],
+      }}
+      expandable={{
+        showExpandColumn: false,
+        expandedRowRender: (record) => <div>{record.mergeComponent()}</div>,
+        expandedRowKeys: mergeSelection.length === 2 ? [mergeSelection[0]] : [],
+      }}
+    />
+  );
+};
+
+const isCheckboxDisabled = (
+  record: DataType,
+  dataSource: DataType[],
+  selectedRows: DataType[]
+) => {
+  switch (selectedRows.length) {
+    case 0: {
+      return record.amount <= 0;
+    }
+    case 1: {
+      const selectedRow = selectedRows[0];
+
+      if (selectedRow.key === record.key) {
+        return false;
+      }
+
+      return record.amount * selectedRow.amount > 0;
+    }
+    default: {
+      return !selectedRows.includes(record);
+    }
+  }
+};
+
+const getColumns = ({
+  onCategoryAdd,
+}: {
+  onCategoryAdd: (record: DataType) => void;
+}): ColumnsType<DataType> => [
   {
     title: "Date",
     dataIndex: "date",
@@ -30,6 +144,29 @@ const columns: ColumnsType<DataType> = [
     ),
   },
   {
+    title: "Category",
+    dataIndex: "category",
+    key: "category",
+    width: 150,
+    render: (category: DataType["category"], record) => (
+      <Text
+        type={
+          category?.variant === "POS"
+            ? "success"
+            : category?.variant === "NEG"
+            ? "danger"
+            : "secondary"
+        }
+      >
+        {category?.name || (
+          <>
+            (none)<Button onClick={() => onCategoryAdd(record)}>add</Button>
+          </>
+        )}
+      </Text>
+    ),
+  },
+  {
     title: "Account",
     dataIndex: "account",
     key: "account",
@@ -37,7 +174,7 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: "Amount",
-    dataIndex: "amount",
+    dataIndex: "calculated_amount",
     key: "amount",
     width: 150,
     align: "right",
@@ -48,76 +185,3 @@ const columns: ColumnsType<DataType> = [
     ),
   },
 ];
-
-type EntryTableProps = {
-  isLoading?: boolean;
-  data: Transaction[];
-  mergeSelection: Key[];
-  onMergeSelectionChange: (keys: Key[]) => void;
-};
-
-type DataType = Transaction & { key: Key };
-
-const isRowDisabled = (
-  record: DataType,
-  dataSource: DataType[],
-  selectedRowKeys: Key[]
-) => {
-  switch (selectedRowKeys.length) {
-    case 0: {
-      return false;
-    }
-    case 1: {
-      const selectedRow = dataSource.find((d) => d.key === selectedRowKeys[0])!;
-
-      if (selectedRow.key === record.key) {
-        return false;
-      }
-
-      return record.amount * selectedRow.amount > 0;
-    }
-    default: {
-      return !selectedRowKeys.includes(record.key);
-    }
-  }
-};
-
-const MyTable: typeof Table = styled(Table)`
-  .disabled-row {
-    color: #9a9a9a;
-    pointer-events: none;
-  }
-`;
-
-export const EntryTable = ({
-  isLoading,
-  data,
-  mergeSelection,
-  onMergeSelectionChange,
-}: EntryTableProps) => {
-  const dataSource: DataType[] = useMemo(
-    () => data.map((d) => ({ ...d, key: d.id })),
-    [data]
-  );
-
-  return (
-    <MyTable
-      loading={isLoading}
-      dataSource={dataSource}
-      columns={columns}
-      rowClassName={(record) =>
-        isRowDisabled(record, dataSource, mergeSelection) ? "disabled-row" : ""
-      }
-      rowSelection={{
-        type: "checkbox",
-        hideSelectAll: true,
-        onChange: (selectedRowKeys) => onMergeSelectionChange(selectedRowKeys),
-        selectedRowKeys: mergeSelection,
-        getCheckboxProps: (record) => ({
-          disabled: isRowDisabled(record, dataSource, mergeSelection),
-        }),
-      }}
-      pagination={{ pageSize: 50 }}
-    />
-  );
-};

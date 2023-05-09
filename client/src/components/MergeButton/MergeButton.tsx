@@ -1,4 +1,4 @@
-import { Button, InputNumber, Space } from "antd";
+import { Button, InputNumber, Slider, Space } from "antd";
 import { Key } from "antd/es/table/interface";
 import React, { useEffect, useMemo, useState } from "react";
 import { Transaction } from "../../models/merger";
@@ -16,22 +16,15 @@ export const MergeButton = ({
 }: MergeButtonProps) => {
   const [value, setValue] = useState<number | null>(0);
 
-  const source = useMemo(
-    () =>
-      data.find(
-        (transaction) =>
-          mergeSelection.includes(transaction.id) && transaction.amount > 0
-      ),
+  const [source, target] = useMemo(
+    () => [
+      data.find((transaction) => transaction.id === mergeSelection[0]),
+      data.find((transaction) => transaction.id === mergeSelection[1]),
+    ],
     [mergeSelection, data]
   );
-  const target = useMemo(
-    () =>
-      data.find(
-        (transaction) =>
-          mergeSelection.includes(transaction.id) && transaction.amount < 0
-      ),
-    [mergeSelection, data]
-  );
+
+  const [min, max] = useMemo(() => [0, source?.amount], [source]);
 
   useEffect(() => {
     if (source) {
@@ -46,37 +39,48 @@ export const MergeButton = ({
     onMerge(source!.id, target!.id, value!);
   };
 
-  const numberFormatter = (value?: number) =>
-    `PLN ${(parseInt(value?.toString() || "0", 10) / 100).toFixed(2)}`.replace(
-      /\B(?=(\d{3})+(?!\d))/g,
-      ","
-    );
+  const onChange = (newValue: number | null) => {
+    setValue(newValue);
+  };
 
-  const numberParser = (value?: string) =>
-    parseInt(value!.replace(/\$\s?|(,*)/g, ""), 10) * 100;
+  const formatMoney = (value?: number) => {
+    if (!value) return "";
+    return (value / 100).toFixed(2);
+  };
+
+  const parseMoney = (value?: string) => {
+    if (!value) return 0;
+    const numericValue = parseFloat(value);
+    const intValue = Math.round(numericValue * 100);
+    return isNaN(intValue) ? 0 : intValue;
+  };
 
   return (
-    <Space.Compact>
-      <InputNumber
-        disabled={!source || !target}
-        value={value}
-        step={1}
-        min={0}
-        max={source?.amount}
-        onChange={setValue}
-        formatter={numberFormatter}
-        parser={numberParser}
+    <Space>
+      <Slider
+        min={min}
+        max={max}
+        onChange={onChange}
+        value={typeof value === "number" ? value : 0}
+        style={{ width: 200 }}
+        tooltip={{ formatter: formatMoney }}
       />
-
+      <InputNumber
+        value={value}
+        min={min}
+        max={max}
+        onChange={onChange}
+        formatter={formatMoney}
+        parser={parseMoney}
+      />
       <Button
         type="primary"
-        disabled={!source || !target || value === 0}
         onClick={() => {
           handleMergeButton();
         }}
       >
         Merge
       </Button>
-    </Space.Compact>
+    </Space>
   );
 };

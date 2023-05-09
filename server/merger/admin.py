@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from merger.models import TransactionCategoryMatcher, TransactionCategory, TransactionLog, TransactionLogMerge
+
+admin.site.register(TransactionCategory)
+admin.site.register(TransactionCategoryMatcher)
+admin.site.register(TransactionLog)
+admin.site.register(TransactionLogMerge)
+
