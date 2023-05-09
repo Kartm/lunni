@@ -28,8 +28,6 @@ type SelectWithAdderProps = {
   onAddOption: (name: string) => void;
 } & SelectProps;
 
-let index = 0;
-
 export const SelectWithAdder = ({
   onAddOption,
   ...props

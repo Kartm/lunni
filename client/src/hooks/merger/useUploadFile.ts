@@ -16,10 +16,16 @@ export const useUploadFile = () => {
       variant: UploadFileVariant;
     }) => uploadFile(file, variant),
     onSuccess: (data) => {
-      message.info({ content: `Uploaded ${data.new_entries} new records` });
+      const { length } = data.new_entries;
 
-      if (data.new_entries > 0) {
-        queryClient.invalidateQueries({ queryKey: ["rematch-categories"] });
+      message.info({
+        content: `Uploaded ${length} new records.`,
+        duration: 5,
+      });
+
+      if (length > 0) {
+        queryClient.invalidateQueries({ queryKey: ["get-transactions"] });
+        queryClient.invalidateQueries({ queryKey: ["categories-stats"] });
       }
     },
   });

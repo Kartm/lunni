@@ -23,7 +23,17 @@ export const RematchCategoriesButton = () => {
       onClick={() => mutate()}
       icon={<RedoOutlined />}
     >
-      Rematch categories ({missingCategories} missing)
+      <Text>Re-categorize</Text>&nbsp;
+      <Text
+        strong
+        title={
+          missingCategories
+            ? `${missingCategories} records have a missing category`
+            : undefined
+        }
+      >
+        {missingCategories}
+      </Text>
     </Button>
   );
 };
