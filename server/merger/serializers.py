@@ -33,7 +33,8 @@ class TransactionLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TransactionLog
-        fields = ['id', 'date', 'description', 'account', 'category', 'amount', 'calculated_amount']
+        fields = ['id', 'date', 'description', 'note', 'account', 'category', 'amount', 'calculated_amount']
+        read_only_fields = ['id', 'date', 'description', 'account', 'category', 'amount', 'calculated_amount']
 
     @staticmethod
     def get_calculated_amount(instance):

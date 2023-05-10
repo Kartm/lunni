@@ -43,6 +43,7 @@ class TransactionLog(TimeStampedModel):
     date = models.DateField()
     description = models.CharField(max_length=512)
     account = models.CharField(max_length=255)
+    note = models.CharField(max_length=255, blank=True)
     category = models.ForeignKey(
         TransactionCategory,
         on_delete=models.RESTRICT,
@@ -53,7 +54,7 @@ class TransactionLog(TimeStampedModel):
     objects = TransactionLogManager()
 
     def __str__(self):
-        return '({}) {}, {}, {}'.format(self.id, self.date, self.category, self.description)
+        return '({}) {}, {}, {}, {}'.format(self.id, self.date, self.category, self.note, self.description)
 
     class Meta:
         # TODO short-term fix, improves upload time from 47s -> 40s

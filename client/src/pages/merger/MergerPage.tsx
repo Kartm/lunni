@@ -9,6 +9,8 @@ import { useMergeMutations } from "../../hooks/merger/useMergeTransactions";
 import { RematchCategoriesButton } from "../../components/RematchCategoriesButton";
 import { CategoryAddDrawer } from "../../components/CategoryAddDrawer";
 import { Space, Button, Modal } from "antd";
+import { TransactionPartial } from "../../api/merger";
+import { useUpdateTransaction } from "../../hooks/merger/useUpdateTransaction";
 
 export const MergerPage = () => {
   const [mergeSelection, setMergeSelection] = useState<Key[]>([]);
@@ -31,8 +33,13 @@ export const MergerPage = () => {
   };
 
   const [categoryAddRecord, setCategoryAddRecord] = useState<DataType>();
+  const { mutate: updateTransaction } = useUpdateTransaction();
   const onCategoryAdd = (record: DataType) => {
     setCategoryAddRecord(record);
+  };
+
+  const onRecordUpdate = (transactionPartial: TransactionPartial) => {
+    updateTransaction(transactionPartial);
   };
 
   useEffect(() => {
@@ -62,6 +69,7 @@ export const MergerPage = () => {
           setPagination({ page, pageSize })
         }
         onCategoryAdd={onCategoryAdd}
+        onRecordUpdate={onRecordUpdate}
         mergeComponent={() => (
           <Space>
             <MergeButton

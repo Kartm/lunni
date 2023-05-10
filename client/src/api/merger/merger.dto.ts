@@ -32,3 +32,9 @@ export type CategoryMatcherCreateRequest = Omit<
 > & {
   category_id: TransactionCategory["id"];
 };
+
+export type TransactionPartial = Pick<Transaction, "id"> & Partial<Transaction>;
+
+export type TransactionUpdateRequest = Omit<Partial<Transaction>, "id">;
+
+export type TransactionUpdateResponse = Transaction;

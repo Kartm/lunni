@@ -430,3 +430,33 @@ PLN;XXXXXXXXXX
         self.assertIsNone(second_result['category'])
         self.assertEqual(second_result['amount'], 300)
         self.assertEqual(second_result['calculated_amount'], 300)
+
+    def test_editing_single_transaction(self):
+        TransactionLogFactory(id=1, amount=300)
+
+        url = reverse('merger-transaction-details', kwargs={'pk': 1})
+
+        response = self.client.get(
+            path=url,
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_json = response.json()
+
+        self.assertEqual(response_json['note'], '')
+
+        response = self.client.patch(
+            path=url,
+            data=json.dumps(
+                {
+                    'note': 'my note',
+                }
+            ),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_json = response.json()
+
+        self.assertEqual(response_json['note'], 'my note')

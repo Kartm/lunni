@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from rest_framework import status, serializers
-from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -63,6 +63,11 @@ def upload(request, *args, **kwargs):
 
 
 class TransactionsListView(ListAPIView):
+    queryset = TransactionLog.objects.all()
+    serializer_class = TransactionLogSerializer
+
+
+class TransactionDetailView(RetrieveUpdateAPIView):
     queryset = TransactionLog.objects.all()
     serializer_class = TransactionLogSerializer
 
