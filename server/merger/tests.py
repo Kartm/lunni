@@ -1,3 +1,6 @@
+import csv
+import datetime
+import io
 from io import StringIO, BytesIO
 
 from rest_framework import status
@@ -460,3 +463,41 @@ PLN;XXXXXXXXXX
         response_json = response.json()
 
         self.assertEqual(response_json['note'], 'my note')
+
+    def test_export_transactions(self):
+        category = TransactionCategoryFactory(
+            id=1,
+            name='subscriptions',
+            variant='NEG'
+        )
+
+        TransactionLogFactory(
+            id=1,
+            amount=300,
+            description='gift',
+            date=datetime.date(2018, 5, 1),
+            category=category
+        )
+        TransactionLogFactory(
+            id=2,
+            amount=-50,
+            description='spotify payment',
+            date=datetime.date(2018, 5, 6),
+            category=None
+        )
+
+        url = reverse('transactions-export')
+
+        response = self.client.get(path=url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response_content = response.content.decode('utf-8')
+        csv_lines = [line for line in response_content.split('\r\n') if line != '']
+        header = csv_lines.pop(0)
+
+        self.assertEqual(header, 'id,date,description,note,account,category_name,amount,calculated_amount')
+        self.assertEqual(len(csv_lines), 2)
+        self.assertEqual(csv_lines[0], '2,2018-05-06,spotify payment,,prywatnte,,-50,-50')
+        self.assertEqual(csv_lines[1], '1,2018-05-01,gift,,prywatnte,subscriptions,300,300')
+

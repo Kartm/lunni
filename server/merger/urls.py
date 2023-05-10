@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from merger import views
 from merger.views import TransactionsListView, TransactionsMergeCreateView, TransactionCategoryListCreateView, \
     TransactionCategoryMatcherListCreateView, TransactionCategoryStatsView, TransactionLogRegexMatchListView, \
-    TransactionDetailView
+    TransactionDetailView, TransactionsCSVExportView
 
 urlpatterns = [
     path('upload/', views.upload, name='merger-upload'),
@@ -15,5 +15,6 @@ urlpatterns = [
     path('transactions/', csrf_exempt(TransactionsListView.as_view()), name='merger-transactions'),
     path('transactions/regex-match/', csrf_exempt(TransactionLogRegexMatchListView.as_view()), name='merger-transactions-regex-match'),
     path('transactions/<int:pk>/', csrf_exempt(TransactionDetailView.as_view()), name='merger-transaction-details'),
+    path('transactions/export/', csrf_exempt(TransactionsCSVExportView.as_view()), name='transactions-export'),
     path('merge/', csrf_exempt(TransactionsMergeCreateView.as_view()), name='merger-merge')
 ]

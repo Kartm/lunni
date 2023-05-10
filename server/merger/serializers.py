@@ -41,6 +41,25 @@ class TransactionLogSerializer(serializers.ModelSerializer):
         return instance.calculated_amount
 
 
+class TransactionLogExportSerializer(TransactionLogSerializer):
+    calculated_amount = serializers.SerializerMethodField()
+    category_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TransactionLog
+        fields = ['id', 'date', 'description', 'note', 'account', 'category_name', 'amount', 'calculated_amount']
+        read_only_fields = ['id', 'date', 'description', 'account', 'category_name', 'amount', 'calculated_amount']
+
+    @staticmethod
+    def get_calculated_amount(instance):
+        return instance.calculated_amount
+
+    @staticmethod
+    def get_category_name(instance):
+        if instance.category is not None:
+            return instance.category.name
+
+
 class TransactionLogMergeSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField(
         min_value=0,
