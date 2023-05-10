@@ -1,3 +1,4 @@
+import csv
 from collections import Counter
 from io import BytesIO
 
@@ -5,7 +6,8 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import IntegrityError
 from django.db.models import F, Q, Value, CharField, Sum, OuterRef, Subquery
 from django.db.models.functions import Concat, Coalesce
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from rest_framework import status, serializers
@@ -16,7 +18,7 @@ from rest_framework.views import APIView
 from merger.helpers import file_to_entries, Entry, pko_file_to_entries
 from merger.models import TransactionLog, TransactionLogMerge, TransactionCategoryMatcher, TransactionCategory
 from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer, \
-    TransactionCategorySerializer, TransactionCategoryMatcherSerializer
+    TransactionCategorySerializer, TransactionCategoryMatcherSerializer, TransactionLogExportSerializer
 
 
 # todo find better location for this
@@ -126,3 +128,42 @@ class TransactionLogRegexMatchListView(ListAPIView):
         )
         return qs.filter(search_field__iregex=regex_expression)
 
+
+class TransactionsCSVExportView(View):
+    serializer_class = TransactionLogExportSerializer
+
+    def get_serializer(self, queryset, many=True):
+        return self.serializer_class(
+            queryset,
+            many=many,
+        )
+
+    def get(self, request, *args, **kwargs):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="export.csv"'
+
+        serializer = self.get_serializer(
+            TransactionLog.objects.all(),
+            many=True
+        )
+        header = TransactionLogExportSerializer.Meta.fields
+
+        writer = csv.DictWriter(response, fieldnames=header)
+        writer.writeheader()
+        for row in serializer.data:
+            writer.writerow(row)
+
+        return response
+
+# def transactions_export(request):
+#     # Create the HttpResponse object with the appropriate CSV header.
+#     response = HttpResponse(
+#         content_type="text/csv",
+#         headers={"Content-Disposition": 'attachment; filename="somefilename.csv"'},
+#     )
+#
+#     writer = csv.writer(response)
+#     writer.writerow(["First row", "Foo", "Bar", "Baz"])
+#     writer.writerow(["Second row", "A", "B", "C", '"Testing"', "Here's a quote"])
+#
+#     return response

@@ -1,16 +1,16 @@
 import { DataType, EntryTable } from "../../components/EntryTable";
 import React, { useEffect, useState } from "react";
 import { FileUploadModal } from "../../components/FileUpload";
-import { useUploadFile } from "../../hooks/merger/useUploadFile";
 import { useGetTransactions } from "../../hooks/merger/useGetTransactions";
 import { MergeButton } from "../../components/MergeButton";
 import { Key } from "antd/es/table/interface";
 import { useMergeMutations } from "../../hooks/merger/useMergeTransactions";
 import { RematchCategoriesButton } from "../../components/RematchCategoriesButton";
 import { CategoryAddDrawer } from "../../components/CategoryAddDrawer";
-import { Space, Button, Modal } from "antd";
+import { Space } from "antd";
 import { TransactionPartial } from "../../api/merger";
 import { useUpdateTransaction } from "../../hooks/merger/useUpdateTransaction";
+import { ExportButton } from "../../components/ExportButton";
 
 export const MergerPage = () => {
   const [mergeSelection, setMergeSelection] = useState<Key[]>([]);
@@ -57,6 +57,8 @@ export const MergerPage = () => {
         <FileUploadModal />
 
         <RematchCategoriesButton />
+
+        <ExportButton />
       </Space>
 
       <EntryTable
