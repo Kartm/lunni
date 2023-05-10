@@ -1,9 +1,11 @@
 import React, { useMemo } from "react";
-import { Button, Table, Typography } from "antd";
+import { Button, Input, Table, Typography } from "antd";
 import { Transaction } from "../../models/merger";
 import { Key } from "antd/es/table/interface";
 import { ColumnsType } from "antd/lib/table";
 import { PlusCircleOutlined } from "@ant-design/icons";
+import { TransactionPartial } from "../../api/merger";
+import { debounce } from "lodash";
 
 const { Text } = Typography;
 
@@ -20,6 +22,7 @@ type EntryTableProps = {
   onMergeSelectionChange: (keys: Key[]) => void;
   onPaginationChange: (page: number, pageSize: number) => void;
   onCategoryAdd: (record: DataType) => void;
+  onRecordUpdate: (transactionPartial: TransactionPartial) => void;
   mergeComponent: () => React.ReactNode;
 };
 
@@ -31,6 +34,7 @@ export const EntryTable = ({
   onMergeSelectionChange,
   onPaginationChange,
   onCategoryAdd,
+  onRecordUpdate,
   mergeComponent,
 }: EntryTableProps) => {
   const dataSource: DataType[] = useMemo(
@@ -69,11 +73,16 @@ export const EntryTable = ({
     }
   };
 
+  const onRecordUpdateDebounced = debounce(onRecordUpdate, 250);
+
   return (
     <Table
       loading={isLoading}
       dataSource={dataSource}
-      columns={getColumns({ onCategoryAdd })}
+      columns={getColumns({
+        onCategoryAdd,
+        onRecordUpdate: onRecordUpdateDebounced,
+      })}
       rowSelection={{
         type: "checkbox",
         hideSelectAll: true,
@@ -126,8 +135,10 @@ const isCheckboxDisabled = (
 
 const getColumns = ({
   onCategoryAdd,
+  onRecordUpdate,
 }: {
   onCategoryAdd: (record: DataType) => void;
+  onRecordUpdate: (transactionPartial: TransactionPartial) => void;
 }): ColumnsType<DataType> => [
   {
     title: "Date",
@@ -172,10 +183,19 @@ const getColumns = ({
     ),
   },
   {
-    title: "Account",
-    dataIndex: "account",
-    key: "account",
+    title: "Note",
+    dataIndex: "note",
+    key: "note",
     width: 200,
+    render: (_, record) => (
+      <Input
+        defaultValue={record.note}
+        onChange={(e) =>
+          onRecordUpdate({ id: record.id, note: e.target.value })
+        }
+        allowClear
+      />
+    ),
   },
   {
     title: "Amount",
