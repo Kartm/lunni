@@ -76,6 +76,80 @@ PLN;XXXXXXXXXX
         self.assertIsNone(second_entry.get('category'))
         self.assertEqual(second_entry['amount'], -3160)
 
+    def test_upload_mbank_savings_file(self):
+        url = reverse('merger-upload')
+
+        operations_file = """mBank S.A. Bankowość Detaliczna;
+Skrytka Pocztowa 2108;
+90-959 Łódź 2;
+www.mBank.pl;
+mLinia: 801 300 800;
++48 (42) 6 300 800;
+    
+
+#Klient;
+ŁUKASZ BLACHNICKI;
+
+Elektroniczne zestawienie operacji;
+
+#Za okres:;
+asdasd
+#Rodzaj rachunku;
+asdasd
+#Waluta;
+asdasd
+#Numer rachunku;
+asdasd
+#Data następnej kapitalizacji;
+asdasd
+#Oprocentowanie rachunku;
+asdasd
+#Limit kredytu;
+asdasd
+#Oprocentowanie kredytu;
+asdasd
+
+#Podsumowanie obrotów na rachunku;#Liczba operacji;#Wartość operacji
+asdasd
+asdasd
+asdasd
+
+asdasd
+
+#Data księgowania;#Data operacji;#Opis operacji;#Tytuł;#Nadawca/Odbiorca;#Numer konta;#Kwota;#Saldo po operacji;
+2023-01-01;2023-01-01;PRZELEW NA TWOJE CELE;"";"CEL  ";'';0,01;0,01;
+2023-02-11;2023-02-11;WPŁATA NA CEL;"CEL OPŁATY";"  ";'';12 345,00;12 345,67;
+        """
+        sio = StringIO(operations_file)
+        bio = BytesIO(sio.read().encode('cp1250'))
+
+        response = self.client.post(
+            path=url,
+            data=encode_multipart(
+                data=dict(file=bio, variant='mbank-savings'),
+                boundary=BOUNDARY,
+            ),
+            content_type=MULTIPART_CONTENT,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(len(response_content), 2)
+
+        first_entry = response_content[0]
+        self.assertEqual(first_entry['date'], '2023-01-01')
+        self.assertEqual(first_entry['description'], 'PRZELEW NA TWOJE CELE')
+        self.assertEqual(first_entry['account'], 'Cel')
+        self.assertIsNone(first_entry.get('category'))
+        self.assertEqual(first_entry['amount'], 1)
+
+        second_entry = response_content[1]
+        self.assertEqual(second_entry['date'], '2023-02-11')
+        self.assertEqual(second_entry['description'], 'WPŁATA NA CEL CEL OPŁATY')
+        self.assertEqual(second_entry['account'], 'Cel')
+        self.assertIsNone(second_entry.get('category'))
+        self.assertEqual(second_entry['amount'], 1234500)
+
     def test_prevent_duplicates(self):
         url = reverse('merger-upload')
 
@@ -150,7 +224,7 @@ PLN;XXXXXXXXXX
 "2023-05-08","2023-05-08","Przelew na rachunek","+20.70","PLN","+23.99","Rachunek nadawcy: XXXX","Nazwa nadawcy: BIURO","Adres nadawcyxxxx","Tytul: sddsd",""
         """
         sio = StringIO(operations_file)
-        bio = BytesIO(sio.read().encode('utf8'))
+        bio = BytesIO(sio.read().encode('cp1250'))
 
         response = self.client.post(
             path=url,
@@ -500,4 +574,3 @@ PLN;XXXXXXXXXX
         self.assertEqual(len(csv_lines), 2)
         self.assertEqual(csv_lines[0], '2,2018-05-06,spotify payment,,prywatnte,,-50,-50')
         self.assertEqual(csv_lines[1], '1,2018-05-01,gift,,prywatnte,subscriptions,300,300')
-
