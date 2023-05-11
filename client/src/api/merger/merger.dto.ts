@@ -10,7 +10,7 @@ export type UploadFileResponse = {
   new_entries: Transaction[];
 };
 
-export type UploadFileVariant = "mbank" | "pko";
+export type UploadFileVariant = "mbank" | "mbank-savings" | "pko";
 
 export type TransactionResponse = Paginated<Transaction>;
 

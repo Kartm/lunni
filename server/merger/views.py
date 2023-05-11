@@ -15,7 +15,7 @@ from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIVie
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from merger.helpers import file_to_entries, Entry, pko_file_to_entries
+from merger.helpers import file_to_entries, Entry, pko_file_to_entries, mbank_savings_file_to_entries
 from merger.models import TransactionLog, TransactionLogMerge, TransactionCategoryMatcher, TransactionCategory
 from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer, \
     TransactionCategorySerializer, TransactionCategoryMatcherSerializer, TransactionLogExportSerializer
@@ -40,6 +40,8 @@ def upload(request, *args, **kwargs):
 
     if variant == 'mbank':
         converted_entries = file_to_entries(bytes_io)
+    elif variant == 'mbank-savings':
+        converted_entries = mbank_savings_file_to_entries(bytes_io)
     elif variant == 'pko':
         converted_entries = pko_file_to_entries(bytes_io)
     else:

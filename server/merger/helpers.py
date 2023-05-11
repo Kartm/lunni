@@ -14,7 +14,7 @@ class Entry(TypedDict):
 def file_to_entries(file: BytesIO) -> List[Entry]:
     df = pd.read_csv(file, skiprows=25, sep=';', index_col=False, encoding='utf8')
 
-    # take only necessary rows
+    # take only necessary columns
     df = df.iloc[:, :5]
 
     # rename headers
@@ -56,8 +56,55 @@ def file_to_entries(file: BytesIO) -> List[Entry]:
     return renamed_entries
 
 
+def mbank_savings_file_to_entries(file: BytesIO) -> List[Entry]:
+    df = pd.read_csv(file, skiprows=37, sep=';', index_col=False, encoding='cp1250')
+
+    df['#Opis operacji'] = df['#Opis operacji'].fillna('') + ' ' + df['#Tytuł'].fillna('')
+
+    # add header for compatibility with Entry type
+    df["Account"] = "Cel"
+
+    # rename headers
+    df = df.rename(
+        columns={
+            '#Data operacji': 'Date',
+            '#Opis operacji': 'Description',
+            '#Rachunek': 'Account',
+            '#Kwota': 'Amount',
+        }
+    )
+
+    # parse 'Amount' column
+    # e.g. 7 921,39 PLN -> 7921.39
+    # todo improve performance
+    df['Amount'] = df['Amount'].apply(
+        lambda amount:
+        amount.replace("PLN", "")
+        .replace(",", "")
+        .replace(" ", "")
+    ).astype(int)
+
+    df['Description'] = df['Description'].apply(
+        lambda description:
+        " ".join(description.split())
+    ).astype(str)
+
+    df = df.drop_duplicates()
+
+    renamed_entries = df.rename(
+        columns={
+            'Date': 'date',
+            'Description': 'description',
+            'Account': 'account',
+            'Amount': 'amount',
+        }
+    ).to_dict('records')
+
+    return renamed_entries
+
+
 def pko_file_to_entries(file: BytesIO) -> List[Entry]:
-    df = pd.read_csv(file, sep=',', index_col=False, encoding='cp852')
+    df = pd.read_csv(file, sep=',', index_col=False, encoding='cp1250')
 
     # rename headers
     df = df.rename(

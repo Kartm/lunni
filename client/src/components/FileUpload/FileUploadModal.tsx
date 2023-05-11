@@ -6,8 +6,6 @@ import { UploadFileVariant } from "../../api/merger";
 import { useForm } from "antd/es/form/Form";
 import { useUploadFile } from "../../hooks/merger";
 
-const { Option } = Select;
-
 const normFile = (e: any) => {
   if (Array.isArray(e)) {
     return e;
@@ -71,6 +69,7 @@ export const FileUploadModal = ({}: FileUploadProps) => {
             <Select
               options={[
                 { label: "mBank", value: "mbank" },
+                { label: "mBank savings", value: "mbank-savings" },
                 { label: "PKO BP", value: "pko" },
               ]}
             />
