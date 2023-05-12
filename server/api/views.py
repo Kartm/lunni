@@ -13,10 +13,10 @@ from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIVie
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from merger.models import TransactionLog, TransactionLogMerge, TransactionCategoryMatcher, TransactionCategory
-from merger.parsers import parse_mbank_statement_file, Entry, parse_pko_statement_file, \
+from api.models import Transaction, TransactionMerge, CategoryMatcher, Category
+from api.parsers import parse_mbank_statement_file, Entry, parse_pko_statement_file, \
     parse_mbank_savings_statement_file
-from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, TransactionCategorySerializer, \
+from api.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, TransactionCategorySerializer, \
     TransactionCategoryMatcherSerializer, TransactionLogExportSerializer
 
 
@@ -43,14 +43,14 @@ class UploadAPIView(CreateAPIView):
         transaction_logs_to_create = []
 
         for entry in extracted_entries:
-            if not TransactionLog.objects.filter(
+            if not Transaction.objects.filter(
                 Q(date=entry['date']) &
                 Q(description=entry['description']) &
                 Q(account=entry['account']) &
                 Q(amount=entry['amount'])
             ).exists():
                 transaction_logs_to_create.append(
-                    TransactionLog(
+                    Transaction(
                         date=entry['date'],
                         description=entry['description'],
                         account=entry['account'],
@@ -58,7 +58,7 @@ class UploadAPIView(CreateAPIView):
                     )
                 )
 
-        TransactionLog.objects.bulk_create(transaction_logs_to_create)
+        Transaction.objects.bulk_create(transaction_logs_to_create)
 
         return JsonResponse(
             data={'new_entries': len(transaction_logs_to_create)},
@@ -67,50 +67,50 @@ class UploadAPIView(CreateAPIView):
 
 
 class TransactionsListView(ListAPIView):
-    queryset = TransactionLog.objects.all()
+    queryset = Transaction.objects.all()
     serializer_class = TransactionLogSerializer
 
 
 class TransactionDetailView(RetrieveUpdateAPIView):
-    queryset = TransactionLog.objects.all()
+    queryset = Transaction.objects.all()
     serializer_class = TransactionLogSerializer
 
 
 class TransactionCategoryListCreateView(ListCreateAPIView):
-    queryset = TransactionCategory.objects.all().order_by('-created')
+    queryset = Category.objects.all().order_by('-created')
     serializer_class = TransactionCategorySerializer
     page_size = 1000
 
 
 class TransactionCategoryMatcherListCreateView(ListCreateAPIView):
-    queryset = TransactionCategoryMatcher.objects.all().order_by('-created')
+    queryset = CategoryMatcher.objects.all().order_by('-created')
     serializer_class = TransactionCategoryMatcherSerializer
     page_size = 1000
 
 
 class TransactionsMergeCreateView(CreateAPIView):
-    queryset = TransactionLogMerge.objects.all()
+    queryset = TransactionMerge.objects.all()
     serializer_class = TransactionLogMergeSerializer
 
 
-@require_POST
-def rematch_categories(request, *args, **kwargs):
-    TransactionLog.objects.update(category=None)
+class CategoryRematchView(CreateAPIView):
+    def post(self, request, *args, **kwargs):
+        Transaction.objects.update(category=None)
 
-    for matcher in TransactionCategoryMatcher.objects.all():
-        queryset = TransactionLog.objects.annotate(
-            search_field=Concat('date', Value(' '), 'description', output_field=CharField()))
-        queryset.filter(search_field__iregex=matcher.regex_expression).update(category=matcher.category)
+        for matcher in CategoryMatcher.objects.all():
+            queryset = Transaction.objects.annotate(
+                search_field=Concat('date', Value(' '), 'description', output_field=CharField()))
+            queryset.filter(search_field__iregex=matcher.regex_expression).update(category=matcher.category)
 
-    return JsonResponse(
-        data={},
-        status=status.HTTP_200_OK,
-    )
+        return JsonResponse(
+            data={},
+            status=status.HTTP_200_OK,
+        )
 
 
 class TransactionCategoryStatsView(APIView):
     def get(self, request):
-        qs = TransactionLog.objects.all()
+        qs = Transaction.objects.all()
 
         count_summary = [{'categoryName': count[0], 'totalCount': count[1]} for count in
                          Counter(list(qs.values_list('category__name', flat=True))).items()]
@@ -124,7 +124,7 @@ class TransactionLogRegexMatchListView(ListAPIView):
     def get_queryset(self):
         regex_expression = self.request.query_params.get('regex_expression')
 
-        qs = TransactionLog.objects.all().annotate(
+        qs = Transaction.objects.all().annotate(
             search_field=Concat('date', Value(' '), 'description', output_field=CharField())
         )
         return qs.filter(search_field__iregex=regex_expression)
@@ -144,7 +144,7 @@ class TransactionsCSVExportView(View):
         response['Content-Disposition'] = 'attachment; filename="export.csv"'
 
         serializer = self.get_serializer(
-            TransactionLog.objects.all(),
+            Transaction.objects.all(),
             many=True
         )
         header = TransactionLogExportSerializer.Meta.fields
@@ -155,16 +155,3 @@ class TransactionsCSVExportView(View):
             writer.writerow(row)
 
         return response
-
-# def transactions_export(request):
-#     # Create the HttpResponse object with the appropriate CSV header.
-#     response = HttpResponse(
-#         content_type="text/csv",
-#         headers={"Content-Disposition": 'attachment; filename="somefilename.csv"'},
-#     )
-#
-#     writer = csv.writer(response)
-#     writer.writerow(["First row", "Foo", "Bar", "Baz"])
-#     writer.writerow(["Second row", "A", "B", "C", '"Testing"', "Here's a quote"])
-#
-#     return response

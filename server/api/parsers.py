@@ -56,7 +56,7 @@ def parse_mbank_statement_file(file: BytesIO) -> List[Entry]:
 
 
 def parse_mbank_savings_statement_file(file: BytesIO) -> List[Entry]:
-    df = pd.read_csv(file, skiprows=37, sep=';', index_col=False, encoding='cp1250')
+    df = pd.read_csv(file, skiprows=37, skipfooter=5, sep=';', index_col=False, encoding='cp1250')
 
     df['#Opis operacji'] = df['#Opis operacji'].fillna('') + ' ' + df['#Tytuł'].fillna('')
 
@@ -74,11 +74,10 @@ def parse_mbank_savings_statement_file(file: BytesIO) -> List[Entry]:
     )
 
     # parse 'Amount' column
-    # e.g. 7 921,39 PLN -> 7921.39
+    # e.g. 7 921,39 -> 7921.39
     df['Amount'] = df['Amount'].apply(
         lambda amount:
-        amount.replace("PLN", "")
-        .replace(",", "")
+        str(amount).replace(",", "")
         .replace(" ", "")
     ).astype(int)
 

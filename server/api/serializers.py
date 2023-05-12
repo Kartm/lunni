@@ -1,20 +1,20 @@
 from rest_framework import serializers
 
-from merger.models import TransactionLog, TransactionLogMerge, TransactionCategory, TransactionCategoryMatcher
+from api.models import Transaction, TransactionMerge, Category, CategoryMatcher
 
 
 class TransactionCategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = TransactionCategory
+        model = Category
         fields = ['id', 'name', 'variant']
 
 
 class TransactionCategoryMatcherSerializer(serializers.ModelSerializer):
     category = TransactionCategorySerializer(read_only=True)
-    category_id = serializers.PrimaryKeyRelatedField(source='category', queryset=TransactionCategory.objects.all())
+    category_id = serializers.PrimaryKeyRelatedField(source='category', queryset=Category.objects.all())
 
     class Meta:
-        model = TransactionCategoryMatcher
+        model = CategoryMatcher
         fields = ['id', 'regex_expression', 'category', 'category_id']
 
 
@@ -23,7 +23,7 @@ class TransactionLogSerializer(serializers.ModelSerializer):
     category = TransactionCategorySerializer()
 
     class Meta:
-        model = TransactionLog
+        model = Transaction
         fields = ['id', 'date', 'description', 'note', 'account', 'category', 'amount', 'calculated_amount']
         read_only_fields = ['id', 'date', 'description', 'account', 'category', 'amount', 'calculated_amount']
 
@@ -37,7 +37,7 @@ class TransactionLogExportSerializer(TransactionLogSerializer):
     category_name = serializers.SerializerMethodField()
 
     class Meta:
-        model = TransactionLog
+        model = Transaction
         fields = ['id', 'date', 'description', 'note', 'account', 'category_name', 'amount', 'calculated_amount']
         read_only_fields = ['id', 'date', 'description', 'account', 'category_name', 'amount', 'calculated_amount']
 
@@ -58,20 +58,24 @@ class TransactionLogMergeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         from_transaction = data.get('from_transaction')
+        to_transaction = data.get('to_transaction')
 
         attempted_amount_transfer = data.get('amount')
-        available_amount = getattr(from_transaction, 'amount')
 
         if attempted_amount_transfer <= 0:
             raise serializers.ValidationError(
                 'Cannot transfer negative amount')
 
-        if attempted_amount_transfer > available_amount:
+        if attempted_amount_transfer > getattr(from_transaction, 'amount'):
             raise serializers.ValidationError(
                 'Cannot transfer from transaction more than the available transaction value')
+
+        if attempted_amount_transfer > getattr(to_transaction, 'amount') * (-1):
+            raise serializers.ValidationError(
+                'Cannot transfer more than the target amount')
 
         return data
 
     class Meta:
-        model = TransactionLogMerge
+        model = TransactionMerge
         fields = ['from_transaction', 'to_transaction', 'amount']

@@ -53,7 +53,7 @@ export const MergerPage = () => {
         onClose={() => setCategoryAddRecord(undefined)}
       />
 
-      <Space>
+      <Space style={{ marginBottom: "16px" }}>
         <FileUploadModal />
 
         <RematchCategoriesButton />

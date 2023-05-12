@@ -2,10 +2,10 @@ from django.db import models
 from django.db.models import PositiveIntegerField, IntegerField, UniqueConstraint
 from django_extensions.db.models import TimeStampedModel
 
-from merger.managers import TransactionLogMergingManager
+from api.managers import TransactionsMergedManager
 
 
-class TransactionCategory(TimeStampedModel):
+class Category(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, unique=True)
 
@@ -24,11 +24,11 @@ class TransactionCategory(TimeStampedModel):
         return '({}) {}, {}'.format(self.id, self.name, self.variant)
 
 
-class TransactionCategoryMatcher(TimeStampedModel):
+class CategoryMatcher(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     regex_expression = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(
-        TransactionCategory,
+        Category,
         on_delete=models.RESTRICT,
         related_name='category_matcher_set',
         null=True
@@ -38,14 +38,14 @@ class TransactionCategoryMatcher(TimeStampedModel):
         return '({}) <{}>, {}'.format(self.id, self.regex_expression, self.category.name)
 
 
-class TransactionLog(TimeStampedModel):
+class Transaction(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     date = models.DateField()
     description = models.CharField(max_length=512)
     account = models.CharField(max_length=255)
     note = models.CharField(max_length=255, blank=True)
     category = models.ForeignKey(
-        TransactionCategory,
+        Category,
         on_delete=models.RESTRICT,
         related_name='transaction_log_set',
         null=True
@@ -53,7 +53,7 @@ class TransactionLog(TimeStampedModel):
     amount = IntegerField()
 
     admin_objects = models.Manager()  # prevent records with calculated_amount=0 from being hidden in Django admin
-    objects = TransactionLogMergingManager()
+    objects = TransactionsMergedManager()
 
     def __str__(self):
         return '({}) {}, {}, {}, {}'.format(self.id, self.date, self.category, self.note, self.description)
@@ -65,15 +65,15 @@ class TransactionLog(TimeStampedModel):
         ]
 
 
-class TransactionLogMerge(TimeStampedModel):
+class TransactionMerge(TimeStampedModel):
     id = models.AutoField(primary_key=True)
     from_transaction = models.ForeignKey(
-        TransactionLog,
+        Transaction,
         on_delete=models.RESTRICT,
         related_name='frommerge',
     )
     to_transaction = models.ForeignKey(
-        TransactionLog,
+        Transaction,
         on_delete=models.RESTRICT,
         related_name='tomerge',
     )

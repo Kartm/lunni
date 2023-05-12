@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'corsheaders',
-    'merger',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -91,7 +91,7 @@ DATABASES = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'merger.paginators.CustomPaginator',
+    'DEFAULT_PAGINATION_CLASS': 'api.paginators.CustomPaginator',
     'PAGE_SIZE': 50
 }
 
