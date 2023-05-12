@@ -1,15 +1,6 @@
-from django.db.models import Sum, Q
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from merger.models import TransactionLog, TransactionLogMerge, TransactionCategory, TransactionCategoryMatcher
-
-
-class CreateTransactionLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TransactionLog
-        fields = ['date', 'description', 'account', 'amount']
 
 
 class TransactionCategorySerializer(serializers.ModelSerializer):

@@ -3,38 +3,28 @@ from collections import Counter
 from io import BytesIO
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db import IntegrityError
-from django.db.models import F, Q, Value, CharField, Sum, OuterRef, Subquery
-from django.db.models.functions import Concat, Coalesce
+from django.db.models import Q, Value, CharField
+from django.db.models.functions import Concat
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.views import View
 from django.views.decorators.http import require_POST
-from rest_framework import status, serializers
+from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from merger.helpers import file_to_entries, Entry, pko_file_to_entries, mbank_savings_file_to_entries
 from merger.models import TransactionLog, TransactionLogMerge, TransactionCategoryMatcher, TransactionCategory
-from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, CreateTransactionLogSerializer, \
-    TransactionCategorySerializer, TransactionCategoryMatcherSerializer, TransactionLogExportSerializer
-
-
-# todo find better location for this
-def is_unique(entry: Entry):
-    return not TransactionLog.objects.filter(
-        Q(date=entry['date']) &
-        Q(description=entry['description']) &
-        Q(account=entry['account']) &
-        Q(amount=entry['amount'])
-    ).exists()
+from merger.parsers import parse_mbank_statement_file, Entry, parse_pko_statement_file, \
+    parse_mbank_savings_statement_file
+from merger.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, TransactionCategorySerializer, \
+    TransactionCategoryMatcherSerializer, TransactionLogExportSerializer
 
 
 class UploadAPIView(CreateAPIView):
     function_map = {
-        'mbank': file_to_entries,
-        'mbank-savings': mbank_savings_file_to_entries,
-        'pko': pko_file_to_entries
+        'mbank': parse_mbank_statement_file,
+        'mbank-savings': parse_mbank_savings_statement_file,
+        'pko': parse_pko_statement_file
     }
 
     def create(self, request, *args, **kwargs):
@@ -50,19 +40,30 @@ class UploadAPIView(CreateAPIView):
         bytes_io: BytesIO = in_memory_file.file
         extracted_entries: list[Entry] = self.function_map.get(variant)(bytes_io)
 
-        # todo improve performance for large datasets
-        extracted_entries = list(filter(is_unique, extracted_entries))
+        transaction_logs_to_create = []
 
-        serializer = CreateTransactionLogSerializer(data=extracted_entries, many=True)
-        if serializer.is_valid():
-            serializer.save()
+        for entry in extracted_entries:
+            if not TransactionLog.objects.filter(
+                Q(date=entry['date']) &
+                Q(description=entry['description']) &
+                Q(account=entry['account']) &
+                Q(amount=entry['amount'])
+            ).exists():
+                transaction_logs_to_create.append(
+                    TransactionLog(
+                        date=entry['date'],
+                        description=entry['description'],
+                        account=entry['account'],
+                        amount=entry['amount'],
+                    )
+                )
 
-            return JsonResponse(
-                data={'new_entries': serializer.data},
-                status=status.HTTP_201_CREATED,
-            )
+        TransactionLog.objects.bulk_create(transaction_logs_to_create)
 
-        return HttpResponseBadRequest()
+        return JsonResponse(
+            data={'new_entries': len(transaction_logs_to_create)},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class TransactionsListView(ListAPIView):

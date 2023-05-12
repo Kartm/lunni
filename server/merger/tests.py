@@ -1,12 +1,10 @@
-import csv
 import datetime
-import io
 from io import StringIO, BytesIO
 
+from django.test.client import MULTIPART_CONTENT, encode_multipart, BOUNDARY
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.urls import reverse
-from django.test.client import MULTIPART_CONTENT, encode_multipart, BOUNDARY
 from rest_framework.utils import json
 
 from merger.factories import TransactionLogFactory, TransactionCategoryFactory, TransactionCategoryMatcherFactory
@@ -59,22 +57,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 2)
-
-        first_entry = response_content[0]
-        self.assertEqual(first_entry['date'], '2023-02-11')
-        self.assertEqual(first_entry['description'], 'Zwrot za Maka')
-        self.assertEqual(first_entry['account'], 'Prywatne')
-        self.assertIsNone(first_entry.get('category'))
-        self.assertEqual(first_entry['amount'], 1580)
-
-        second_entry = response_content[1]
-        self.assertEqual(second_entry['date'], '2023-02-10')
-        self.assertEqual(second_entry['description'],
-                         'Stacja Grawitacja Cz-wa ZAKUP PRZY UŻYCIU KARTY W KRAJU transakcja nierozliczona')
-        self.assertEqual(second_entry['account'], 'Prywatne')
-        self.assertIsNone(second_entry.get('category'))
-        self.assertEqual(second_entry['amount'], -3160)
+        self.assertEqual(response_content, 2)
 
     def test_upload_mbank_savings_file(self):
         url = reverse('merger-upload')
@@ -134,21 +117,7 @@ asdasd
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 2)
-
-        first_entry = response_content[0]
-        self.assertEqual(first_entry['date'], '2023-01-01')
-        self.assertEqual(first_entry['description'], 'PRZELEW NA TWOJE CELE')
-        self.assertEqual(first_entry['account'], 'Cel')
-        self.assertIsNone(first_entry.get('category'))
-        self.assertEqual(first_entry['amount'], 1)
-
-        second_entry = response_content[1]
-        self.assertEqual(second_entry['date'], '2023-02-11')
-        self.assertEqual(second_entry['description'], 'WPŁATA NA CEL CEL OPŁATY')
-        self.assertEqual(second_entry['account'], 'Cel')
-        self.assertIsNone(second_entry.get('category'))
-        self.assertEqual(second_entry['amount'], 1234500)
+        self.assertEqual(response_content, 2)
 
     def test_prevent_csv_duplicates(self):
         url = reverse('merger-upload')
@@ -197,7 +166,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 2)
+        self.assertEqual(response_content, 2)
 
         sio = StringIO(operations_file)
         bio = BytesIO(sio.read().encode('utf8'))
@@ -213,7 +182,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 0)
+        self.assertEqual(response_content, 0)
 
     def test_prevent_database_duplicates(self):
         category = TransactionCategoryFactory.create()
@@ -263,7 +232,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 0)
+        self.assertEqual(response_content, 0)
 
 
     def test_upload_pko_file(self):
@@ -288,21 +257,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 2)
-
-        first_entry = response_content[0]
-        self.assertEqual(first_entry['date'], '2023-05-08')
-        self.assertEqual(first_entry['description'], 'Costam')
-        self.assertEqual(first_entry['account'], 'PKO')
-        self.assertIsNone(first_entry.get('category'))
-        self.assertEqual(first_entry['amount'], 2070)
-
-        second_entry = response_content[1]
-        self.assertEqual(second_entry['date'], '2023-05-08')
-        self.assertEqual(second_entry['description'], 'Tytul: sddsd')
-        self.assertEqual(second_entry['account'], 'PKO')
-        self.assertIsNone(second_entry.get('category'))
-        self.assertEqual(second_entry['amount'], 2070)
+        self.assertEqual(response_content, 2)
 
     def test_get_transactions(self):
         category = TransactionCategoryFactory.create()

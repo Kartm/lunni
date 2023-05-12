@@ -15,15 +15,13 @@ export const useUploadFile = () => {
       file: RcFile;
       variant: UploadFileVariant;
     }) => uploadFile(file, variant),
-    onSuccess: (data) => {
-      const { length } = data.new_entries;
-
+    onSuccess: ({ new_entries }) => {
       message.info({
-        content: `Uploaded ${length} new records.`,
+        content: `Uploaded ${new_entries} new records.`,
         duration: 5,
       });
 
-      if (length > 0) {
+      if (new_entries > 0) {
         queryClient.invalidateQueries({ queryKey: ["get-transactions"] });
         queryClient.invalidateQueries({ queryKey: ["categories-stats"] });
       }

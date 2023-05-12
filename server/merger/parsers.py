@@ -11,7 +11,7 @@ class Entry(TypedDict):
     amount: int
 
 
-def file_to_entries(file: BytesIO) -> List[Entry]:
+def parse_mbank_statement_file(file: BytesIO) -> List[Entry]:
     df = pd.read_csv(file, skiprows=25, sep=';', index_col=False, encoding='utf8')
 
     # take only necessary columns
@@ -56,7 +56,7 @@ def file_to_entries(file: BytesIO) -> List[Entry]:
     return renamed_entries
 
 
-def mbank_savings_file_to_entries(file: BytesIO) -> List[Entry]:
+def parse_mbank_savings_statement_file(file: BytesIO) -> List[Entry]:
     df = pd.read_csv(file, skiprows=37, sep=';', index_col=False, encoding='cp1250')
 
     df['#Opis operacji'] = df['#Opis operacji'].fillna('') + ' ' + df['#Tytuł'].fillna('')
@@ -103,7 +103,7 @@ def mbank_savings_file_to_entries(file: BytesIO) -> List[Entry]:
     return renamed_entries
 
 
-def pko_file_to_entries(file: BytesIO) -> List[Entry]:
+def parse_pko_statement_file(file: BytesIO) -> List[Entry]:
     df = pd.read_csv(file, sep=',', index_col=False, encoding='cp1250')
 
     # rename headers
