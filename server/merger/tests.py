@@ -150,7 +150,7 @@ asdasd
         self.assertIsNone(second_entry.get('category'))
         self.assertEqual(second_entry['amount'], 1234500)
 
-    def test_prevent_duplicates(self):
+    def test_prevent_csv_duplicates(self):
         url = reverse('merger-upload')
 
         operations_file = """mBank S.A. Bankowość Detaliczna;
@@ -214,6 +214,57 @@ PLN;XXXXXXXXXX
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
         self.assertEqual(len(response_content), 0)
+
+    def test_prevent_database_duplicates(self):
+        category = TransactionCategoryFactory.create()
+        TransactionLogFactory(date='2023-01-05', description='desc', account='prywatnte', amount=1, category=category)
+
+        url = reverse('merger-upload')
+
+        operations_file = """mBank S.A. Bankowość Detaliczna;
+Skrytka Pocztowa 2108;
+90-959 Łódź 2;
+www.mBank.pl;
+mLinia: 801 300 800;
++48 (42) 6 300 800;
+
+
+#Klient;
+ŁUKASZ BLACHNICKI;
+
+Lista operacji;
+
+#Za okres:;
+XXXXXXX;
+
+#zgodnie z wybranymi filtrami wyszukiwania;
+#dla rachunków:;
+Prywatne - XXXX;
+
+#Lista nie jest dokumentem w rozumieniu art. 7 Ustawy Prawo Bankowe (Dz. U. Nr 140 z 1997 roku, poz.939 z późniejszymi zmianami), ponieważ operacje można samodzielnie edytować.;
+
+#Waluta;#Wpływy;#Wydatki;
+PLN;XXXXXXXXXX
+
+#Data operacji;#Opis operacji;#Rachunek;#Kategoria;#Kwota;
+2023-01-05;"desc";"prywatnte";"food";0,01 PLN;;
+        """
+        sio = StringIO(operations_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        response = self.client.post(
+            path=url,
+            data=encode_multipart(
+                data=dict(file=bio, variant='mbank'),
+                boundary=BOUNDARY,
+            ),
+            content_type=MULTIPART_CONTENT,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(len(response_content), 0)
+
 
     def test_upload_pko_file(self):
         url = reverse('merger-upload')
