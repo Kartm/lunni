@@ -254,8 +254,9 @@ PLN;XXXXXXXXXX
         self.assertEqual(second_entry['amount'], 2070)
 
     def test_get_transactions(self):
-        TransactionLogFactory.create(id=1, amount=300)
-        TransactionLogFactory.create(id=2, amount=-50)
+        category = TransactionCategoryFactory.create()
+        TransactionLogFactory.create(id=1, amount=300, category=category)
+        TransactionLogFactory.create(id=2, amount=-50, category=category)
 
         url = reverse('merger-transactions')
 
@@ -273,7 +274,7 @@ PLN;XXXXXXXXXX
         self.assertEqual(first_result['date'], '2023-01-05')
         self.assertEqual(first_result['description'], 'desc')
         self.assertEqual(first_result['account'], 'prywatnte')
-        self.assertEqual(first_result['category']['id'], 2)
+        self.assertEqual(first_result['category']['id'], 1)
         self.assertEqual(first_result['category']['name'], 'food')
         self.assertEqual(first_result['category']['variant'], 'NEG')
 
@@ -289,10 +290,11 @@ PLN;XXXXXXXXXX
         self.assertEqual(second_result['category']['variant'], 'NEG')
 
     def test_merge_transactions(self):
-        TransactionLogFactory(id=1, amount=300)
-        TransactionLogFactory(id=2, amount=-50)
-        TransactionLogFactory(id=3, amount=100)
-        TransactionLogFactory(id=4, amount=-100)
+        category = TransactionCategoryFactory.create()
+        TransactionLogFactory(id=1, amount=300, category=category)
+        TransactionLogFactory(id=2, amount=-50, category=category)
+        TransactionLogFactory(id=3, amount=100, category=category)
+        TransactionLogFactory(id=4, amount=-100, category=category)
 
         url = reverse('merger-merge')
 
@@ -336,8 +338,9 @@ PLN;XXXXXXXXXX
         self.assertEqual(response_json['results'][1]['calculated_amount'], 251)
 
     def test_merge_transactions_prevent_negative_amount(self):
-        TransactionLogFactory(id=1, amount=300)
-        TransactionLogFactory(id=2, amount=-50)
+        category = TransactionCategoryFactory.create()
+        TransactionLogFactory(id=1, amount=300, category=category)
+        TransactionLogFactory(id=2, amount=-50, category=category)
 
         url = reverse('merger-merge')
 
@@ -356,8 +359,9 @@ PLN;XXXXXXXXXX
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_merge_transactions_prevent_overdraw(self):
-        TransactionLogFactory(id=1, amount=300)
-        TransactionLogFactory(id=2, amount=-50)
+        category = TransactionCategoryFactory.create()
+        TransactionLogFactory(id=1, amount=300, category=category)
+        TransactionLogFactory(id=2, amount=-50, category=category)
 
         url = reverse('merger-merge')
 
@@ -376,8 +380,9 @@ PLN;XXXXXXXXXX
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_merge_transactions_prevent_negative_overdraw(self):
-        TransactionLogFactory(id=1, amount=300)
-        TransactionLogFactory(id=2, amount=-50)
+        category = TransactionCategoryFactory.create()
+        TransactionLogFactory(id=1, amount=300, category=category)
+        TransactionLogFactory(id=2, amount=-50, category=category)
 
         url = reverse('merger-merge')
 
@@ -396,9 +401,10 @@ PLN;XXXXXXXXXX
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_merge_multiple_transactions(self):
-        TransactionLogFactory(id=1, amount=-75)
-        TransactionLogFactory(id=2, amount=50)
-        TransactionLogFactory(id=3, amount=25)
+        category = TransactionCategoryFactory.create()
+        TransactionLogFactory(id=1, amount=-75, category=category)
+        TransactionLogFactory(id=2, amount=50, category=category)
+        TransactionLogFactory(id=3, amount=25, category=category)
 
         url = reverse('merger-merge')
 
