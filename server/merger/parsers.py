@@ -29,7 +29,6 @@ def parse_mbank_statement_file(file: BytesIO) -> List[Entry]:
 
     # parse 'Amount' column
     # e.g. 7 921,39 PLN -> 7921.39
-    # todo improve performance
     df['Amount'] = df['Amount'].apply(
         lambda amount:
         amount.replace("PLN", "")
@@ -76,7 +75,6 @@ def parse_mbank_savings_statement_file(file: BytesIO) -> List[Entry]:
 
     # parse 'Amount' column
     # e.g. 7 921,39 PLN -> 7921.39
-    # todo improve performance
     df['Amount'] = df['Amount'].apply(
         lambda amount:
         amount.replace("PLN", "")
@@ -123,7 +121,6 @@ def parse_pko_statement_file(file: BytesIO) -> List[Entry]:
     df["Account"] = "PKO"
 
     # e.g. +20.10 -> 20.10, -10.00 -> -10
-    # todo improve performance
     df['Amount'] = df['Amount'].apply(
         lambda amount:
         amount * 100

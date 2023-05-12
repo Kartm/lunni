@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import PositiveIntegerField, IntegerField, UniqueConstraint
 from django_extensions.db.models import TimeStampedModel
 
-from merger.managers import TransactionLogManager
+from merger.managers import TransactionLogMergingManager
 
 
 class TransactionCategory(TimeStampedModel):
@@ -51,13 +51,15 @@ class TransactionLog(TimeStampedModel):
         null=True
     )
     amount = IntegerField()
-    objects = TransactionLogManager()
+
+    admin_objects = models.Manager()  # prevent records with calculated_amount=0 from being hidden in Django admin
+    objects = TransactionLogMergingManager()
 
     def __str__(self):
         return '({}) {}, {}, {}, {}'.format(self.id, self.date, self.category, self.note, self.description)
 
     class Meta:
-        # TODO short-term fix, improves upload time from 47s -> 40s
+        # improves upload time because we during upload we search for duplicates
         indexes = [
             models.Index(fields=['date', 'description', 'account', 'amount']),
         ]

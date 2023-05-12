@@ -121,8 +121,6 @@ class TransactionCategoryStatsView(APIView):
 class TransactionLogRegexMatchListView(ListAPIView):
     serializer_class = TransactionLogSerializer
 
-    # todo add limited serializer for better performance
-
     def get_queryset(self):
         regex_expression = self.request.query_params.get('regex_expression')
 

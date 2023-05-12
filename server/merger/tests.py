@@ -453,9 +453,6 @@ PLN;XXXXXXXXXX
         self.assertEqual(response_json['results'][1]['id'], 2)
         self.assertEqual(response_json['results'][1]['calculated_amount'], 25)
 
-        # todo add choosing merge direction and validate existing ones
-        # todo django admin uses model manager and hides objects with calculated amount = 0
-
     def test_rematch_categories(self):
         TransactionLogFactory(
             id=1,
