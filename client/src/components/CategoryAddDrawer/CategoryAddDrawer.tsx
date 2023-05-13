@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, List, Select, Space, Typography } from "antd";
+import { Button, Drawer, Form, List, Space } from "antd";
 import React, { useEffect } from "react";
 import { DataType } from "../EntryTable";
 import TextArea from "antd/es/input/TextArea";

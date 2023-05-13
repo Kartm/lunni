@@ -8,4 +8,5 @@ todo:
 6. [x] BE optimization (use django debug toolbar to find places where it's worth introducing select_related/prefetch_related)
 7. [ ] FE tests
 8. [ ] FE refactor (elegant components)
-9. [ ] deployment and readme
+9. [ ] FE translations
+10. [ ] deployment and readme
