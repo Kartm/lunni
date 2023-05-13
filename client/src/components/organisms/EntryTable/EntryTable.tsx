@@ -47,16 +47,15 @@ export const EntryTable = ({
     [data, mergeSelection]
   );
 
-  const checkboxToDisabled = useMemo(() => {
+  const disabledRows = useMemo(() => {
     const selectedRows = dataSource.filter((d) =>
       mergeSelection.includes(d.key)
     );
 
-    return new Map(
-      dataSource.map((record) => [
-        record,
-        isCheckboxDisabled(record, dataSource, selectedRows),
-      ])
+    return new Set(
+      dataSource.filter((record) =>
+        isCheckboxDisabled(record, dataSource, selectedRows)
+      )
     );
   }, [dataSource, mergeSelection]);
 
@@ -89,7 +88,7 @@ export const EntryTable = ({
         onChange: (selectedRowKeys) => onRowSelectionChange(selectedRowKeys),
         selectedRowKeys: mergeSelection,
         getCheckboxProps: (record) => ({
-          disabled: checkboxToDisabled.get(record),
+          disabled: disabledRows.has(record),
         }),
       }}
       pagination={{
