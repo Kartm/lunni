@@ -96,6 +96,7 @@ class CategoryRematchView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         Transaction.objects.update(category=None)
 
+        # this is not optimal, but it's a rarely used feature so I'm leaving it as it is
         for matcher in CategoryMatcher.objects.all():
             queryset = Transaction.objects.annotate(
                 search_field=Concat('date', Value(' '), 'description', output_field=CharField()))
