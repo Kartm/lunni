@@ -12,8 +12,7 @@ from api.factories import TransactionFactory, CategoryFactory, CategoryMatcherFa
 
 class LunniAPITestCase(APITestCase):
     def test_upload_mbank_file(self):
-        # todo rename route names
-        url = reverse('merger-upload')
+        url = reverse('upload')
 
         operations_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
@@ -61,7 +60,7 @@ PLN;XXXXXXXXXX
         self.assertEqual(response_content, 2)
 
     def test_upload_mbank_savings_file(self):
-        url = reverse('merger-upload')
+        url = reverse('upload')
 
         operations_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
@@ -126,7 +125,7 @@ Niniejszy dokument sporządzono na podstawie art. 7 Ustawy Prawo Bankowe (Dz. U.
         self.assertEqual(response_content, 2)
 
     def test_prevent_csv_duplicates(self):
-        url = reverse('merger-upload')
+        url = reverse('upload')
 
         operations_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
@@ -194,7 +193,7 @@ PLN;XXXXXXXXXX
         category = CategoryFactory.create()
         TransactionFactory(date='2023-01-05', description='desc', account='prywatnte', amount=1, category=category)
 
-        url = reverse('merger-upload')
+        url = reverse('upload')
 
         operations_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
@@ -242,7 +241,7 @@ PLN;XXXXXXXXXX
 
 
     def test_upload_pko_file(self):
-        url = reverse('merger-upload')
+        url = reverse('upload')
 
         operations_file = """
 "Data operacji","Data waluty","Typ transakcji","Kwota","Waluta","Saldo po transakcji","Opis transakcji","","","",""
@@ -270,7 +269,7 @@ PLN;XXXXXXXXXX
         TransactionFactory.create(id=1, amount=300, category=category)
         TransactionFactory.create(id=2, amount=-50, category=category)
 
-        url = reverse('merger-transactions')
+        url = reverse('transactions')
 
         response = self.client.get(path=url)
 
@@ -308,7 +307,7 @@ PLN;XXXXXXXXXX
         TransactionFactory(id=3, amount=100, category=category)
         TransactionFactory(id=4, amount=-100, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -338,7 +337,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        url = reverse('merger-transactions')
+        url = reverse('transactions')
 
         response_json = self.client.get(path=url).json()
 
@@ -354,7 +353,7 @@ PLN;XXXXXXXXXX
         TransactionFactory(id=1, amount=300, category=category)
         TransactionFactory(id=2, amount=-50, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -375,7 +374,7 @@ PLN;XXXXXXXXXX
         TransactionFactory(id=1, amount=300, category=category)
         TransactionFactory(id=2, amount=-50, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -396,7 +395,7 @@ PLN;XXXXXXXXXX
         TransactionFactory(id=1, amount=300, category=category)
         TransactionFactory(id=2, amount=-50, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -417,7 +416,7 @@ PLN;XXXXXXXXXX
         TransactionFactory(id=1, amount=300, category=category)
         TransactionFactory(id=2, amount=-50, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -439,7 +438,7 @@ PLN;XXXXXXXXXX
         TransactionFactory(id=2, amount=50, category=category)
         TransactionFactory(id=3, amount=25, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -469,7 +468,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        url = reverse('merger-transactions')
+        url = reverse('transactions')
 
         response_json = self.client.get(path=url).json()
 
@@ -504,7 +503,7 @@ PLN;XXXXXXXXXX
             category=subscriptionsCategory
         )
 
-        url = reverse('rematch-categories')
+        url = reverse('categories-rematch')
 
         response = self.client.post(
             path=url,
@@ -513,7 +512,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        url = reverse('merger-transactions')
+        url = reverse('transactions')
 
         response = self.client.get(
             path=url,
@@ -547,7 +546,7 @@ PLN;XXXXXXXXXX
     def test_editing_single_transaction(self):
         TransactionFactory(id=1, amount=300)
 
-        url = reverse('merger-transaction-details', kwargs={'pk': 1})
+        url = reverse('transaction-details', kwargs={'pk': 1})
 
         response = self.client.get(
             path=url,

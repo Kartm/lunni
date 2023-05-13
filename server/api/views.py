@@ -7,7 +7,6 @@ from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.views import View
-from django.views.decorators.http import require_POST
 from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response

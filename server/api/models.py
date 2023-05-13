@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import PositiveIntegerField, IntegerField, UniqueConstraint
+from django.db.models import PositiveIntegerField, IntegerField
 from django_extensions.db.models import TimeStampedModel
 
 from api.managers import TransactionsMergedManager
