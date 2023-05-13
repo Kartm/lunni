@@ -3,5 +3,5 @@ from django.contrib import admin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/merger/', include('merger.urls'))
+    path('api/', include('api.urls'))
 ]

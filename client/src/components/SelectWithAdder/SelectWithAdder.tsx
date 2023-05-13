@@ -27,12 +27,14 @@ const { Option } = Select;
 
 type SelectWithAdderProps = {
   onAddOption: (name: string, variant: TransactionCategory["variant"]) => void;
-} & SelectProps;
+} & Omit<SelectProps, "open">;
 
 export const SelectWithAdder = ({
   onAddOption,
   ...props
 }: SelectWithAdderProps) => {
+  const [open, setOpen] = useState(false);
+
   const [newOption, setNewOption] = useState({
     name: "",
     variant: "NEG" as TransactionCategory["variant"],
@@ -43,10 +45,10 @@ export const SelectWithAdder = ({
     setNewOption((old) => ({ ...old, name: event.target.value }));
   };
 
-  const onVariantChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const onVariantChange = (variant: TransactionCategory["variant"]) => {
     setNewOption((old) => ({
       ...old,
-      variant: event.target.value as TransactionCategory["variant"],
+      variant,
     }));
   };
 
@@ -60,11 +62,15 @@ export const SelectWithAdder = ({
     setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
+
+    setOpen(false);
   };
 
   return (
     <Select
       {...props}
+      open={open}
+      onDropdownVisibleChange={(visible) => setOpen(visible)}
       dropdownRender={(menu) => (
         <>
           {menu}
@@ -76,6 +82,7 @@ export const SelectWithAdder = ({
               value={newOption.name}
               onChange={onNameChange}
             />
+
             <Select
               placeholder="Variant"
               options={["NEG", "POS", "IGN"].map((o) => ({
@@ -83,6 +90,7 @@ export const SelectWithAdder = ({
                 value: o,
               }))}
               onChange={onVariantChange}
+              onMouseDown={(e) => e.stopPropagation()} // prevent parent Select from closing
             />
           </Space>
           <Button type="text" icon={<PlusOutlined />} onClick={addItem}>

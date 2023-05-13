@@ -11,7 +11,7 @@ class Entry(TypedDict):
     amount: int
 
 
-def file_to_entries(file: BytesIO) -> List[Entry]:
+def parse_mbank_statement_file(file: BytesIO) -> List[Entry]:
     df = pd.read_csv(file, skiprows=25, sep=';', index_col=False, encoding='utf8')
 
     # take only necessary columns
@@ -29,7 +29,6 @@ def file_to_entries(file: BytesIO) -> List[Entry]:
 
     # parse 'Amount' column
     # e.g. 7 921,39 PLN -> 7921.39
-    # todo improve performance
     df['Amount'] = df['Amount'].apply(
         lambda amount:
         amount.replace("PLN", "")
@@ -56,8 +55,8 @@ def file_to_entries(file: BytesIO) -> List[Entry]:
     return renamed_entries
 
 
-def mbank_savings_file_to_entries(file: BytesIO) -> List[Entry]:
-    df = pd.read_csv(file, skiprows=37, sep=';', index_col=False, encoding='cp1250')
+def parse_mbank_savings_statement_file(file: BytesIO) -> List[Entry]:
+    df = pd.read_csv(file, skiprows=37, skipfooter=5, sep=';', index_col=False, encoding='cp1250')
 
     df['#Opis operacji'] = df['#Opis operacji'].fillna('') + ' ' + df['#Tytuł'].fillna('')
 
@@ -75,12 +74,10 @@ def mbank_savings_file_to_entries(file: BytesIO) -> List[Entry]:
     )
 
     # parse 'Amount' column
-    # e.g. 7 921,39 PLN -> 7921.39
-    # todo improve performance
+    # e.g. 7 921,39 -> 7921.39
     df['Amount'] = df['Amount'].apply(
         lambda amount:
-        amount.replace("PLN", "")
-        .replace(",", "")
+        str(amount).replace(",", "")
         .replace(" ", "")
     ).astype(int)
 
@@ -103,7 +100,7 @@ def mbank_savings_file_to_entries(file: BytesIO) -> List[Entry]:
     return renamed_entries
 
 
-def pko_file_to_entries(file: BytesIO) -> List[Entry]:
+def parse_pko_statement_file(file: BytesIO) -> List[Entry]:
     df = pd.read_csv(file, sep=',', index_col=False, encoding='cp1250')
 
     # rename headers
@@ -123,7 +120,6 @@ def pko_file_to_entries(file: BytesIO) -> List[Entry]:
     df["Account"] = "PKO"
 
     # e.g. +20.10 -> 20.10, -10.00 -> -10
-    # todo improve performance
     df['Amount'] = df['Amount'].apply(
         lambda amount:
         amount * 100

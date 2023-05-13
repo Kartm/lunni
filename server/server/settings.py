@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-!-pk5a56t&($_o2u=x#4)*9^2p1r=%@wqo_-7g@s^qp25z@&b%
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
 
 # Application definition
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'corsheaders',
-    'merger',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -90,7 +91,7 @@ DATABASES = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'merger.paginators.CustomPaginator',
+    'DEFAULT_PAGINATION_CLASS': 'api.paginators.CustomPaginator',
     'PAGE_SIZE': 50
 }
 

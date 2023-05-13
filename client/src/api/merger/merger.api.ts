@@ -14,18 +14,15 @@ import {
   UploadFileVariant,
 } from "./merger.dto";
 import { AxiosResponse } from "axios";
-import { Transaction } from "../../models/merger";
 
 export const uploadFile = async (file: RcFile, variant: UploadFileVariant) => {
   const formData = new FormData();
-  console.log(file);
-  // @ts-ignore
+  // @ts-ignore probably types are outdated, I know it's there...
   formData.append("file", await file.originFileObj);
   formData.append("variant", variant);
 
-  console.log(formData);
   return axios
-    .post<UploadFileResponse>("/merger/upload/", formData, {
+    .post<UploadFileResponse>("/transactions/upload/", formData, {
       headers: {
         "Content-Type": "multipart/form-data; boundary=WebAppBoundary",
       },
@@ -36,42 +33,42 @@ export const uploadFile = async (file: RcFile, variant: UploadFileVariant) => {
 export const getTransactions = (page: number, pageSize: number) =>
   axios
     .get<TransactionResponse>(
-      `/merger/transactions/?page=${page}&page_size=${pageSize}`
+      `/transactions/?page=${page}&page_size=${pageSize}`
     )
     .then((response) => response.data);
 
 export const postMergeTransactions = (merge: TransactionMergeRequest) =>
   axios
-    .post<TransactionResponse>("/merger/merge/", merge)
+    .post<TransactionResponse>("/transactions/merge/", merge)
     .then((response) => response.data);
 
 export const postRematchCategories = () =>
-  axios.post("/merger/categories/rematch/").then((response) => response.data);
+  axios.post("/categories/rematch/").then((response) => response.data);
 
 export const getCategoryStats = () =>
   axios
-    .get<CategoryStatsResponse>("/merger/categories/stats/")
+    .get<CategoryStatsResponse>("/categories/stats/")
     .then((response) => response.data);
 
 export const getCategories = () =>
   axios
-    .get<CategoriesResponse>(`/merger/categories/`)
+    .get<CategoriesResponse>(`/categories/`)
     .then((response) => response.data);
 
 export const createCategory = (data: CategoryCreateRequest) =>
   axios
-    .post<CategoryCreateRequest>(`/merger/categories/`, data)
+    .post<CategoryCreateRequest>(`/categories/`, data)
     .then((response) => response.data);
 
 export const createCategoryMatcher = (data: CategoryMatcherCreateRequest) =>
   axios
-    .post<CategoryMatcherCreateRequest>(`/merger/categories/matchers/`, data)
+    .post<CategoryMatcherCreateRequest>(`/categories/matchers/`, data)
     .then((response) => response.data);
 
 export const getRegexMatches = (regexExpression: string) =>
   axios
     .get<TransactionResponse>(
-      `/merger/transactions/regex-match/?regex_expression=${regexExpression}`
+      `/transactions/regex-match/?regex_expression=${regexExpression}`
     )
     .then((response) => response.data);
 
@@ -81,7 +78,7 @@ export const updateTransaction = ({
 }: TransactionPartial) =>
   axios
     .patch<TransactionUpdateRequest, AxiosResponse<TransactionUpdateResponse>>(
-      `/merger/transactions/${id}/`,
+      `/transactions/${id}/`,
       partialTransaction
     )
     .then((response) => response.data);

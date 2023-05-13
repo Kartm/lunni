@@ -144,7 +144,7 @@ const getColumns = ({
     title: "Date",
     dataIndex: "date",
     key: "date",
-    width: 120,
+    width: 115,
   },
   {
     title: "Description",
@@ -159,7 +159,8 @@ const getColumns = ({
     title: "Category",
     dataIndex: "category",
     key: "category",
-    width: 150,
+    width: 140,
+    ellipsis: true,
     render: (category: DataType["category"], record) => (
       <Text
         type={
@@ -186,7 +187,7 @@ const getColumns = ({
     title: "Note",
     dataIndex: "note",
     key: "note",
-    width: 200,
+    width: 150,
     render: (_, record) => (
       <Input
         defaultValue={record.note}
@@ -196,6 +197,13 @@ const getColumns = ({
         allowClear
       />
     ),
+  },
+  {
+    title: "Account",
+    dataIndex: "account",
+    key: "account",
+    width: 80,
+    ellipsis: true,
   },
   {
     title: "Amount",

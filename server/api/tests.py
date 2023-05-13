@@ -1,20 +1,18 @@
-import csv
 import datetime
-import io
 from io import StringIO, BytesIO
 
+from django.test.client import MULTIPART_CONTENT, encode_multipart, BOUNDARY
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from django.urls import reverse
-from django.test.client import MULTIPART_CONTENT, encode_multipart, BOUNDARY
 from rest_framework.utils import json
 
-from merger.factories import TransactionLogFactory, TransactionCategoryFactory, TransactionCategoryMatcherFactory
+from api.factories import TransactionFactory, CategoryFactory, CategoryMatcherFactory
 
 
-class MergerTestCase(APITestCase):
+class LunniAPITestCase(APITestCase):
     def test_upload_mbank_file(self):
-        url = reverse('merger-upload')
+        url = reverse('upload')
 
         operations_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
@@ -59,25 +57,10 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 2)
-
-        first_entry = response_content[0]
-        self.assertEqual(first_entry['date'], '2023-02-11')
-        self.assertEqual(first_entry['description'], 'Zwrot za Maka')
-        self.assertEqual(first_entry['account'], 'Prywatne')
-        self.assertIsNone(first_entry.get('category'))
-        self.assertEqual(first_entry['amount'], 1580)
-
-        second_entry = response_content[1]
-        self.assertEqual(second_entry['date'], '2023-02-10')
-        self.assertEqual(second_entry['description'],
-                         'Stacja Grawitacja Cz-wa ZAKUP PRZY UŻYCIU KARTY W KRAJU transakcja nierozliczona')
-        self.assertEqual(second_entry['account'], 'Prywatne')
-        self.assertIsNone(second_entry.get('category'))
-        self.assertEqual(second_entry['amount'], -3160)
+        self.assertEqual(response_content, 2)
 
     def test_upload_mbank_savings_file(self):
-        url = reverse('merger-upload')
+        url = reverse('upload')
 
         operations_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
@@ -119,6 +102,11 @@ asdasd
 #Data księgowania;#Data operacji;#Opis operacji;#Tytuł;#Nadawca/Odbiorca;#Numer konta;#Kwota;#Saldo po operacji;
 2023-01-01;2023-01-01;PRZELEW NA TWOJE CELE;"";"CEL  ";'';0,01;0,01;
 2023-02-11;2023-02-11;WPŁATA NA CEL;"CEL OPŁATY";"  ";'';12 345,00;12 345,67;
+
+
+;;;;;;#Saldo końcowe;asdasd;
+
+Niniejszy dokument sporządzono na podstawie art. 7 Ustawy Prawo Bankowe (Dz. U. Nr 140 z 1997 roku, poz.939 z późniejszymi zmianami).
         """
         sio = StringIO(operations_file)
         bio = BytesIO(sio.read().encode('cp1250'))
@@ -134,24 +122,10 @@ asdasd
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 2)
+        self.assertEqual(response_content, 2)
 
-        first_entry = response_content[0]
-        self.assertEqual(first_entry['date'], '2023-01-01')
-        self.assertEqual(first_entry['description'], 'PRZELEW NA TWOJE CELE')
-        self.assertEqual(first_entry['account'], 'Cel')
-        self.assertIsNone(first_entry.get('category'))
-        self.assertEqual(first_entry['amount'], 1)
-
-        second_entry = response_content[1]
-        self.assertEqual(second_entry['date'], '2023-02-11')
-        self.assertEqual(second_entry['description'], 'WPŁATA NA CEL CEL OPŁATY')
-        self.assertEqual(second_entry['account'], 'Cel')
-        self.assertIsNone(second_entry.get('category'))
-        self.assertEqual(second_entry['amount'], 1234500)
-
-    def test_prevent_duplicates(self):
-        url = reverse('merger-upload')
+    def test_prevent_csv_duplicates(self):
+        url = reverse('upload')
 
         operations_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
@@ -197,7 +171,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 2)
+        self.assertEqual(response_content, 2)
 
         sio = StringIO(operations_file)
         bio = BytesIO(sio.read().encode('utf8'))
@@ -213,10 +187,61 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 0)
+        self.assertEqual(response_content, 0)
+
+    def test_prevent_database_duplicates(self):
+        category = CategoryFactory.create()
+        TransactionFactory(date='2023-01-05', description='desc', account='prywatnte', amount=1, category=category)
+
+        url = reverse('upload')
+
+        operations_file = """mBank S.A. Bankowość Detaliczna;
+Skrytka Pocztowa 2108;
+90-959 Łódź 2;
+www.mBank.pl;
+mLinia: 801 300 800;
++48 (42) 6 300 800;
+
+
+#Klient;
+ŁUKASZ BLACHNICKI;
+
+Lista operacji;
+
+#Za okres:;
+XXXXXXX;
+
+#zgodnie z wybranymi filtrami wyszukiwania;
+#dla rachunków:;
+Prywatne - XXXX;
+
+#Lista nie jest dokumentem w rozumieniu art. 7 Ustawy Prawo Bankowe (Dz. U. Nr 140 z 1997 roku, poz.939 z późniejszymi zmianami), ponieważ operacje można samodzielnie edytować.;
+
+#Waluta;#Wpływy;#Wydatki;
+PLN;XXXXXXXXXX
+
+#Data operacji;#Opis operacji;#Rachunek;#Kategoria;#Kwota;
+2023-01-05;"desc";"prywatnte";"food";0,01 PLN;;
+        """
+        sio = StringIO(operations_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        response = self.client.post(
+            path=url,
+            data=encode_multipart(
+                data=dict(file=bio, variant='mbank'),
+                boundary=BOUNDARY,
+            ),
+            content_type=MULTIPART_CONTENT,
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(response_content, 0)
+
 
     def test_upload_pko_file(self):
-        url = reverse('merger-upload')
+        url = reverse('upload')
 
         operations_file = """
 "Data operacji","Data waluty","Typ transakcji","Kwota","Waluta","Saldo po transakcji","Opis transakcji","","","",""
@@ -237,27 +262,14 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
-        self.assertEqual(len(response_content), 2)
-
-        first_entry = response_content[0]
-        self.assertEqual(first_entry['date'], '2023-05-08')
-        self.assertEqual(first_entry['description'], 'Costam')
-        self.assertEqual(first_entry['account'], 'PKO')
-        self.assertIsNone(first_entry.get('category'))
-        self.assertEqual(first_entry['amount'], 2070)
-
-        second_entry = response_content[1]
-        self.assertEqual(second_entry['date'], '2023-05-08')
-        self.assertEqual(second_entry['description'], 'Tytul: sddsd')
-        self.assertEqual(second_entry['account'], 'PKO')
-        self.assertIsNone(second_entry.get('category'))
-        self.assertEqual(second_entry['amount'], 2070)
+        self.assertEqual(response_content, 2)
 
     def test_get_transactions(self):
-        TransactionLogFactory.create(id=1, amount=300)
-        TransactionLogFactory.create(id=2, amount=-50)
+        category = CategoryFactory.create()
+        TransactionFactory.create(id=1, amount=300, category=category)
+        TransactionFactory.create(id=2, amount=-50, category=category)
 
-        url = reverse('merger-transactions')
+        url = reverse('transactions')
 
         response = self.client.get(path=url)
 
@@ -273,7 +285,7 @@ PLN;XXXXXXXXXX
         self.assertEqual(first_result['date'], '2023-01-05')
         self.assertEqual(first_result['description'], 'desc')
         self.assertEqual(first_result['account'], 'prywatnte')
-        self.assertEqual(first_result['category']['id'], 2)
+        self.assertEqual(first_result['category']['id'], 1)
         self.assertEqual(first_result['category']['name'], 'food')
         self.assertEqual(first_result['category']['variant'], 'NEG')
 
@@ -289,12 +301,13 @@ PLN;XXXXXXXXXX
         self.assertEqual(second_result['category']['variant'], 'NEG')
 
     def test_merge_transactions(self):
-        TransactionLogFactory(id=1, amount=300)
-        TransactionLogFactory(id=2, amount=-50)
-        TransactionLogFactory(id=3, amount=100)
-        TransactionLogFactory(id=4, amount=-100)
+        category = CategoryFactory.create()
+        TransactionFactory(id=1, amount=300, category=category)
+        TransactionFactory(id=2, amount=-50, category=category)
+        TransactionFactory(id=3, amount=100, category=category)
+        TransactionFactory(id=4, amount=-100, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -324,7 +337,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        url = reverse('merger-transactions')
+        url = reverse('transactions')
 
         response_json = self.client.get(path=url).json()
 
@@ -336,10 +349,11 @@ PLN;XXXXXXXXXX
         self.assertEqual(response_json['results'][1]['calculated_amount'], 251)
 
     def test_merge_transactions_prevent_negative_amount(self):
-        TransactionLogFactory(id=1, amount=300)
-        TransactionLogFactory(id=2, amount=-50)
+        category = CategoryFactory.create()
+        TransactionFactory(id=1, amount=300, category=category)
+        TransactionFactory(id=2, amount=-50, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -356,10 +370,11 @@ PLN;XXXXXXXXXX
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_merge_transactions_prevent_overdraw(self):
-        TransactionLogFactory(id=1, amount=300)
-        TransactionLogFactory(id=2, amount=-50)
+        category = CategoryFactory.create()
+        TransactionFactory(id=1, amount=300, category=category)
+        TransactionFactory(id=2, amount=-50, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -376,10 +391,11 @@ PLN;XXXXXXXXXX
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_merge_transactions_prevent_negative_overdraw(self):
-        TransactionLogFactory(id=1, amount=300)
-        TransactionLogFactory(id=2, amount=-50)
+        category = CategoryFactory.create()
+        TransactionFactory(id=1, amount=300, category=category)
+        TransactionFactory(id=2, amount=-50, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -395,12 +411,34 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_merge_multiple_transactions(self):
-        TransactionLogFactory(id=1, amount=-75)
-        TransactionLogFactory(id=2, amount=50)
-        TransactionLogFactory(id=3, amount=25)
+    def test_merge_transactions_prevent_exceeding_target(self):
+        category = CategoryFactory.create()
+        TransactionFactory(id=1, amount=300, category=category)
+        TransactionFactory(id=2, amount=-50, category=category)
 
-        url = reverse('merger-merge')
+        url = reverse('transactions-merge')
+
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    'from_transaction': 1,
+                    'to_transaction': 2,
+                    'amount': 300
+                }
+            ),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_merge_multiple_transactions(self):
+        category = CategoryFactory.create()
+        TransactionFactory(id=1, amount=-75, category=category)
+        TransactionFactory(id=2, amount=50, category=category)
+        TransactionFactory(id=3, amount=25, category=category)
+
+        url = reverse('transactions-merge')
 
         response = self.client.post(
             path=url,
@@ -430,7 +468,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        url = reverse('merger-transactions')
+        url = reverse('transactions')
 
         response_json = self.client.get(path=url).json()
 
@@ -441,34 +479,31 @@ PLN;XXXXXXXXXX
         self.assertEqual(response_json['results'][1]['id'], 2)
         self.assertEqual(response_json['results'][1]['calculated_amount'], 25)
 
-        # todo add choosing merge direction and validate existing ones
-        # todo django admin uses model manager and hides objects with calculated amount = 0
-
     def test_rematch_categories(self):
-        TransactionLogFactory(
+        TransactionFactory(
             id=1,
             amount=300,
             description='gift',
             category=None
         )
-        TransactionLogFactory(
+        TransactionFactory(
             id=2,
             amount=-50,
             description='spotify payment',
             category=None
         )
-        subscriptionsCategory = TransactionCategoryFactory(
+        subscriptionsCategory = CategoryFactory(
             id=1,
             name='subscriptions',
             variant='NEG'
         )
-        TransactionCategoryMatcherFactory(
+        CategoryMatcherFactory(
             id=1,
             regex_expression='spotify',
             category=subscriptionsCategory
         )
 
-        url = reverse('rematch-categories')
+        url = reverse('categories-rematch')
 
         response = self.client.post(
             path=url,
@@ -477,7 +512,7 @@ PLN;XXXXXXXXXX
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        url = reverse('merger-transactions')
+        url = reverse('transactions')
 
         response = self.client.get(
             path=url,
@@ -509,9 +544,9 @@ PLN;XXXXXXXXXX
         self.assertEqual(second_result['calculated_amount'], 300)
 
     def test_editing_single_transaction(self):
-        TransactionLogFactory(id=1, amount=300)
+        TransactionFactory(id=1, amount=300)
 
-        url = reverse('merger-transaction-details', kwargs={'pk': 1})
+        url = reverse('transaction-details', kwargs={'pk': 1})
 
         response = self.client.get(
             path=url,
@@ -539,20 +574,20 @@ PLN;XXXXXXXXXX
         self.assertEqual(response_json['note'], 'my note')
 
     def test_export_transactions(self):
-        category = TransactionCategoryFactory(
+        category = CategoryFactory(
             id=1,
             name='subscriptions',
             variant='NEG'
         )
 
-        TransactionLogFactory(
+        TransactionFactory(
             id=1,
             amount=300,
             description='gift',
             date=datetime.date(2018, 5, 1),
             category=category
         )
-        TransactionLogFactory(
+        TransactionFactory(
             id=2,
             amount=-50,
             description='spotify payment',
