@@ -1,21 +1,5 @@
-import {
-  Button,
-  Card,
-  Col,
-  Drawer,
-  Form,
-  Input,
-  List,
-  Row,
-  Select,
-  Space,
-  Tag,
-  Typography,
-} from "antd";
-import React, { useCallback, useEffect, useState } from "react";
-import { useRematchCategories } from "../../hooks/merger/useRematchCategories";
-import { useCategoryStats } from "../../hooks/merger/useCategoryStats";
-import { SyncOutlined } from "@ant-design/icons";
+import { Button, Drawer, Form, List, Select, Space, Typography } from "antd";
+import React, { useEffect } from "react";
 import { DataType } from "../EntryTable";
 import TextArea from "antd/es/input/TextArea";
 import { SelectWithAdder } from "../SelectWithAdder";
@@ -24,10 +8,7 @@ import { useCategoryList } from "../../hooks/merger/useCategoryList";
 import { useCreateCategoryMatcher } from "../../hooks/merger/useCreateCategoryMatcher";
 import { CategoryMatcherCreateRequest } from "../../api/merger";
 import { useGetRegexMatches } from "../../hooks/merger/useGetRegexMatches";
-import useDebounce from "antd/es/form/hooks/useDebounce";
-import { debounce } from "lodash"; // todo replace this
-const { Text } = Typography;
-const { Option } = Select;
+import { useDebouncedFormValue } from "../../hooks/common/useDebouncedFormValue";
 
 type CategoryAddDrawerProps = {
   record?: DataType;
@@ -45,19 +26,8 @@ export const CategoryAddDrawer = ({
 
   const { mutate: createMatcher } = useCreateCategoryMatcher();
 
-  const regexExpression = Form.useWatch(["regexExpression"], form) as string;
-  const [debouncedRegex, setDebouncedRegex] = useState(regexExpression);
-
-  const handleRegexChange = useCallback(
-    debounce((regex: string) => setDebouncedRegex(regex), 250),
-    [setDebouncedRegex]
-  );
-
-  useEffect(() => {
-    handleRegexChange(regexExpression);
-  }, [regexExpression]);
-
-  const { data: regexMatchesList } = useGetRegexMatches(debouncedRegex);
+  const regex = useDebouncedFormValue<string>(["regexExpression"], form);
+  const { data: regexMatchesList } = useGetRegexMatches(regex);
 
   useEffect(() => {
     if (!record) {
