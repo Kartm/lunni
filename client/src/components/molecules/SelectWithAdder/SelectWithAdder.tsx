@@ -13,14 +13,14 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { useRematchCategories } from "../../hooks/merger/useRematchCategories";
-import { useCategoryStats } from "../../hooks/merger/useCategoryStats";
+import { useRematchCategories } from "../../../hooks/merger/useRematchCategories";
+import { useCategoryStats } from "../../../hooks/merger/useCategoryStats";
 import { SyncOutlined } from "@ant-design/icons";
-import { DataType } from "../EntryTable";
+import { DataType } from "../../organisms/EntryTable";
 import TextArea from "antd/es/input/TextArea";
 import { PlusOutlined } from "@ant-design/icons";
 import { SelectProps } from "antd/es/select";
-import { TransactionCategory } from "../../models/merger";
+import { TransactionCategory } from "../../../models/merger";
 
 const { Text } = Typography;
 const { Option } = Select;

@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
 import { Button, Input, Table, Typography } from "antd";
-import { Transaction } from "../../models/merger";
+import { Transaction } from "../../../models/merger";
 import { Key } from "antd/es/table/interface";
 import { ColumnsType } from "antd/lib/table";
 import { PlusCircleOutlined } from "@ant-design/icons";
-import { TransactionPartial } from "../../api/merger";
+import { TransactionPartial } from "../../../api/merger";
 import { debounce } from "lodash";
 
 const { Text } = Typography;

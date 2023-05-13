@@ -1,7 +1,7 @@
 import { Button, InputNumber, Slider, Space } from "antd";
 import { Key } from "antd/es/table/interface";
 import React, { useEffect, useMemo, useState } from "react";
-import { Transaction } from "../../models/merger";
+import { Transaction } from "../../../models/merger";
 
 type MergeButtonProps = {
   mergeSelection: Key[];

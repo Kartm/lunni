@@ -1,14 +1,14 @@
 import { Button, Drawer, Form, List, Space } from "antd";
 import React, { useEffect } from "react";
-import { DataType } from "../EntryTable";
+import { DataType } from "../../organisms/EntryTable";
 import TextArea from "antd/es/input/TextArea";
 import { SelectWithAdder } from "../SelectWithAdder";
-import { useCreateCategory } from "../../hooks/merger/useCreateCategory";
-import { useCategoryList } from "../../hooks/merger/useCategoryList";
-import { useCreateCategoryMatcher } from "../../hooks/merger/useCreateCategoryMatcher";
-import { CategoryMatcherCreateRequest } from "../../api/merger";
-import { useGetRegexMatches } from "../../hooks/merger/useGetRegexMatches";
-import { useDebouncedFormValue } from "../../hooks/common/useDebouncedFormValue";
+import { useCreateCategory } from "../../../hooks/merger/useCreateCategory";
+import { useCategoryList } from "../../../hooks/merger/useCategoryList";
+import { useCreateCategoryMatcher } from "../../../hooks/merger/useCreateCategoryMatcher";
+import { CategoryMatcherCreateRequest } from "../../../api/merger";
+import { useGetRegexMatches } from "../../../hooks/merger/useGetRegexMatches";
+import { useDebouncedFormValue } from "../../../hooks/common/useDebouncedFormValue";
 
 type CategoryAddDrawerProps = {
   record?: DataType;
