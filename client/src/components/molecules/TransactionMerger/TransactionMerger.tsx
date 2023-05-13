@@ -2,6 +2,7 @@ import { Button, InputNumber, Slider, Space } from "antd";
 import { Key } from "antd/es/table/interface";
 import React, { useEffect, useMemo, useState } from "react";
 import { Transaction } from "../../../models/merger";
+import { InputMoney } from "../../atoms/InputMoney";
 
 type MergeButtonProps = {
   mergeSelection: Key[];
@@ -9,7 +10,7 @@ type MergeButtonProps = {
   onMerge: (sourceId: number, targetId: number, amount: number) => void;
 };
 
-export const MergeButton = ({
+export const TransactionMerger = ({
   mergeSelection,
   data,
   onMerge,
@@ -24,7 +25,7 @@ export const MergeButton = ({
     [mergeSelection, data]
   );
 
-  const [min, max] = useMemo(() => [0, source?.amount], [source]);
+  const [min, max] = useMemo(() => [0, source?.amount || 0], [source]);
 
   useEffect(() => {
     if (source) {
@@ -39,46 +40,15 @@ export const MergeButton = ({
     onMerge(source!.id, target!.id, value!);
   };
 
-  const onChange = (newValue: number | null) => {
-    setValue(newValue);
-  };
-
-  const formatMoney = (value?: number) => {
-    if (!value) return "";
-    return (value / 100).toFixed(2);
-  };
-
-  const parseMoney = (value?: string) => {
-    if (!value) return 0;
-    const numericValue = parseFloat(value);
-    const intValue = Math.round(numericValue * 100);
-    return isNaN(intValue) ? 0 : intValue;
-  };
-
   return (
     <Space>
-      <Slider
+      <InputMoney
         min={min}
         max={max}
-        onChange={onChange}
-        value={typeof value === "number" ? value : 0}
-        style={{ width: 200 }}
-        tooltip={{ formatter: formatMoney }}
-      />
-      <InputNumber
         value={value}
-        min={min}
-        max={max}
-        onChange={onChange}
-        formatter={formatMoney}
-        parser={parseMoney}
+        setValue={(newValue) => setValue(newValue)}
       />
-      <Button
-        type="primary"
-        onClick={() => {
-          handleMergeButton();
-        }}
-      >
+      <Button type="primary" onClick={() => handleMergeButton()}>
         Merge
       </Button>
     </Space>

@@ -2,7 +2,7 @@ import { DataType, EntryTable } from "../../organisms/EntryTable";
 import React, { useEffect, useState } from "react";
 import { BankStatementUploadModal } from "../../molecules/BankStatementUploadModal";
 import { useGetTransactions } from "../../../hooks/api/useGetTransactions";
-import { MergeButton } from "../../molecules/MergeButton";
+import { TransactionMerger } from "../../molecules/TransactionMerger";
 import { Key } from "antd/es/table/interface";
 import { useMergeMutations } from "../../../hooks/api/useMergeTransactions";
 import { RematchCategoriesButton } from "../../molecules/RematchCategoriesButton";
@@ -74,7 +74,7 @@ export const MergerPage = () => {
         onRecordUpdate={onRecordUpdate}
         mergeComponent={() => (
           <Space>
-            <MergeButton
+            <TransactionMerger
               mergeSelection={mergeSelection}
               data={data?.results || []}
               onMerge={handleMerge}
