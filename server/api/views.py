@@ -42,7 +42,8 @@ class UploadAPIView(CreateAPIView):
         transaction_logs_to_create = []
 
         for entry in extracted_entries:
-            if not Transaction.objects.filter(
+            #  because admin_objects don't exclude any entries unlike TransactionsMergedManager, it's a source of truth
+            if not Transaction.admin_objects.filter(
                 Q(date=entry['date']) &
                 Q(description=entry['description']) &
                 Q(account=entry['account']) &

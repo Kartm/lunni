@@ -2,7 +2,7 @@ import React from "react";
 import "./App.css";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 import { Layout, Menu, theme } from "antd";
-import { routes } from "./common/routes";
+import { routes } from "./config/routes";
 
 const { Header, Content } = Layout;
 
@@ -58,7 +58,7 @@ const App = () => {
         {Object.entries(routes).map(([path, details]) => (
           <Route path={path} element={details.component} />
         ))}
-        {/*<Route path="/merger" element={<MergerPage />} />*/}
+        {/*<Route path="/entry-table" element={<MergerPage />} />*/}
         {/*<Route path="/" element={<HomePage />} />*/}
       </Routes>
     </div>
