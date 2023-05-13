@@ -15,8 +15,8 @@ from rest_framework.views import APIView
 from api.models import Transaction, TransactionMerge, CategoryMatcher, Category
 from api.parsers import parse_mbank_statement_file, Entry, parse_pko_statement_file, \
     parse_mbank_savings_statement_file
-from api.serializers import TransactionLogSerializer, TransactionLogMergeSerializer, TransactionCategorySerializer, \
-    TransactionCategoryMatcherSerializer, TransactionLogExportSerializer
+from api.serializers import TransactionSerializer, TransactionMergeSerializer, TransactionCategorySerializer, \
+    TransactionCategoryMatcherSerializer, TransactionExportSerializer
 
 
 class UploadAPIView(CreateAPIView):
@@ -67,12 +67,12 @@ class UploadAPIView(CreateAPIView):
 
 class TransactionsListView(ListAPIView):
     queryset = Transaction.objects.all()
-    serializer_class = TransactionLogSerializer
+    serializer_class = TransactionSerializer
 
 
 class TransactionDetailView(RetrieveUpdateAPIView):
     queryset = Transaction.objects.all()
-    serializer_class = TransactionLogSerializer
+    serializer_class = TransactionSerializer
 
 
 class TransactionCategoryListCreateView(ListCreateAPIView):
@@ -89,13 +89,14 @@ class TransactionCategoryMatcherListCreateView(ListCreateAPIView):
 
 class TransactionsMergeCreateView(CreateAPIView):
     queryset = TransactionMerge.objects.all()
-    serializer_class = TransactionLogMergeSerializer
+    serializer_class = TransactionMergeSerializer
 
 
 class CategoryRematchView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         Transaction.objects.update(category=None)
 
+        # this is not optimal, but it's a rarely used feature so I'm leaving it as it is
         for matcher in CategoryMatcher.objects.all():
             queryset = Transaction.objects.annotate(
                 search_field=Concat('date', Value(' '), 'description', output_field=CharField()))
@@ -118,7 +119,7 @@ class TransactionCategoryStatsView(APIView):
 
 
 class TransactionLogRegexMatchListView(ListAPIView):
-    serializer_class = TransactionLogSerializer
+    serializer_class = TransactionSerializer
 
     def get_queryset(self):
         regex_expression = self.request.query_params.get('regex_expression')
@@ -130,7 +131,7 @@ class TransactionLogRegexMatchListView(ListAPIView):
 
 
 class TransactionsCSVExportView(View):
-    serializer_class = TransactionLogExportSerializer
+    serializer_class = TransactionExportSerializer
 
     def get_serializer(self, queryset, many=True):
         return self.serializer_class(
@@ -146,7 +147,7 @@ class TransactionsCSVExportView(View):
             Transaction.objects.all(),
             many=True
         )
-        header = TransactionLogExportSerializer.Meta.fields
+        header = TransactionExportSerializer.Meta.fields
 
         writer = csv.DictWriter(response, fieldnames=header)
         writer.writeheader()

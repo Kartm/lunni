@@ -23,6 +23,12 @@ class Category(TimeStampedModel):
     def __str__(self):
         return '({}) {}, {}'.format(self.id, self.name, self.variant)
 
+    class Meta:
+        indexes = [
+            # speeds up fetching, they are ordered in a view by DESC created date
+            models.Index(fields=['-created']),
+        ]
+
 
 class CategoryMatcher(TimeStampedModel):
     id = models.AutoField(primary_key=True)
@@ -36,6 +42,12 @@ class CategoryMatcher(TimeStampedModel):
 
     def __str__(self):
         return '({}) <{}>, {}'.format(self.id, self.regex_expression, self.category.name)
+
+    class Meta:
+        indexes = [
+            # speeds up fetching, they are ordered in a view by DESC created date
+            models.Index(fields=['-created']),
+        ]
 
 
 class Transaction(TimeStampedModel):
@@ -52,16 +64,19 @@ class Transaction(TimeStampedModel):
     )
     amount = IntegerField()
 
-    admin_objects = models.Manager()  # prevent records with calculated_amount=0 from being hidden in Django admin
+    # prevent records with calculated_amount=0 from being hidden in Django admin
+    admin_objects = models.Manager()
     objects = TransactionsMergedManager()
 
     def __str__(self):
         return '({}) {}, {}, {}, {}'.format(self.id, self.date, self.category, self.note, self.description)
 
     class Meta:
-        # improves upload time because we during upload we search for duplicates
         indexes = [
+            # improves upload time because we during upload we search for duplicates
             models.Index(fields=['date', 'description', 'account', 'amount']),
+            # improves fetching pages of transactions because we sort them by these fields
+            models.Index(fields=['-date', 'amount']),
         ]
 
 

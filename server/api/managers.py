@@ -5,7 +5,10 @@ from django.db.models.functions import Coalesce
 
 class TransactionsMergedManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().annotate(
+        # select_related optimizes db calls because categories are often fetched with transactions
+        return super().get_queryset()\
+            .select_related('category')\
+            .annotate(
             # finds all related transaction merges
             calculated_amount=
             F('amount') -
