@@ -1,13 +1,14 @@
 import React, { useMemo } from "react";
-import { Button, Input, Table, Typography } from "antd";
+import { Table } from "antd";
 import { Transaction } from "../../../models/merger";
 import { Key } from "antd/es/table/interface";
 import { ColumnsType } from "antd/lib/table";
-import { PlusCircleOutlined } from "@ant-design/icons";
 import { TransactionPartial } from "../../../api/merger";
 import { debounce } from "lodash";
-
-const { Text } = Typography;
+import { EntryTableCategoryCell } from "../../molecules/EntryTableCategoryCell";
+import { EntryTableAmountCell } from "../../molecules/EntryTableAmountCell";
+import { EntryTableNoteCell } from "../../molecules/EntryTableNoteCell";
+import { EntryTableDescriptionCell } from "../../molecules/EntryTableDescriptionCell";
 
 export type DataType = Transaction & {
   key: Key;
@@ -151,7 +152,7 @@ const getColumns = ({
     key: "description",
     ellipsis: true,
     render: (description: string) => (
-      <span title={description}>{description}</span>
+      <EntryTableDescriptionCell description={description} />
     ),
   },
   {
@@ -161,25 +162,10 @@ const getColumns = ({
     width: 140,
     ellipsis: true,
     render: (category: DataType["category"], record) => (
-      <Text
-        type={
-          category?.variant === "POS"
-            ? "success"
-            : category?.variant === "NEG"
-            ? "danger"
-            : "secondary"
-        }
-      >
-        {category?.name || (
-          <Button
-            icon={<PlusCircleOutlined />}
-            size={"small"}
-            type={"ghost"}
-            title={"Category is missing"}
-            onClick={() => onCategoryAdd(record)}
-          />
-        )}
-      </Text>
+      <EntryTableCategoryCell
+        category={category}
+        onClickAdd={() => onCategoryAdd(record)}
+      />
     ),
   },
   {
@@ -188,12 +174,9 @@ const getColumns = ({
     key: "note",
     width: 150,
     render: (_, record) => (
-      <Input
-        defaultValue={record.note}
-        onChange={(e) =>
-          onRecordUpdate({ id: record.id, note: e.target.value })
-        }
-        allowClear
+      <EntryTableNoteCell
+        defaultNote={record.note}
+        onNoteChange={(note) => onRecordUpdate({ id: record.id, note })}
       />
     ),
   },
@@ -210,10 +193,6 @@ const getColumns = ({
     key: "amount",
     width: 150,
     align: "right",
-    render: (amount: number) => (
-      <Text type={amount > 0 ? "success" : "danger"}>
-        {`${(amount / 100).toFixed(2)} PLN`}
-      </Text>
-    ),
+    render: (amount: number) => <EntryTableAmountCell amount={amount} />,
   },
 ];
