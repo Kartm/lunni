@@ -18,7 +18,7 @@ class TransactionCategoryMatcherSerializer(serializers.ModelSerializer):
         fields = ['id', 'regex_expression', 'category', 'category_id']
 
 
-class TransactionLogSerializer(serializers.ModelSerializer):
+class TransactionSerializer(serializers.ModelSerializer):
     calculated_amount = serializers.SerializerMethodField()
     category = TransactionCategorySerializer()
 
@@ -32,7 +32,7 @@ class TransactionLogSerializer(serializers.ModelSerializer):
         return instance.calculated_amount
 
 
-class TransactionLogExportSerializer(TransactionLogSerializer):
+class TransactionExportSerializer(TransactionSerializer):
     calculated_amount = serializers.SerializerMethodField()
     category_name = serializers.SerializerMethodField()
 
@@ -51,7 +51,7 @@ class TransactionLogExportSerializer(TransactionLogSerializer):
             return instance.category.name
 
 
-class TransactionLogMergeSerializer(serializers.ModelSerializer):
+class TransactionMergeSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField(
         min_value=0,
     )
