@@ -1,6 +1,6 @@
 import { DataType, EntryTable } from "../../organisms/EntryTable";
 import React, { useEffect, useState } from "react";
-import { FileUploadModal } from "../../molecules/FileUpload";
+import { BankStatementUploadModal } from "../../molecules/BankStatementUploadModal";
 import { useGetTransactions } from "../../../hooks/api/useGetTransactions";
 import { MergeButton } from "../../molecules/MergeButton";
 import { Key } from "antd/es/table/interface";
@@ -54,7 +54,7 @@ export const MergerPage = () => {
       />
 
       <Space style={{ marginBottom: "16px" }}>
-        <FileUploadModal />
+        <BankStatementUploadModal />
 
         <RematchCategoriesButton />
 

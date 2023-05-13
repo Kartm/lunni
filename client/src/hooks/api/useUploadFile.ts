@@ -3,7 +3,11 @@ import { RcFile } from "antd/lib/upload";
 import { message } from "antd";
 import { useMutation, useQueryClient } from "react-query";
 
-export const useUploadFile = () => {
+type useUploadFileProps = {
+  onSuccess: () => void;
+};
+
+export const useUploadFile = ({ onSuccess }: useUploadFileProps) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -25,6 +29,8 @@ export const useUploadFile = () => {
         queryClient.invalidateQueries({ queryKey: ["get-transactions"] });
         queryClient.invalidateQueries({ queryKey: ["categories-stats"] });
       }
+
+      onSuccess();
     },
   });
 };
