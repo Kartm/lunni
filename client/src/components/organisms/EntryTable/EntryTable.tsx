@@ -1,18 +1,14 @@
-import React, { useCallback, useMemo } from "react";
+import React from "react";
 import { Table } from "antd";
 import { Transaction } from "../../../models/merger";
 import { Key } from "antd/es/table/interface";
-import { ColumnsType } from "antd/lib/table";
 import { TransactionPartial } from "../../../api/merger";
 import { debounce } from "lodash";
-import { EntryTableCategoryCell } from "../../molecules/EntryTableCategoryCell";
-import { EntryTableAmountCell } from "../../molecules/EntryTableAmountCell";
-import { EntryTableNoteCell } from "../../molecules/EntryTableNoteCell";
-import { EntryTableDescriptionCell } from "../../molecules/EntryTableDescriptionCell";
+import { useEntryTableRows } from "../../../hooks/entry-table";
+import { useEntryTableColumns } from "../../../hooks/entry-table/useEntryTableColumns";
 
 export type DataType = Transaction & {
   key: Key;
-  mergeComponent: () => React.ReactNode;
 };
 
 type EntryTableProps = {
@@ -24,7 +20,7 @@ type EntryTableProps = {
   onPaginationChange: (page: number, pageSize: number) => void;
   onCategoryAdd: (record: DataType) => void;
   onRecordUpdate: (transactionPartial: TransactionPartial) => void;
-  mergeComponent: () => React.ReactNode;
+  mergeComponent: ({ record }: { record: DataType }) => React.ReactNode;
 };
 
 export const EntryTable = ({
@@ -38,52 +34,23 @@ export const EntryTable = ({
   onRecordUpdate,
   mergeComponent,
 }: EntryTableProps) => {
-  const { dataSource, disabledRows } = useMemo(() => {
-    const dataSource: DataType[] = data.map((transaction) => ({
-      ...transaction,
-      key: transaction.id,
-      mergeComponent,
-    }));
-
-    const selectedRows = new Set(
-      dataSource.filter((d) => mergeSelection.includes(d.key))
-    );
-
-    const disabledRows = new Set(
-      dataSource.filter((record) =>
-        isCheckboxDisabled(record, dataSource, selectedRows)
-      )
-    );
-
-    return { dataSource, disabledRows };
-  }, [data, mergeSelection]);
-
-  const onRowSelectionChange = useCallback(
-    (selectedRowKeys: Key[]) => {
-      const selectedRows = dataSource.filter((d) =>
-        selectedRowKeys.includes(d.key)
-      );
-
-      if (selectedRows.length === 1 && selectedRows[0].amount <= 0) {
-        // if unselected "FROM", prevent "TO" from becoming "FROM" and having negative amount
-        onMergeSelectionChange([]);
-      } else {
-        onMergeSelectionChange(selectedRowKeys);
-      }
-    },
-    [dataSource, onMergeSelectionChange]
-  );
+  const { dataSource, disabledRows, onRowSelectionChange } = useEntryTableRows({
+    data,
+    mergeSelection,
+    onMergeSelectionChange,
+  });
 
   const onRecordUpdateDebounced = debounce(onRecordUpdate, 250);
+  const columns = useEntryTableColumns({
+    onCategoryAdd,
+    onRecordUpdate: onRecordUpdateDebounced,
+  });
 
   return (
     <Table
       loading={isLoading}
       dataSource={dataSource}
-      columns={getColumns({
-        onCategoryAdd,
-        onRecordUpdate: onRecordUpdateDebounced,
-      })}
+      columns={columns}
       rowSelection={{
         type: "checkbox",
         hideSelectAll: true,
@@ -103,97 +70,9 @@ export const EntryTable = ({
       }}
       expandable={{
         showExpandColumn: false,
-        expandedRowRender: (record) => <div>{record.mergeComponent()}</div>,
+        expandedRowRender: (record) => <div>{mergeComponent({ record })}</div>,
         expandedRowKeys: mergeSelection.length === 2 ? [mergeSelection[0]] : [],
       }}
     />
   );
 };
-
-const isCheckboxDisabled = (
-  record: DataType,
-  dataSource: DataType[],
-  selectedRows: Set<DataType>
-) => {
-  switch (selectedRows.size) {
-    case 0: {
-      return record.amount <= 0;
-    }
-    case 1: {
-      const [selectedRow] = selectedRows;
-
-      if (selectedRow.key === record.key) {
-        return false;
-      }
-
-      return record.amount * selectedRow.amount > 0;
-    }
-    default: {
-      return !selectedRows.has(record);
-    }
-  }
-};
-
-const getColumns = ({
-  onCategoryAdd,
-  onRecordUpdate,
-}: {
-  onCategoryAdd: (record: DataType) => void;
-  onRecordUpdate: (transactionPartial: TransactionPartial) => void;
-}): ColumnsType<DataType> => [
-  {
-    title: "Date",
-    dataIndex: "date",
-    key: "date",
-    width: 115,
-  },
-  {
-    title: "Description",
-    dataIndex: "description",
-    key: "description",
-    ellipsis: true,
-    render: (description: string) => (
-      <EntryTableDescriptionCell description={description} />
-    ),
-  },
-  {
-    title: "Category",
-    dataIndex: "category",
-    key: "category",
-    width: 140,
-    ellipsis: true,
-    render: (category: DataType["category"], record) => (
-      <EntryTableCategoryCell
-        category={category}
-        onClickAdd={() => onCategoryAdd(record)}
-      />
-    ),
-  },
-  {
-    title: "Note",
-    dataIndex: "note",
-    key: "note",
-    width: 150,
-    render: (_, record) => (
-      <EntryTableNoteCell
-        defaultNote={record.note}
-        onNoteChange={(note) => onRecordUpdate({ id: record.id, note })}
-      />
-    ),
-  },
-  {
-    title: "Account",
-    dataIndex: "account",
-    key: "account",
-    width: 80,
-    ellipsis: true,
-  },
-  {
-    title: "Amount",
-    dataIndex: "calculated_amount",
-    key: "amount",
-    width: 150,
-    align: "right",
-    render: (amount: number) => <EntryTableAmountCell amount={amount} />,
-  },
-];

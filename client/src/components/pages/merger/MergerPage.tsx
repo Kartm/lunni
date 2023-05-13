@@ -1,15 +1,15 @@
 import { DataType, EntryTable } from "../../organisms/EntryTable";
 import React, { useEffect, useState } from "react";
 import { FileUploadModal } from "../../molecules/FileUpload";
-import { useGetTransactions } from "../../../hooks/merger/useGetTransactions";
+import { useGetTransactions } from "../../../hooks/api/useGetTransactions";
 import { MergeButton } from "../../molecules/MergeButton";
 import { Key } from "antd/es/table/interface";
-import { useMergeMutations } from "../../../hooks/merger/useMergeTransactions";
+import { useMergeMutations } from "../../../hooks/api/useMergeTransactions";
 import { RematchCategoriesButton } from "../../molecules/RematchCategoriesButton";
 import { CategoryAddDrawer } from "../../molecules/CategoryAddDrawer";
 import { Space } from "antd";
 import { TransactionPartial } from "../../../api/merger";
-import { useUpdateTransaction } from "../../../hooks/merger/useUpdateTransaction";
+import { useUpdateTransaction } from "../../../hooks/api/useUpdateTransaction";
 import { ExportButton } from "../../molecules/ExportButton";
 
 export const MergerPage = () => {

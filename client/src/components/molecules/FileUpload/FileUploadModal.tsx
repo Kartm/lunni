@@ -4,7 +4,7 @@ import { Button, Form, Modal, Select, Upload } from "antd";
 import type { RcFile } from "antd/es/upload/interface";
 import { UploadFileVariant } from "../../../api/merger";
 import { useForm } from "antd/es/form/Form";
-import { useUploadFile } from "../../../hooks/merger";
+import { useUploadFile } from "../../../hooks/api";
 
 const normFile = (e: any) => {
   if (Array.isArray(e)) {

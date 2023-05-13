@@ -3,11 +3,11 @@ import React, { useEffect } from "react";
 import { DataType } from "../../organisms/EntryTable";
 import TextArea from "antd/es/input/TextArea";
 import { SelectWithAdder } from "../SelectWithAdder";
-import { useCreateCategory } from "../../../hooks/merger/useCreateCategory";
-import { useCategoryList } from "../../../hooks/merger/useCategoryList";
-import { useCreateCategoryMatcher } from "../../../hooks/merger/useCreateCategoryMatcher";
+import { useCreateCategory } from "../../../hooks/api/useCreateCategory";
+import { useCategoryList } from "../../../hooks/api/useCategoryList";
+import { useCreateCategoryMatcher } from "../../../hooks/api/useCreateCategoryMatcher";
 import { CategoryMatcherCreateRequest } from "../../../api/merger";
-import { useGetRegexMatches } from "../../../hooks/merger/useGetRegexMatches";
+import { useGetRegexMatches } from "../../../hooks/api/useGetRegexMatches";
 import { useDebouncedFormValue } from "../../../hooks/common/useDebouncedFormValue";
 
 type CategoryAddDrawerProps = {

@@ -13,8 +13,8 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { useRematchCategories } from "../../../hooks/merger/useRematchCategories";
-import { useCategoryStats } from "../../../hooks/merger/useCategoryStats";
+import { useRematchCategories } from "../../../hooks/api/useRematchCategories";
+import { useCategoryStats } from "../../../hooks/api/useCategoryStats";
 import { SyncOutlined } from "@ant-design/icons";
 import { DataType } from "../../organisms/EntryTable";
 import TextArea from "antd/es/input/TextArea";
