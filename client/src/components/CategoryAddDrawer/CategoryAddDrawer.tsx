@@ -12,7 +12,7 @@ import {
   Tag,
   Typography,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRematchCategories } from "../../hooks/merger/useRematchCategories";
 import { useCategoryStats } from "../../hooks/merger/useCategoryStats";
 import { SyncOutlined } from "@ant-design/icons";
@@ -48,18 +48,16 @@ export const CategoryAddDrawer = ({
   const regexExpression = Form.useWatch(["regexExpression"], form) as string;
   const [debouncedRegex, setDebouncedRegex] = useState(regexExpression);
 
-  function handleRegexChange(regex: string) {
-    debounce(() => {
-      // 😕 debounced function never called
-      setDebouncedRegex(regex);
-    }, 250);
-  }
+  const handleRegexChange = useCallback(
+    debounce((regex: string) => setDebouncedRegex(regex), 250),
+    [setDebouncedRegex]
+  );
 
   useEffect(() => {
     handleRegexChange(regexExpression);
   }, [regexExpression]);
 
-  const { data: regexMatchesList } = useGetRegexMatches(regexExpression);
+  const { data: regexMatchesList } = useGetRegexMatches(debouncedRegex);
 
   useEffect(() => {
     if (!record) {
