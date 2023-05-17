@@ -9,7 +9,7 @@ from rest_framework.utils import json
 
 from api.factories import TransactionFactory, CategoryFactory, CategoryMatcherFactory
 
-mbank_statement_file ="""mBank S.A. Bankowość Detaliczna;
+mbank_statement_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
 90-959 Łódź 2;
 www.mBank.pl;
@@ -151,10 +151,12 @@ pko_statement_file = """"Data operacji","Data waluty","Typ transakcji","Kwota","
 "2023-05-08","2023-05-08","Przelew na rachunek","+20.70","PLN","+23.99","Rachunek nadawcy: XXXX","Nazwa nadawcy: BIURO","Adres nadawcyxxxx","Tytul: sddsd",""
 """
 
+
 # todo move these files to .csv files
 
 class LunniAPITestCase(APITestCase):
-    def upload_file(self, bio: BytesIO, url, variant: str):
+    def upload_file(self, bio: BytesIO, variant: str):
+        url = reverse('upload')
         return self.client.post(
             path=url,
             data=encode_multipart(
@@ -165,38 +167,30 @@ class LunniAPITestCase(APITestCase):
         )
 
     def test_upload_mbank_file(self):
-        url = reverse('upload')
-
         sio = StringIO(mbank_statement_file)
         bio = BytesIO(sio.read().encode('utf8'))
 
-        response = self.upload_file(bio, url, 'mbank')
+        response = self.upload_file(bio, 'mbank')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
         self.assertEqual(response_content, 2)
 
-
-
     def test_upload_mbank_savings_file(self):
-        url = reverse('upload')
-
         sio = StringIO(mbank_statement_savings_file)
         bio = BytesIO(sio.read().encode('cp1250'))
 
-        response = self.upload_file(bio, url, 'mbank-savings')
+        response = self.upload_file(bio, 'mbank-savings')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
         self.assertEqual(response_content, 2)
 
     def test_prevent_csv_duplicates(self):
-        url = reverse('upload')
-
         sio = StringIO(mbank_statement_duplicate_file)
         bio = BytesIO(sio.read().encode('utf8'))
 
-        response = self.upload_file(bio, url, 'mbank')
+        response = self.upload_file(bio, 'mbank')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
@@ -205,7 +199,7 @@ class LunniAPITestCase(APITestCase):
         sio = StringIO(mbank_statement_duplicate_file)
         bio = BytesIO(sio.read().encode('utf8'))
 
-        response = self.upload_file(bio, url, 'mbank')
+        response = self.upload_file(bio, 'mbank')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
@@ -215,45 +209,60 @@ class LunniAPITestCase(APITestCase):
         category = CategoryFactory.create()
         TransactionFactory(date='2023-01-05', description='desc', account='prywatnte', amount=1, category=category)
 
-        url = reverse('upload')
-
         sio = StringIO(mbank_statement_database_duplicate_file)
         bio = BytesIO(sio.read().encode('utf8'))
 
-        response = self.upload_file(bio, url, 'mbank')
+        response = self.upload_file(bio, 'mbank')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
         self.assertEqual(response_content, 0)
 
-
     def test_upload_pko_file(self):
-        url = reverse('upload')
-
         sio = StringIO(pko_statement_file)
         bio = BytesIO(sio.read().encode('cp1250'))
 
-        response = self.upload_file(bio, url, 'pko')
+        response = self.upload_file(bio, 'pko')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
         self.assertEqual(response_content, 2)
 
-    # def test_upload_file_compare_by_amount(self):
-    #     url = reverse('upload')
-    #
-    #     sio = StringIO(mbank_statement_file)
-    #     bio = BytesIO(sio.read().encode('cp1250'))
-    #
-    #     response = self.upload_file(bio, url, 'mbank')
-    #
-    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #     response_content = response.json()['new_entries']
-    #     self.assertEqual(response_content, 2)
-    #
-    #     # todo merge
-    #     # todo try to upload again
-    #     # expect 2 entries
+    def test_upload_file_compare_by_amount(self):
+        sio = StringIO(mbank_statement_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        # when uploaded two entries
+        response = self.upload_file(bio, 'mbank')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(response_content, 2)
+
+        # and when merged them
+        url = reverse('transactions-merge')
+
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    'from_transaction': 1,
+                    'to_transaction': 2,
+                    'amount': 1580
+                }
+            ),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # and when trying to upload same rows again
+        sio = StringIO(mbank_statement_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+        response = self.upload_file(bio, 'mbank')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # then no entries have been added
+        response_content = response.json()['new_entries']
+        self.assertEqual(response_content, 0)
 
     def test_get_transactions(self):
         category = CategoryFactory.create()
