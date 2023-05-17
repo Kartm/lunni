@@ -1,5 +1,6 @@
 import { InputNumber, Slider } from "antd";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { formatMoney, parseMoney } from "./InputMoney.utils";
 
 type InputMoneyProps = {
   min: number;
@@ -12,18 +13,6 @@ type InputMoneyProps = {
 export const InputMoney = ({ min, max, value, setValue }: InputMoneyProps) => {
   const onChange = (newValue: number | null) => {
     setValue(newValue);
-  };
-
-  const formatMoney = (value?: number) => {
-    if (!value) return "";
-    return (value / 100).toFixed(2);
-  };
-
-  const parseMoney = (value?: string) => {
-    if (!value) return 0;
-    const numericValue = parseFloat(value);
-    const intValue = Math.round(numericValue * 100);
-    return isNaN(intValue) ? 0 : intValue;
   };
 
   return (
