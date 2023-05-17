@@ -58,8 +58,6 @@ const App = () => {
         {Object.entries(routes).map(([path, details]) => (
           <Route path={path} element={details.component} />
         ))}
-        {/*<Route path="/entry-table" element={<MergerPage />} />*/}
-        {/*<Route path="/" element={<HomePage />} />*/}
       </Routes>
     </div>
   );
