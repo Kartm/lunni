@@ -9,12 +9,7 @@ from rest_framework.utils import json
 
 from api.factories import TransactionFactory, CategoryFactory, CategoryMatcherFactory
 
-
-class LunniAPITestCase(APITestCase):
-    def test_upload_mbank_file(self):
-        url = reverse('upload')
-
-        operations_file = """mBank S.A. Bankowość Detaliczna;
+mbank_statement_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
 90-959 Łódź 2;
 www.mBank.pl;
@@ -42,27 +37,40 @@ PLN;XXXXXXXXXX
 #Data operacji;#Opis operacji;#Rachunek;#Kategoria;#Kwota;
 2023-02-11;"Zwrot za Maka";"Prywatne";"Wpływy";15,80 PLN;;
 2023-02-10;"Stacja Grawitacja Cz-wa  ZAKUP PRZY UŻYCIU KARTY W KRAJU                                                     transakcja nierozliczona";"Prywatne";"Jedzenie poza domem";-31,60 PLN;;
-        """
-        sio = StringIO(operations_file)
-        bio = BytesIO(sio.read().encode('utf8'))
+"""
 
-        response = self.client.post(
-            path=url,
-            data=encode_multipart(
-                data=dict(file=bio, variant='mbank'),
-                boundary=BOUNDARY,
-            ),
-            content_type=MULTIPART_CONTENT,
-        )
+mbank_statement_duplicate_file = """mBank S.A. Bankowość Detaliczna;
+Skrytka Pocztowa 2108;
+90-959 Łódź 2;
+www.mBank.pl;
+mLinia: 801 300 800;
++48 (42) 6 300 800;
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response_content = response.json()['new_entries']
-        self.assertEqual(response_content, 2)
 
-    def test_upload_mbank_savings_file(self):
-        url = reverse('upload')
+#Klient;
+ŁUKASZ BLACHNICKI;
 
-        operations_file = """mBank S.A. Bankowość Detaliczna;
+Lista operacji;
+
+#Za okres:;
+XXXXXXX;
+
+#zgodnie z wybranymi filtrami wyszukiwania;
+#dla rachunków:;
+Prywatne - XXXX;
+
+#Lista nie jest dokumentem w rozumieniu art. 7 Ustawy Prawo Bankowe (Dz. U. Nr 140 z 1997 roku, poz.939 z późniejszymi zmianami), ponieważ operacje można samodzielnie edytować.;
+
+#Waluta;#Wpływy;#Wydatki;
+PLN;XXXXXXXXXX
+
+#Data operacji;#Opis operacji;#Rachunek;#Kategoria;#Kwota;
+2023-02-11;"Zwrot za Maka";"Prywatne";"Wpływy";15,80 PLN;;
+2023-02-10;"Stacja Grawitacja Cz-wa  ZAKUP PRZY UŻYCIU KARTY W KRAJU                                                     transakcja nierozliczona";"Prywatne";"Jedzenie poza domem";-31,60 PLN;;
+2023-02-10;"Stacja Grawitacja Cz-wa  ZAKUP PRZY UŻYCIU KARTY W KRAJU                                                     transakcja nierozliczona";"Prywatne";"Jedzenie poza domem";-31,60 PLN;;
+"""
+
+mbank_statement_savings_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
 90-959 Łódź 2;
 www.mBank.pl;
@@ -107,95 +115,9 @@ asdasd
 ;;;;;;#Saldo końcowe;asdasd;
 
 Niniejszy dokument sporządzono na podstawie art. 7 Ustawy Prawo Bankowe (Dz. U. Nr 140 z 1997 roku, poz.939 z późniejszymi zmianami).
-        """
-        sio = StringIO(operations_file)
-        bio = BytesIO(sio.read().encode('cp1250'))
+"""
 
-        response = self.client.post(
-            path=url,
-            data=encode_multipart(
-                data=dict(file=bio, variant='mbank-savings'),
-                boundary=BOUNDARY,
-            ),
-            content_type=MULTIPART_CONTENT,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response_content = response.json()['new_entries']
-        self.assertEqual(response_content, 2)
-
-    def test_prevent_csv_duplicates(self):
-        url = reverse('upload')
-
-        operations_file = """mBank S.A. Bankowość Detaliczna;
-Skrytka Pocztowa 2108;
-90-959 Łódź 2;
-www.mBank.pl;
-mLinia: 801 300 800;
-+48 (42) 6 300 800;
-
-
-#Klient;
-ŁUKASZ BLACHNICKI;
-
-Lista operacji;
-
-#Za okres:;
-XXXXXXX;
-
-#zgodnie z wybranymi filtrami wyszukiwania;
-#dla rachunków:;
-Prywatne - XXXX;
-
-#Lista nie jest dokumentem w rozumieniu art. 7 Ustawy Prawo Bankowe (Dz. U. Nr 140 z 1997 roku, poz.939 z późniejszymi zmianami), ponieważ operacje można samodzielnie edytować.;
-
-#Waluta;#Wpływy;#Wydatki;
-PLN;XXXXXXXXXX
-
-#Data operacji;#Opis operacji;#Rachunek;#Kategoria;#Kwota;
-2023-02-11;"Zwrot za Maka";"Prywatne";"Wpływy";15,80 PLN;;
-2023-02-10;"Stacja Grawitacja Cz-wa  ZAKUP PRZY UŻYCIU KARTY W KRAJU                                                     transakcja nierozliczona";"Prywatne";"Jedzenie poza domem";-31,60 PLN;;
-2023-02-10;"Stacja Grawitacja Cz-wa  ZAKUP PRZY UŻYCIU KARTY W KRAJU                                                     transakcja nierozliczona";"Prywatne";"Jedzenie poza domem";-31,60 PLN;;
-        """
-        sio = StringIO(operations_file)
-        bio = BytesIO(sio.read().encode('utf8'))
-
-        response = self.client.post(
-            path=url,
-            data=encode_multipart(
-                data=dict(file=bio, variant='mbank'),
-                boundary=BOUNDARY,
-            ),
-            content_type=MULTIPART_CONTENT,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response_content = response.json()['new_entries']
-        self.assertEqual(response_content, 2)
-
-        sio = StringIO(operations_file)
-        bio = BytesIO(sio.read().encode('utf8'))
-
-        response = self.client.post(
-            path=url,
-            data=encode_multipart(
-                data=dict(file=bio, variant='mbank'),
-                boundary=BOUNDARY,
-            ),
-            content_type=MULTIPART_CONTENT,
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response_content = response.json()['new_entries']
-        self.assertEqual(response_content, 0)
-
-    def test_prevent_database_duplicates(self):
-        category = CategoryFactory.create()
-        TransactionFactory(date='2023-01-05', description='desc', account='prywatnte', amount=1, category=category)
-
-        url = reverse('upload')
-
-        operations_file = """mBank S.A. Bankowość Detaliczna;
+mbank_statement_database_duplicate_file = """mBank S.A. Bankowość Detaliczna;
 Skrytka Pocztowa 2108;
 90-959 Łódź 2;
 www.mBank.pl;
@@ -222,47 +144,125 @@ PLN;XXXXXXXXXX
 
 #Data operacji;#Opis operacji;#Rachunek;#Kategoria;#Kwota;
 2023-01-05;"desc";"prywatnte";"food";0,01 PLN;;
-        """
-        sio = StringIO(operations_file)
-        bio = BytesIO(sio.read().encode('utf8'))
+"""
 
-        response = self.client.post(
+pko_statement_file = """"Data operacji","Data waluty","Typ transakcji","Kwota","Waluta","Saldo po transakcji","Opis transakcji","","","",""
+"2023-05-08","2023-05-08","Przelew na rachunek","+20.70","PLN","+23.99","Costam","Nazwa nadawcy: BIURO","Adres nadawcyxxxx","",""
+"2023-05-08","2023-05-08","Przelew na rachunek","+20.70","PLN","+23.99","Rachunek nadawcy: XXXX","Nazwa nadawcy: BIURO","Adres nadawcyxxxx","Tytul: sddsd",""
+"""
+
+
+# todo move these files to .csv files
+
+class LunniAPITestCase(APITestCase):
+    def upload_file(self, bio: BytesIO, variant: str):
+        url = reverse('upload')
+        return self.client.post(
             path=url,
             data=encode_multipart(
-                data=dict(file=bio, variant='mbank'),
+                data=dict(file=bio, variant=variant),
                 boundary=BOUNDARY,
             ),
             content_type=MULTIPART_CONTENT,
         )
+
+    def test_upload_mbank_file(self):
+        sio = StringIO(mbank_statement_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        response = self.upload_file(bio, 'mbank')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(response_content, 2)
+
+    def test_upload_mbank_savings_file(self):
+        sio = StringIO(mbank_statement_savings_file)
+        bio = BytesIO(sio.read().encode('cp1250'))
+
+        response = self.upload_file(bio, 'mbank-savings')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(response_content, 2)
+
+    def test_prevent_csv_duplicates(self):
+        sio = StringIO(mbank_statement_duplicate_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        response = self.upload_file(bio, 'mbank')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(response_content, 2)
+
+        sio = StringIO(mbank_statement_duplicate_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        response = self.upload_file(bio, 'mbank')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
         self.assertEqual(response_content, 0)
 
+    def test_prevent_database_duplicates(self):
+        category = CategoryFactory.create()
+        TransactionFactory(date='2023-01-05', description='desc', account='prywatnte', amount=1, category=category)
+
+        sio = StringIO(mbank_statement_database_duplicate_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        response = self.upload_file(bio, 'mbank')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(response_content, 0)
 
     def test_upload_pko_file(self):
-        url = reverse('upload')
-
-        operations_file = """
-"Data operacji","Data waluty","Typ transakcji","Kwota","Waluta","Saldo po transakcji","Opis transakcji","","","",""
-"2023-05-08","2023-05-08","Przelew na rachunek","+20.70","PLN","+23.99","Costam","Nazwa nadawcy: BIURO","Adres nadawcyxxxx","",""
-"2023-05-08","2023-05-08","Przelew na rachunek","+20.70","PLN","+23.99","Rachunek nadawcy: XXXX","Nazwa nadawcy: BIURO","Adres nadawcyxxxx","Tytul: sddsd",""
-        """
-        sio = StringIO(operations_file)
+        sio = StringIO(pko_statement_file)
         bio = BytesIO(sio.read().encode('cp1250'))
 
-        response = self.client.post(
-            path=url,
-            data=encode_multipart(
-                data=dict(file=bio, variant='pko'),
-                boundary=BOUNDARY,
-            ),
-            content_type=MULTIPART_CONTENT,
-        )
+        response = self.upload_file(bio, 'pko')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
         self.assertEqual(response_content, 2)
+
+    def test_upload_file_compare_by_amount(self):
+        sio = StringIO(mbank_statement_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+
+        # when uploaded two entries
+        response = self.upload_file(bio, 'mbank')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(response_content, 2)
+
+        # and when merged them
+        url = reverse('transactions-merge')
+
+        response = self.client.post(
+            path=url,
+            data=json.dumps(
+                {
+                    'from_transaction': 1,
+                    'to_transaction': 2,
+                    'amount': 1580
+                }
+            ),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # and when trying to upload same rows again
+        sio = StringIO(mbank_statement_file)
+        bio = BytesIO(sio.read().encode('utf8'))
+        response = self.upload_file(bio, 'mbank')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # then no entries have been added
+        response_content = response.json()['new_entries']
+        self.assertEqual(response_content, 0)
 
     def test_get_transactions(self):
         category = CategoryFactory.create()
