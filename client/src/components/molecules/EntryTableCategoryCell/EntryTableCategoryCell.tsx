@@ -1,5 +1,5 @@
 import { Button, Typography } from "antd";
-import React from "react";
+import React, { memo } from "react";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import { Transaction } from "../../../models/merger";
 
@@ -10,27 +10,26 @@ type EntryTableCategoryCellProps = {
   onClickAdd: () => void;
 };
 
-export const EntryTableCategoryCell = ({
-  category,
-  onClickAdd,
-}: EntryTableCategoryCellProps) => (
-  <Text
-    type={
-      category?.variant === "POS"
-        ? "success"
-        : category?.variant === "NEG"
-        ? "danger"
-        : "secondary"
-    }
-  >
-    {category?.name || (
-      <Button
-        icon={<PlusCircleOutlined />}
-        size={"small"}
-        type={"ghost"}
-        title={"Category is missing"}
-        onClick={() => onClickAdd()}
-      />
-    )}
-  </Text>
+export const EntryTableCategoryCell = memo(
+  ({ category, onClickAdd }: EntryTableCategoryCellProps) => (
+    <Text
+      type={
+        category?.variant === "POS"
+          ? "success"
+          : category?.variant === "NEG"
+          ? "danger"
+          : "secondary"
+      }
+    >
+      {category?.name || (
+        <Button
+          icon={<PlusCircleOutlined />}
+          size={"small"}
+          type={"ghost"}
+          title={"Category is missing"}
+          onClick={() => onClickAdd()}
+        />
+      )}
+    </Text>
+  )
 );

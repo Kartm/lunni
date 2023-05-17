@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Transaction } from "../../../models/merger";
 import { InputMoney } from "../../atoms/InputMoney";
 
-type MergeButtonProps = {
+type TransactionMergerProps = {
   mergeSelection: Key[];
   data: Transaction[];
   onMerge: (sourceId: number, targetId: number, amount: number) => void;
@@ -14,7 +14,7 @@ export const TransactionMerger = ({
   mergeSelection,
   data,
   onMerge,
-}: MergeButtonProps) => {
+}: TransactionMergerProps) => {
   const [value, setValue] = useState<number | null>(0);
 
   const [source, target] = useMemo(
