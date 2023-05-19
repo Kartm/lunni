@@ -7,7 +7,7 @@ type SelectAdderProps = {
   onAddOption: (name: string, variant: TransactionCategory["variant"]) => void;
 };
 
-export const SelectAdder = ({ onAddOption }: SelectAdderProps) => {
+export const CategoryAdder = ({ onAddOption }: SelectAdderProps) => {
   const [newOption, setNewOption] = useState({
     name: "",
     variant: "NEG" as TransactionCategory["variant"],

@@ -5,7 +5,7 @@ import { Key } from "antd/es/table/interface";
 import { TransactionPartial } from "../../../api/merger";
 import { debounce } from "lodash";
 import { useEntryTableRows } from "../../../hooks/components";
-import { useEntryTableColumns } from "../../../hooks/components/useEntryTableColumns";
+import { useEntryTableColumns } from "../../../hooks/components";
 
 export type DataType = Transaction & {
   key: Key;

@@ -1,15 +1,17 @@
 import { DataType, EntryTable } from "../../organisms/EntryTable";
 import React, { useEffect, useState } from "react";
 import { BankStatementUploadModal } from "../../molecules/BankStatementUploadModal";
-import { useGetTransactions } from "../../../hooks/api/useGetTransactions";
+import {
+  useGetTransactions,
+  useMergeMutations,
+  useUpdateTransaction,
+} from "../../../hooks/api";
 import { TransactionMerger } from "../../molecules/TransactionMerger";
 import { Key } from "antd/es/table/interface";
-import { useMergeMutations } from "../../../hooks/api/useMergeTransactions";
 import { RematchCategoriesButton } from "../../molecules/RematchCategoriesButton";
-import { CategoryAddDrawer } from "../../molecules/CategoryAddDrawer";
+import { CategoryMatcherAdder } from "../../molecules/CategoryMatcherAdder";
 import { Space } from "antd";
 import { TransactionPartial } from "../../../api/merger";
-import { useUpdateTransaction } from "../../../hooks/api/useUpdateTransaction";
 import { ExportButton } from "../../molecules/ExportButton";
 
 export const MergerPage = () => {
@@ -48,7 +50,7 @@ export const MergerPage = () => {
 
   return (
     <div style={{ padding: "16px" }}>
-      <CategoryAddDrawer
+      <CategoryMatcherAdder
         record={categoryAddRecord}
         onClose={() => setCategoryAddRecord(undefined)}
       />

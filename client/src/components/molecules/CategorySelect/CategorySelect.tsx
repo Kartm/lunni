@@ -2,13 +2,13 @@ import { Divider, Select } from "antd";
 import React, { useState } from "react";
 import { SelectProps } from "antd/es/select";
 import { TransactionCategory } from "../../../models/merger";
-import { SelectAdder } from "../../atoms/SelectAdder";
+import { CategoryAdder } from "./CategoryAdder";
 
 type SelectWithAdderProps = {
   onAddOption: (name: string, variant: TransactionCategory["variant"]) => void;
 } & Omit<SelectProps, "open">;
 
-export const SelectWithAdder = ({
+export const CategorySelect = ({
   onAddOption,
   ...props
 }: SelectWithAdderProps) => {
@@ -31,7 +31,7 @@ export const SelectWithAdder = ({
         <>
           {menu}
           <Divider style={{ margin: "8px 0" }} />
-          <SelectAdder onAddOption={handleAddOption} />
+          <CategoryAdder onAddOption={handleAddOption} />
         </>
       )}
       {...props}

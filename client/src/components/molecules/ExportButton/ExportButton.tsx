@@ -1,6 +1,6 @@
 import React from "react";
 import { DownloadOutlined } from "@ant-design/icons";
-import { Button, Select } from "antd";
+import { Button } from "antd";
 
 export const ExportButton = () => (
   <Button

@@ -1,4 +1,4 @@
-import { Input, Typography } from "antd";
+import { Input } from "antd";
 import React, { memo } from "react";
 import { Transaction } from "../../../models/merger";
 
