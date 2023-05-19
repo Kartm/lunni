@@ -1,12 +1,10 @@
 import React from "react";
 import { DownloadOutlined } from "@ant-design/icons";
 import { Button } from "antd";
+import { exportFileUrl } from "../../../api/merger";
 
 export const ExportButton = () => (
-  <Button
-    icon={<DownloadOutlined />}
-    href={"http://localhost:8000/api/merger/transactions/export/"}
-  >
+  <Button icon={<DownloadOutlined />} href={exportFileUrl}>
     Export
   </Button>
 );
