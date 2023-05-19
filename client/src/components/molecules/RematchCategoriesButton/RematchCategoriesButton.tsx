@@ -1,8 +1,8 @@
-import { Button, Space, Tag, Typography } from "antd";
+import { Button, Typography } from "antd";
 import React, { useMemo } from "react";
 import { useRematchCategories } from "../../../hooks/api/useRematchCategories";
 import { useCategoryStats } from "../../../hooks/api/useCategoryStats";
-import { SyncOutlined, RedoOutlined } from "@ant-design/icons";
+import { RedoOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
 

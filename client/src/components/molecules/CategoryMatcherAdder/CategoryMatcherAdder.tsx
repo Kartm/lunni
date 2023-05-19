@@ -2,20 +2,20 @@ import { Button, Drawer, Form, List, Space } from "antd";
 import React, { useEffect } from "react";
 import { DataType } from "../../organisms/EntryTable";
 import TextArea from "antd/es/input/TextArea";
-import { SelectWithAdder } from "../SelectWithAdder";
-import { useCreateCategory } from "../../../hooks/api/useCreateCategory";
-import { useCategoryList } from "../../../hooks/api/useCategoryList";
-import { useCreateCategoryMatcher } from "../../../hooks/api/useCreateCategoryMatcher";
+import { CategorySelect } from "../CategorySelect";
+import { useCreateCategory } from "../../../hooks/api";
+import { useCategoryList } from "../../../hooks/api";
+import { useCreateCategoryMatcher } from "../../../hooks/api";
 import { CategoryMatcherCreateRequest } from "../../../api/merger";
-import { useGetRegexMatches } from "../../../hooks/api/useGetRegexMatches";
-import { useDebouncedFormValue } from "../../../hooks/common/useDebouncedFormValue";
+import { useGetRegexMatches } from "../../../hooks/api";
+import { useDebouncedFormValue } from "../../../hooks/common";
 
 type CategoryAddDrawerProps = {
   record?: DataType;
   onClose: () => void;
 };
 
-export const CategoryAddDrawer = ({
+export const CategoryMatcherAdder = ({
   record,
   onClose,
 }: CategoryAddDrawerProps) => {
@@ -79,7 +79,7 @@ export const CategoryAddDrawer = ({
           label="Category to assign"
           rules={[{ required: true, message: "Please select a category" }]}
         >
-          <SelectWithAdder
+          <CategorySelect
             placeholder="Category"
             loading={isListLoading}
             options={data?.results?.map((d) => ({

@@ -82,3 +82,5 @@ export const updateTransaction = ({
       partialTransaction
     )
     .then((response) => response.data);
+
+export const exportFileUrl = `${axios.defaults.baseURL}/transactions/export/`;

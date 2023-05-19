@@ -17,7 +17,7 @@ export const useEntryTableColumns = ({
   onRecordUpdate,
 }: useEntryTableColumnsProps): ColumnsType<DataType> =>
   useMemo(
-    () => [
+    (): ColumnsType<DataType> => [
       {
         title: "Date",
         dataIndex: "date",

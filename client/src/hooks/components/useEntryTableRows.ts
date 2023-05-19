@@ -29,14 +29,14 @@ const isCheckboxDisabled = (
 
 type useEntryTableRowsProps = {
   data: Transaction[];
-  mergeSelection: React.Key[];
-  onMergeSelectionChange: (keys: Key[]) => void;
+  selection: React.Key[];
+  onSelectionChange: (keys: Key[]) => void;
 };
 
 export const useEntryTableRows = ({
   data,
-  mergeSelection,
-  onMergeSelectionChange,
+  selection,
+  onSelectionChange,
 }: useEntryTableRowsProps) => {
   const { dataSource, disabledRows } = useMemo(() => {
     const dataSource: DataType[] = data.map((transaction) => ({
@@ -45,7 +45,7 @@ export const useEntryTableRows = ({
     }));
 
     const selectedRows = new Set(
-      dataSource.filter((d) => mergeSelection.includes(d.key))
+      dataSource.filter((d) => selection.includes(d.key))
     );
 
     const disabledRows = new Set(
@@ -55,7 +55,7 @@ export const useEntryTableRows = ({
     );
 
     return { dataSource, disabledRows };
-  }, [data, mergeSelection]);
+  }, [data, selection]);
 
   const onRowSelectionChange = useCallback(
     (selectedRowKeys: Key[]) => {
@@ -65,12 +65,12 @@ export const useEntryTableRows = ({
 
       if (selectedRows.length === 1 && selectedRows[0].amount <= 0) {
         // if unselected "FROM", prevent "TO" from becoming "FROM" and having negative amount
-        onMergeSelectionChange([]);
+        onSelectionChange([]);
       } else {
-        onMergeSelectionChange(selectedRowKeys);
+        onSelectionChange(selectedRowKeys);
       }
     },
-    [dataSource, onMergeSelectionChange]
+    [dataSource, onSelectionChange]
   );
 
   return { dataSource, disabledRows, onRowSelectionChange };
