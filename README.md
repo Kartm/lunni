@@ -1,4 +1,6 @@
-**Lunni** is a tool for managing personal finance.
+# Lunni - a tool for managing personal finance.
+
+![Screenshot of the transaction table](./docs/screenshot.png)
 
 If you frequently:
 
