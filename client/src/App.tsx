@@ -15,7 +15,6 @@ const App = () => {
   return (
     <Layout className="layout" style={{ minHeight: "100vh" }}>
       <Header>
-        <div className="logo" />
         <Menu
           theme="dark"
           mode="horizontal"
@@ -39,27 +38,6 @@ const App = () => {
         </div>
       </Content>
     </Layout>
-  );
-
-  return (
-    <div>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/merger">Merger</Link>
-          </li>
-        </ul>
-      </nav>
-
-      <Routes>
-        {Object.entries(routes).map(([path, details]) => (
-          <Route path={path} element={details.component} />
-        ))}
-      </Routes>
-    </div>
   );
 };
 

@@ -15,8 +15,8 @@ type EntryTableProps = {
   totalEntries?: number;
   isLoading?: boolean;
   data: Transaction[];
-  mergeSelection: Key[];
-  onMergeSelectionChange: (keys: Key[]) => void;
+  selection: Key[];
+  onSelectionChange: (keys: Key[]) => void;
   onPaginationChange: (page: number, pageSize: number) => void;
   onCategoryAdd: (record: DataType) => void;
   onRecordUpdate: (transactionPartial: TransactionPartial) => void;
@@ -27,8 +27,8 @@ export const EntryTable = ({
   isLoading,
   data,
   totalEntries,
-  mergeSelection,
-  onMergeSelectionChange,
+  selection,
+  onSelectionChange,
   onPaginationChange,
   onCategoryAdd,
   onRecordUpdate,
@@ -36,8 +36,8 @@ export const EntryTable = ({
 }: EntryTableProps) => {
   const { dataSource, disabledRows, onRowSelectionChange } = useEntryTableRows({
     data,
-    mergeSelection,
-    onMergeSelectionChange,
+    selection,
+    onSelectionChange,
   });
 
   const onRecordUpdateDebounced = debounce(onRecordUpdate, 250);
@@ -55,7 +55,7 @@ export const EntryTable = ({
         type: "checkbox",
         hideSelectAll: true,
         onChange: (selectedRowKeys) => onRowSelectionChange(selectedRowKeys),
-        selectedRowKeys: mergeSelection,
+        selectedRowKeys: selection,
         getCheckboxProps: (record) => ({
           disabled: disabledRows.has(record),
         }),
@@ -71,7 +71,7 @@ export const EntryTable = ({
       expandable={{
         showExpandColumn: false,
         expandedRowRender: (record) => <div>{mergeComponent({ record })}</div>,
-        expandedRowKeys: mergeSelection.length === 2 ? [mergeSelection[0]] : [],
+        expandedRowKeys: selection.length === 2 ? [selection[0]] : [],
       }}
     />
   );

@@ -1,41 +1,38 @@
 import { DataType, EntryTable } from "../../organisms/EntryTable";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { BankStatementUploadModal } from "../../molecules/BankStatementUploadModal";
 import {
   useGetTransactions,
-  useMergeMutations,
+  useMergeTransactions,
   useUpdateTransaction,
 } from "../../../hooks/api";
 import { TransactionMerger } from "../../molecules/TransactionMerger";
-import { Key } from "antd/es/table/interface";
 import { RematchCategoriesButton } from "../../molecules/RematchCategoriesButton";
 import { CategoryMatcherAdder } from "../../molecules/CategoryMatcherAdder";
 import { Space } from "antd";
 import { TransactionPartial } from "../../../api/merger";
 import { ExportButton } from "../../molecules/ExportButton";
+import { usePagination } from "../../../hooks/common/usePagination";
 
 export const MergerPage = () => {
-  const [mergeSelection, setMergeSelection] = useState<Key[]>([]);
-  const [pagination, setPagination] = useState<{
-    page: number;
-    pageSize: number;
-  }>({ page: 1, pageSize: 50 });
-  const mergeTransactions = useMergeMutations();
-  const { data, isLoading: isGetTransactionsLoading } = useGetTransactions(
-    pagination.page,
-    pagination.pageSize
-  );
+  const { pagination, setPagination } = usePagination();
+
+  const { selection, setSelection, isLoading, mergeTransactions } =
+    useMergeTransactions();
+  const [categoryAddRecord, setCategoryAddRecord] = useState<DataType>();
+  const { mutate: updateTransaction } = useUpdateTransaction();
+
+  const { data, isLoading: isGetTransactionsLoading } =
+    useGetTransactions(pagination);
 
   const handleMerge = (sourceId: number, targetId: number, amount: number) => {
-    mergeTransactions.mutate({
+    mergeTransactions({
       from_transaction: sourceId,
       to_transaction: targetId,
-      amount: amount * 1,
+      amount,
     });
   };
 
-  const [categoryAddRecord, setCategoryAddRecord] = useState<DataType>();
-  const { mutate: updateTransaction } = useUpdateTransaction();
   const onCategoryAdd = (record: DataType) => {
     setCategoryAddRecord(record);
   };
@@ -43,10 +40,6 @@ export const MergerPage = () => {
   const onRecordUpdate = (transactionPartial: TransactionPartial) => {
     updateTransaction(transactionPartial);
   };
-
-  useEffect(() => {
-    mergeTransactions.isSuccess && setMergeSelection([]);
-  }, [mergeTransactions.isSuccess]);
 
   return (
     <div style={{ padding: "16px" }}>
@@ -64,11 +57,11 @@ export const MergerPage = () => {
       </Space>
 
       <EntryTable
-        isLoading={isGetTransactionsLoading || mergeTransactions.isLoading}
+        isLoading={isGetTransactionsLoading || isLoading}
         totalEntries={data?.count}
         data={data?.results || []}
-        mergeSelection={mergeSelection}
-        onMergeSelectionChange={setMergeSelection}
+        selection={selection}
+        onSelectionChange={setSelection}
         onPaginationChange={(page, pageSize) =>
           setPagination({ page, pageSize })
         }
@@ -77,7 +70,7 @@ export const MergerPage = () => {
         mergeComponent={() => (
           <Space>
             <TransactionMerger
-              mergeSelection={mergeSelection}
+              mergeSelection={selection}
               data={data?.results || []}
               onMerge={handleMerge}
             />
