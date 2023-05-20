@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  server:
+    build:
+      context: ./server
+    volumes:
+      - sqlite_volume:/db.sqlite3
+    ports:
+      - "8000:8000"
+
+volumes:
+  sqlite_volume:
