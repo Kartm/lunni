@@ -9,7 +9,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - ./server/django-secrets.env
+      - ./server/prod.env
   lunni-client:
     build:
       context: ./client

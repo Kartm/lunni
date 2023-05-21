@@ -54,13 +54,19 @@ Where `calculated_amount` is the resulting amount after merging transactions.
 
 Docker is required.
 
-1. Create a `django-secrets.env` file in `/server` directory with the following structure:
+1. Create a `prod.env` file in `/server` directory with the following structure:
 
 ```
 SECRET_KEY=placeholder-key
+ENV_NAME=production
 ```
 
-This key is used by Django in critical cryptographic use cases. If you plan to deploy the app, generating your own **is a must**! You can do it for example at https://djecrety.ir.
+- `SECRET_KEY`
+  This key is used by Django in critical cryptographic use cases. If you plan to deploy the app, generating your own **is a must**! You can do it for example at https://djecrety.ir.
+
+- `ENV_NAME`
+  Specifies which Django settings variant to load.
+  Possible values: `production`. Any other value will fall back to `development` environment by default.
 
 2. Run `docker-compose up` to build the application
 3. Visit the application at `http://localhost:80`
@@ -88,6 +94,6 @@ NodeJS 18.4 is required.
 # Future plans:
 
 - Gradually add unit tests to cover newly found bugs
-  // todo fix vulnerabilitiyes django
 
 // todo landing page
+// todo http://127.0.0.1:8000/admin/api/transaction/ broken
