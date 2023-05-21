@@ -9,7 +9,7 @@ import {
 import { TransactionMerger } from "../../molecules/TransactionMerger";
 import { RematchCategoriesButton } from "../../molecules/RematchCategoriesButton";
 import { CategoryMatcherAdder } from "../../molecules/CategoryMatcherAdder";
-import { Space } from "antd";
+import { Divider, Space } from "antd";
 import { TransactionPartial } from "../../../api/merger";
 import { ExportButton } from "../../molecules/ExportButton";
 import { usePagination } from "../../../hooks/common/usePagination";
@@ -48,13 +48,15 @@ export const MergerPage = () => {
         onClose={() => setCategoryAddRecord(undefined)}
       />
 
-      <Space style={{ marginBottom: "16px" }}>
+      <Space>
         <BankStatementUploadModal />
 
         <RematchCategoriesButton />
 
         <ExportButton />
       </Space>
+
+      <Divider />
 
       <EntryTable
         isLoading={isGetTransactionsLoading || isLoading}
