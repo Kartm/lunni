@@ -1,10 +1,15 @@
 import React from "react";
 import "./App.css";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
-import { Layout, Menu, theme } from "antd";
+import { theme } from "antd";
 import { routes } from "./config/routes";
-
-const { Header, Content } = Layout;
+import {
+  LunniContent,
+  LunniHeader,
+  LunniLayout,
+  LunniMenu,
+  LunniRouteWrapper,
+} from "./App.styles";
 
 const App = () => {
   const {
@@ -13,31 +18,28 @@ const App = () => {
   const location = useLocation();
 
   return (
-    <Layout className="layout" style={{ minHeight: "100vh" }}>
-      <Header>
-        <Menu
-          theme="dark"
+    <LunniLayout>
+      <LunniHeader>
+        <LunniMenu
+          theme="light"
           mode="horizontal"
-          defaultSelectedKeys={[location.pathname]}
+          selectedKeys={[location.pathname]}
           items={Object.entries(routes).map(([path, details]) => ({
             key: path,
             label: <Link to={path}>{details.title}</Link>,
           }))}
         />
-      </Header>
-      <Content style={{ padding: "50px" }}>
-        <div
-          className="site-layout-content"
-          style={{ background: colorBgContainer }}
-        >
+      </LunniHeader>
+      <LunniContent>
+        <LunniRouteWrapper background={colorBgContainer}>
           <Routes>
             {Object.entries(routes).map(([path, details]) => (
               <Route key={path} path={path} element={details.component} />
             ))}
           </Routes>
-        </div>
-      </Content>
-    </Layout>
+        </LunniRouteWrapper>
+      </LunniContent>
+    </LunniLayout>
   );
 };
 
