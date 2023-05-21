@@ -1,18 +1,16 @@
 import { DataType, EntryTable } from "../../organisms/EntryTable";
 import React, { useState } from "react";
-import { BankStatementUploadModal } from "../../molecules/BankStatementUploadModal";
 import {
   useGetTransactions,
   useMergeTransactions,
   useUpdateTransaction,
 } from "../../../hooks/api";
 import { TransactionMerger } from "../../molecules/TransactionMerger";
-import { RematchCategoriesButton } from "../../molecules/RematchCategoriesButton";
 import { CategoryMatcherAdder } from "../../molecules/CategoryMatcherAdder";
 import { Divider, Space } from "antd";
 import { TransactionPartial } from "../../../api/merger";
-import { ExportButton } from "../../molecules/ExportButton";
 import { usePagination } from "../../../hooks/common/usePagination";
+import { MergerPageActions } from "./MergerPageActions";
 
 export const MergerPage = () => {
   const { pagination, setPagination } = usePagination();
@@ -48,13 +46,7 @@ export const MergerPage = () => {
         onClose={() => setCategoryAddRecord(undefined)}
       />
 
-      <Space>
-        <BankStatementUploadModal />
-
-        <RematchCategoriesButton />
-
-        <ExportButton />
-      </Space>
+      <MergerPageActions />
 
       <Divider />
 
