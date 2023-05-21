@@ -94,5 +94,3 @@ NodeJS 18.4 is required.
 # Future plans:
 
 - Gradually add unit tests to cover newly found bugs
-
-// todo http://127.0.0.1:8000/admin/api/transaction/ broken
