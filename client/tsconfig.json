@@ -6,19 +6,21 @@
       "dom.iterable",
       "esnext"
     ],
-    "allowJs": true,
+    "allowJs": true, // // Process & infer types from .js files.
     "skipLibCheck": true,
-    "esModuleInterop": true,
+    "esModuleInterop": true, // Import non-ES modules as default imports.
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "strict": true, // Enable strict settings like strictNullChecks & noImplicitAny.
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "esnext", // Target latest version of ECMAScript.
+    "moduleResolution": "node", // Search under node_modules for non-relative imports.
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "isolatedModules": true, // Ensure that Babel can safely transpile files in the TypeScript project
+    "noEmit": true, // Don't emit; allow Babel to transform files.
+    "jsx": "react-jsx",
+    "declaration": true, // Ensure that .d.ts files are created by tsc, but not .js files
+    "emitDeclarationOnly": true // Ensure that .d.ts files are created by tsc, but not .js files
   },
   "include": [
     "src"

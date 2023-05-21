@@ -42,7 +42,7 @@ export const MergerPage = () => {
   };
 
   return (
-    <div style={{ padding: "16px" }}>
+    <>
       <CategoryMatcherAdder
         record={categoryAddRecord}
         onClose={() => setCategoryAddRecord(undefined)}
@@ -77,6 +77,6 @@ export const MergerPage = () => {
           </Space>
         )}
       />
-    </div>
+    </>
   );
 };
