@@ -152,8 +152,6 @@ pko_statement_file = """"Data operacji","Data waluty","Typ transakcji","Kwota","
 """
 
 
-# todo move these files to .csv files
-
 class LunniAPITestCase(APITestCase):
     def upload_file(self, bio: BytesIO, variant: str):
         url = reverse('upload')

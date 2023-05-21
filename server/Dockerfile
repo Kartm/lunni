@@ -13,5 +13,3 @@ COPY . ./
 
 RUN ["chmod", "+x", "/publish/docker-entrypoint.sh"]
 ENTRYPOINT ["/publish/docker-entrypoint.sh"]
-
-# todo .dockerignore for node_modules
