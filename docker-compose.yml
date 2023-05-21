@@ -5,7 +5,7 @@ services:
     build:
       context: ./server
     volumes:
-      - sqlite_volume:/db.sqlite3
+      - sqlite_volume:/publish/db
     ports:
       - "8000:8000"
     env_file:
