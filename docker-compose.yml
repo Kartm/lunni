@@ -1,13 +1,26 @@
 version: "3"
 
 services:
-  server:
+  lunni-server:
     build:
       context: ./server
     volumes:
       - sqlite_volume:/db.sqlite3
     ports:
       - "8000:8000"
+    env_file:
+      - ./server/django_secrets.env
+  lunni-client:
+    build:
+      context: ./client
+    volumes:
+      - /app/node_modules
+      - ./client:/app
+    depends_on:
+      - lunni-server
+    restart: always
+    ports:
+      - "80:80"
 
 volumes:
   sqlite_volume:
