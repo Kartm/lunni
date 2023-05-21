@@ -35,4 +35,5 @@ type LunniRouteWrapperProps = {
 export const LunniRouteWrapper = styled.div<LunniRouteWrapperProps>`
   background: ${(p) => p.background};
   padding: 32px;
+  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.12);
 `;
