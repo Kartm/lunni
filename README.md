@@ -11,7 +11,7 @@ then Lunni can help you to better organize and analyze your finance data.
 
 # Try it out!
 
-Feel free to import this [example PKO statement file](./docs/example_pko.csv).
+Feel free to [run the project](<#production-environment-(recommended)>) and import this [example PKO statement file](./docs/example_pko.csv).
 
 # What Lunni can do:
 
@@ -54,13 +54,13 @@ Where `calculated_amount` is the resulting amount after merging transactions.
 
 Docker is required.
 
-1. Create a `django_secrets.env` file in `/server` directory with the following contents:
+1. Create a `django-secrets.env` file in `/server` directory with the following structure:
 
 ```
-SECRET_KEY=<your random secret id>
+SECRET_KEY=placeholder-key
 ```
 
-This key is used by Django for various cryptographic use cases, feel free to generate your own, for example at https://djecrety.ir.
+This key is used by Django in critical cryptographic use cases. If you plan to deploy the app, generating your own **is a must**! You can do it for example at https://djecrety.ir.
 
 2. Run `docker-compose up` to build the application
 3. Visit the application at `http://localhost:80`
