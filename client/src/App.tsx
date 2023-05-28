@@ -6,10 +6,12 @@ import { routes } from "./config/routes";
 import {
   LunniContent,
   LunniHeader,
+  LunniHeaderContent,
   LunniLayout,
   LunniMenu,
   LunniRouteWrapper,
 } from "./App.styles";
+import { LunniLogo } from "./components/atoms/LunniLogo";
 
 const App = () => {
   const {
@@ -20,15 +22,18 @@ const App = () => {
   return (
     <LunniLayout>
       <LunniHeader>
-        <LunniMenu
-          theme="light"
-          mode="horizontal"
-          selectedKeys={[location.pathname]}
-          items={Object.entries(routes).map(([path, details]) => ({
-            key: path,
-            label: <Link to={path}>{details.title}</Link>,
-          }))}
-        />
+        <LunniHeaderContent>
+          <LunniLogo $size={32} />
+          <LunniMenu
+            theme="light"
+            mode="horizontal"
+            selectedKeys={[location.pathname]}
+            items={Object.entries(routes).map(([path, details]) => ({
+              key: path,
+              label: <Link to={path}>{details.title}</Link>,
+            }))}
+          />
+        </LunniHeaderContent>
       </LunniHeader>
       <LunniContent>
         <LunniRouteWrapper background={colorBgContainer}>

@@ -10,7 +10,7 @@ export const HomePage = () => {
 
   return (
     <>
-      <Title level={2}>Lunni - a tool for managing personal finance.</Title>
+      <Title level={2}>Lunni - a tool for managing personal finances.</Title>
 
       <Paragraph>
         If you frequently make shared orders with friends or utilize many bank

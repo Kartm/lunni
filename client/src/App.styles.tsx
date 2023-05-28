@@ -8,12 +8,21 @@ const { Header, Content } = Layout;
 export const LunniHeader: typeof Header = styled(Header)`
   background-color: #ffffff;
   box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const LunniHeaderContent: typeof Header = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
 `;
 
 export const LunniMenu: typeof Menu = styled(Menu)`
   background-color: #ffffff;
   max-width: 1200px;
-  margin: 0 auto;
 `;
 
 export const LunniContent: typeof Content = styled(Content)`
