@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Lunni",
+  "name": "Lunni - a tool for managing personal finances",
   "icons": [
     {
       "src": "favicon.ico",

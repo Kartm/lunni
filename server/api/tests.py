@@ -1,6 +1,5 @@
 import datetime
 from io import StringIO, BytesIO
-
 from django.test.client import MULTIPART_CONTENT, encode_multipart, BOUNDARY
 from django.urls import reverse
 from rest_framework import status
@@ -571,6 +570,9 @@ class LunniAPITestCase(APITestCase):
 
         self.assertEqual(response_json['note'], 'my note')
 
+    def test_xd(self):
+        print("lol")
+
     def test_export_transactions(self):
         category = CategoryFactory(
             id=1,
@@ -603,7 +605,7 @@ class LunniAPITestCase(APITestCase):
         csv_lines = [line for line in response_content.split('\r\n') if line != '']
         header = csv_lines.pop(0)
 
-        self.assertEqual(header, 'id,date,description,note,account,category_name,amount,calculated_amount')
+        self.assertEqual(header, 'id,date,description,note,account,category_name,category_variant,calculated_amount')
         self.assertEqual(len(csv_lines), 2)
-        self.assertEqual(csv_lines[0], '2,2018-05-06,spotify payment,,prywatnte,,-50,-50')
-        self.assertEqual(csv_lines[1], '1,2018-05-01,gift,,prywatnte,subscriptions,300,300')
+        self.assertEqual(csv_lines[0], '2,2018-05-06,spotify payment,,prywatnte,,,-0.50')
+        self.assertEqual(csv_lines[1], '1,2018-05-01,gift,,prywatnte,subscriptions,NEG,3.00')

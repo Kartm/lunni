@@ -1,4 +1,4 @@
-# Lunni - a tool for managing personal finance.
+# Lunni - a tool for managing personal finances.
 
 ![Screenshot of the transaction table](./docs/screenshot.png)
 
@@ -16,9 +16,9 @@ Feel free to [run the project](<#production-environment-(recommended)>) and impo
 # What Lunni can do:
 
 1. Import .csv bank statements:
-   - mBank
-   - mBank savings (so-called "Cele")
-   - PKO
+   - mBank [UTF-8]
+   - mBank savings (so-called "Cele") [Windows-1250]
+   - PKO [Windows-1250]
 2. Transaction Table
    - View transaction chronologically sorted in a table
 3. Transaction Notes
@@ -38,9 +38,11 @@ Feel free to [run the project](<#production-environment-(recommended)>) and impo
 
 The format is the following:
 
-| id  | date       | description | note | account       | category_name | amount | calculated_amount |
-| --- | ---------- | ----------- | ---- | ------------- | ------------- | ------ | ----------------- |
-| 1   | 2023-05-11 | Description |      | Prywatne 1234 | Maintenance   | -50    | -50               |
+| id  | date       | description           | note | account | category_name | category_variant | calculated_amount |
+| --- | ---------- | --------------------- | ---- | ------- | ------------- | ---------------- | ----------------- |
+| 1   | 2023-05-11 | OPŁATA ZA KARTĘ       |      | PKO     | Bank fees     | NEG              | -3.00             |
+| 5   | 2023-05-04 | Tytuł: PIZZA ITALIANA |      | PKO     | Fast food     | NEG              | -10.00            |
+| 6   | 2023-05-03 | Tytuł: WYNAGRODZENIE  |      | PKO     | Salary        | POS              | 100.00            |
 
 Where `calculated_amount` is the resulting amount after merging transactions.
 
