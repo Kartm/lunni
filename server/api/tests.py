@@ -150,14 +150,42 @@ pko_statement_file = """"Data operacji","Data waluty","Typ transakcji","Kwota","
 "2023-05-08","2023-05-08","Przelew na rachunek","+20.70","PLN","+23.99","Rachunek nadawcy: XXXX","Nazwa nadawcy: BIURO","Adres nadawcyxxxx","Tytul: sddsd",""
 """
 
+ing_statement_file = """"Lista transakcji";;;;;"ING Bank Śląski S.A. ul. Sokolska 34, 40-086 Katowice www.ing.pl";;;;;;;;;;;;;;;
+"Dokument nr XXXX";
+"Wygenerowany dnia: XXXX";;;;;;;;;;;;;;;;;;;;
+
+"Dane Użytkownika:";
+"XXXX";
+
+"Wybrane rachunki:";
+"KONTO Mobi 18-26 (PLN)";;"XXXX";
+"Otwarte Konto Oszczędnościowe (PLN)";;"XXXX";
+
+"Zastosowane kryteria wyboru";;;;;"Podsumowanie";;
+
+"Zakres dat:";"XXXX";"Typy transakcji:";"wszystkie";;"Liczba transakcji:";2;
+
+;;"Rodzaje transakcji:";transakcje kartą;;"Suma uznań (0):";;;;;;;;;;;;;;;
+
+;;;;;"Suma obciążeń (2):";XX;PLN;;;;;;;;;;;;;
+
+"Data transakcji";"Data księgowania";"Dane kontrahenta";"Tytuł";"Nr rachunku";"Nazwa banku";"Szczegóły";"Nr transakcji";"Kwota transakcji (waluta rachunku)";"Waluta";"Kwota blokady/zwolnienie blokady";"Waluta";"Kwota płatności w walucie";"Waluta";"Konto";"Saldo po transakcji";"Waluta";;;;
+2023-06-12;;" ZABKA XXXXX K.1  POL ";" Płatność kartą  12.06.2023 Nr karty XXXX";'';"";"";;-20,99;PLN;;;;;"ING";-39.39;PLN;;;;
+2023-06-12;;" SKLEP  WROCLAW  POL ";" Płatność kartą  12.06.2023 Nr karty XXXX";'';"";"";;;;-30,69;PLN;;;"ING";-18,40;PLN;;;;
+2023-06-11;;" Someone ";" Transfer";'';"";"";;;;;;12,29;PLN;"ING";12,29;PLN;;;;
+
+
+"Dokument ma charakter informacyjny, nie stanowi dowodu księgowego";
+"""
+
 
 class LunniAPITestCase(APITestCase):
-    def upload_file(self, bio: BytesIO, variant: str):
+    def upload_file(self, bio: BytesIO, parser: str):
         url = reverse('upload')
         return self.client.post(
             path=url,
             data=encode_multipart(
-                data=dict(file=bio, variant=variant),
+                data=dict(file=bio, parser=parser),
                 boundary=BOUNDARY,
             ),
             content_type=MULTIPART_CONTENT,
@@ -237,6 +265,16 @@ class LunniAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_content = response.json()['new_entries']
         self.assertEqual(response_content, 2)
+
+    def test_upload_ing_file(self):
+        sio = StringIO(ing_statement_file)
+        bio = BytesIO(sio.read().encode('cp1250'))
+
+        response = self.upload_file(bio, 'ing')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response_content = response.json()['new_entries']
+        self.assertEqual(response_content, 3)
 
     def test_upload_file_compare_by_amount(self):
         sio = StringIO(mbank_statement_file)

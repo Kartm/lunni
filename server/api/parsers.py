@@ -157,8 +157,48 @@ class PKOCSVParser(BaseCSVParser):
         return my_df
 
 
+class INGCSVParser(BaseCSVParser):
+    def __init__(self):
+        super().__init__(symbol='ing', label='ING Bank Śląski')
+
+    def _read_csv(self, file: BytesIO) -> pd.DataFrame:
+        return pd.read_csv(file, skiprows=19, skipfooter=3, sep=';', index_col=False, encoding='cp1250')
+
+    def _transform_dataframe(self, df: pd.DataFrame) -> List[Entry]:
+        my_df = df
+
+        # add header for compatibility with Entry type
+        my_df["Account"] = "Cel"
+
+        # rename headers
+        my_df = df.rename(
+            columns={
+                'Data transakcji': 'Date',
+                'Konto': 'Account',
+            }
+        )
+
+        my_df['Description'] = my_df['Dane kontrahenta'].fillna('') + ' ' + my_df['Tytuł'].fillna('')
+        my_df['Amount'] = my_df['Kwota transakcji (waluta rachunku)'].fillna('') + my_df['Kwota blokady/zwolnienie blokady'].fillna('') + my_df['Kwota płatności w walucie'].fillna('')
+
+        # e.g. 7 921,39 -> 7921.39
+        my_df['Amount'] = my_df['Amount'].apply(
+            lambda amount:
+            str(amount).replace(",", "")
+            .replace(" ", "")
+        ).astype(int)
+
+        my_df['Description'] = my_df['Description'].apply(
+            lambda description:
+            " ".join(description.split())
+        ).astype(str)
+
+        return my_df
+
+
 PARSERS = [
     MBankCSVParser(),
     MBankSavingsCSVParser(),
-    PKOCSVParser()
+    PKOCSVParser(),
+    INGCSVParser()
 ]
