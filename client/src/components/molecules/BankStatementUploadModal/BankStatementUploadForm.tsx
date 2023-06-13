@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, Form, FormInstance, Select, Upload } from "antd";
 import type { RcFile } from "antd/es/upload/interface";
-import { UploadFileVariant } from "../../../api/merger";
+import { useUploadParsers } from "../../../hooks/api/useUploadParsers";
+import { DefaultOptionType } from "antd/es/select";
 
 const normFile = (e: any) => {
   if (Array.isArray(e)) {
@@ -14,7 +15,7 @@ const normFile = (e: any) => {
 type BankStatementUploadFormProps = {
   isLoading: boolean;
   form: FormInstance<any>;
-  onFinish: (values: { variant: UploadFileVariant; file: RcFile }) => void;
+  onFinish: (values: { parser: string; file: RcFile }) => void;
 };
 
 export const BankStatementUploadForm = ({
@@ -22,6 +23,13 @@ export const BankStatementUploadForm = ({
   form,
   onFinish,
 }: BankStatementUploadFormProps) => {
+  const { data: parsers, isLoading: isSelectLoading } = useUploadParsers();
+
+  const selectOptions: DefaultOptionType[] = useMemo(
+    () => parsers?.map((v) => ({ label: v.label, value: v.symbol })) ?? [],
+    [parsers]
+  );
+
   return (
     <Form
       form={form}
@@ -29,21 +37,12 @@ export const BankStatementUploadForm = ({
       wrapperCol={{ span: 24 }}
       layout="vertical"
       onFinish={(values) =>
-        onFinish({ file: values.upload[0], variant: values["variant-select"] })
+        onFinish({ file: values.upload[0], parser: values["parser-select"] })
       }
-      initialValues={{
-        "variant-select": "mbank",
-      }}
       requiredMark={false}
     >
-      <Form.Item name="variant-select" rules={[{ required: true }]}>
-        <Select
-          options={[
-            { label: "mBank", value: "mbank" },
-            { label: "mBank savings", value: "mbank-savings" },
-            { label: "PKO BP", value: "pko" },
-          ]}
-        />
+      <Form.Item name="parser-select" rules={[{ required: true }]}>
+        <Select loading={isSelectLoading} options={selectOptions} />
       </Form.Item>
 
       <Form.Item

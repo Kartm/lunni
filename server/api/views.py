@@ -13,31 +13,27 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.models import Transaction, TransactionMerge, CategoryMatcher, Category
-from api.parsers import parse_mbank_statement_file, Entry, parse_pko_statement_file, \
-    parse_mbank_savings_statement_file
+from api.parsers import PARSERS, Entry
 from api.serializers import TransactionSerializer, TransactionMergeSerializer, TransactionCategorySerializer, \
-    TransactionCategoryMatcherSerializer, TransactionExportSerializer
+    TransactionCategoryMatcherSerializer, TransactionExportSerializer, UploadParserSerializer
 
 
 class UploadAPIView(CreateAPIView):
-    function_map = {
-        'mbank': parse_mbank_statement_file,
-        'mbank-savings': parse_mbank_savings_statement_file,
-        'pko': parse_pko_statement_file
-    }
-
     def create(self, request, *args, **kwargs):
-        variant: str = request.POST.get('variant')
-        if variant not in self.function_map.keys():
+        parserSymbol: str = request.POST.get('parser')
+
+        parser = next((p for p in PARSERS if p.symbol == parserSymbol), None)
+        if parser is None:
+            allowed_variants = [p.symbol for p in PARSERS]
             return HttpResponseBadRequest(
-                f"Invalid parameter 'variant'. Allowed values are: {', '.join(self.function_map.keys())}.")
+                f"Invalid parser. Allowed values are: {', '.join(allowed_variants)}.")
 
         in_memory_file: InMemoryUploadedFile = request.FILES.get('file')
         if in_memory_file is None:
             return HttpResponseBadRequest("Missing file 'file'.")
 
         bytes_io: BytesIO = in_memory_file.file
-        extracted_entries: list[Entry] = self.function_map.get(variant)(bytes_io)
+        extracted_entries: list[Entry] = parser.parse_csv_file(bytes_io)
 
         transaction_logs_to_create = []
 
@@ -64,6 +60,12 @@ class UploadAPIView(CreateAPIView):
             data={'new_entries': len(transaction_logs_to_create)},
             status=status.HTTP_201_CREATED,
         )
+
+
+class UploadVariantsListView(ListAPIView):
+    queryset = PARSERS
+    serializer_class = UploadParserSerializer
+    pagination_class = None
 
 
 class TransactionsListView(ListAPIView):
@@ -97,7 +99,7 @@ class CategoryRematchView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         Transaction.objects.update(category=None)
 
-        # this is not optimal, but it's a rarely used feature so I'm leaving it as it is
+        # this is not optimal, but it's a rarely used feature, so I'm leaving it as it is
         for matcher in CategoryMatcher.objects.all():
             queryset = Transaction.objects.annotate(
                 search_field=Concat('date', Value(' '), 'description', output_field=CharField()))

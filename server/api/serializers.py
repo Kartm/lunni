@@ -3,6 +3,11 @@ from rest_framework import serializers
 from api.models import Transaction, TransactionMerge, Category, CategoryMatcher
 
 
+class UploadParserSerializer(serializers.Serializer): # noqa because I don't need update(), create() methods
+    symbol = serializers.CharField()
+    label = serializers.CharField()
+
+
 class TransactionCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category

@@ -163,6 +163,19 @@ class LunniAPITestCase(APITestCase):
             content_type=MULTIPART_CONTENT,
         )
 
+    def test_get_available_parsers(self):
+        url = reverse('upload-parsers-list')
+
+        response = self.client.get(path=url)
+
+        response_json = response.json()
+
+        self.assertEqual(response_json, [
+            {'symbol': 'mbank', 'label': 'mBank'},
+            {'symbol': 'mbank-savings', 'label': 'mBank Cele'},
+            {'symbol': 'pko', 'label': 'PKO'}
+        ])
+
     def test_upload_mbank_file(self):
         sio = StringIO(mbank_statement_file)
         bio = BytesIO(sio.read().encode('utf8'))
@@ -570,8 +583,6 @@ class LunniAPITestCase(APITestCase):
 
         self.assertEqual(response_json['note'], 'my note')
 
-    def test_xd(self):
-        print("lol")
 
     def test_export_transactions(self):
         category = CategoryFactory(
