@@ -1,0 +1,26 @@
+"Lista transakcji";;;;;"ING Bank Œl¹ski S.A. ul. Sokolska 34, 40-086 Katowice www.ing.pl";;;;;;;;;;;;;;;
+"Dokument nr XXXX";
+"Wygenerowany dnia: XXXX";;;;;;;;;;;;;;;;;;;;
+
+"Dane U¿ytkownika:";
+"XXXX";
+
+"Wybrane rachunki:";
+"KONTO Mobi 18-26 (PLN)";;"XXXX";
+"Otwarte Konto Oszczêdnoœciowe (PLN)";;"XXXX";
+
+"Zastosowane kryteria wyboru";;;;;"Podsumowanie";;
+
+"Zakres dat:";"XXXX";"Typy transakcji:";"wszystkie";;"Liczba transakcji:";2;
+
+;;"Rodzaje transakcji:";transakcje kart¹;;"Suma uznañ (0):";;;;;;;;;;;;;;;
+
+;;;;;"Suma obci¹¿eñ (2):";XX;PLN;;;;;;;;;;;;;
+
+"Data transakcji";"Data ksiêgowania";"Dane kontrahenta";"Tytu³";"Nr rachunku";"Nazwa banku";"Szczegó³y";"Nr transakcji";"Kwota transakcji (waluta rachunku)";"Waluta";"Kwota blokady/zwolnienie blokady";"Waluta";"Kwota p³atnoœci w walucie";"Waluta";"Konto";"Saldo po transakcji";"Waluta";;;;
+2023-06-12;;" ZABKA XXXXX K.1  POL ";" P³atnoœæ kart¹  12.06.2023 Nr karty XXXX";'';"";"";;-20,99;PLN;;;;;"ING";-39.39;PLN;;;;
+2023-06-12;;" SKLEP  WROCLAW  POL ";" P³atnoœæ kart¹  12.06.2023 Nr karty XXXX";'';"";"";;;;-30,69;PLN;;;"ING";-18,40;PLN;;;;
+2023-06-11;;" Someone ";" Transfer";'';"";"";;;;;;12,29;PLN;"ING";12,29;PLN;;;;
+
+
+"Dokument ma charakter informacyjny, nie stanowi dowodu ksiêgowego";

@@ -12,6 +12,15 @@ class Entry(TypedDict):
     amount: int
 
 
+def get_header_index(header_prefix: str, file: BytesIO, encoding: str) -> int:
+    # stores the whole uploaded file in memory. it's not a problem until we reach a certain file size
+    file_lines = file.read().decode(encoding).split("\n")
+    header_index = next(
+        (i for i, line in enumerate(file_lines) if line.startswith(header_prefix)), None)
+    file.seek(0)
+    return header_index
+
+
 class BaseCSVParser(ABC):
     def __init__(self, symbol: str, label: str):
         self.symbol = symbol
@@ -48,7 +57,10 @@ class MBankCSVParser(BaseCSVParser):
         super().__init__(symbol='mbank', label='mBank')
 
     def _read_csv(self, file: BytesIO) -> pd.DataFrame:
-        return pd.read_csv(file, skiprows=25, sep=';', index_col=False, encoding='utf8')
+        encoding = 'utf8'
+        header_prefix = '#Data operacji;#'
+        header_index = get_header_index(header_prefix, file, encoding)
+        return pd.read_csv(file, skiprows=header_index, sep=';', index_col=False, encoding=encoding)
 
     def _transform_dataframe(self, df: pd.DataFrame) -> List[Entry]:
         # take only necessary columns
@@ -85,11 +97,13 @@ class MBankSavingsCSVParser(BaseCSVParser):
         super().__init__(symbol='mbank-savings', label='mBank Cele')
 
     def _read_csv(self, file: BytesIO) -> pd.DataFrame:
-        return pd.read_csv(file, skiprows=37, skipfooter=5, sep=';', index_col=False, encoding='cp1250')
+        encoding = 'windows-1250'
+        header_prefix = '#Data księgowania;#' # todo extract this to base class
+        header_index = get_header_index(header_prefix, file, encoding)
+        return pd.read_csv(file, skiprows=header_index, skipfooter=5, sep=';', index_col=False, encoding=encoding)
 
     def _transform_dataframe(self, df: pd.DataFrame) -> List[Entry]:
         my_df = df
-        my_df['#Opis operacji'] = my_df['#Opis operacji'].fillna('') + ' ' + my_df['#Tytuł'].fillna('')
 
         # add header for compatibility with Entry type
         my_df["Account"] = "Cel"
@@ -99,7 +113,6 @@ class MBankSavingsCSVParser(BaseCSVParser):
             columns={
                 '#Data operacji': 'Date',
                 '#Opis operacji': 'Description',
-                '#Rachunek': 'Account',
                 '#Kwota': 'Amount',
             }
         )
@@ -162,16 +175,16 @@ class INGCSVParser(BaseCSVParser):
         super().__init__(symbol='ing', label='ING Bank Śląski')
 
     def _read_csv(self, file: BytesIO) -> pd.DataFrame:
-        return pd.read_csv(file, skiprows=19, skipfooter=3, sep=';', index_col=False, encoding='cp1250')
+        encoding = 'windows-1250'
+        header_prefix = '"Data transakcji";"Data księgowania";'
+        header_index = get_header_index(header_prefix, file, encoding)
+        return pd.read_csv(file, skiprows=header_index, skipfooter=3, sep=';', index_col=False, encoding=encoding)
 
     def _transform_dataframe(self, df: pd.DataFrame) -> List[Entry]:
         my_df = df
 
-        # add header for compatibility with Entry type
-        my_df["Account"] = "Cel"
-
         # rename headers
-        my_df = df.rename(
+        my_df = my_df.rename(
             columns={
                 'Data transakcji': 'Date',
                 'Konto': 'Account',
@@ -179,7 +192,8 @@ class INGCSVParser(BaseCSVParser):
         )
 
         my_df['Description'] = my_df['Dane kontrahenta'].fillna('') + ' ' + my_df['Tytuł'].fillna('')
-        my_df['Amount'] = my_df['Kwota transakcji (waluta rachunku)'].fillna('') + my_df['Kwota blokady/zwolnienie blokady'].fillna('') + my_df['Kwota płatności w walucie'].fillna('')
+        my_df['Amount'] = my_df['Kwota transakcji (waluta rachunku)'].fillna('') + my_df[
+            'Kwota blokady/zwolnienie blokady'].fillna('') + my_df['Kwota płatności w walucie'].fillna('')
 
         # e.g. 7 921,39 -> 7921.39
         my_df['Amount'] = my_df['Amount'].apply(
