@@ -11,15 +11,20 @@ import {
   TransactionUpdateRequest,
   TransactionUpdateResponse,
   UploadFileResponse,
-  UploadFileVariant,
+  UploadParsersResponse,
 } from "./merger.dto";
 import { AxiosResponse } from "axios";
 
-export const uploadFile = async (file: RcFile, variant: UploadFileVariant) => {
+export const getUploadParsers = () =>
+  axios
+    .get<UploadParsersResponse>(`/transactions/upload/parsers/`)
+    .then((response) => response.data);
+
+export const uploadFile = async (file: RcFile, parser: string) => {
   const formData = new FormData();
   // @ts-ignore probably types are outdated, I know it's there...
   formData.append("file", await file.originFileObj);
-  formData.append("variant", variant);
+  formData.append("parser", parser);
 
   return axios
     .post<UploadFileResponse>("/transactions/upload/", formData, {

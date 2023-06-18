@@ -1,4 +1,4 @@
-import { uploadFile, UploadFileVariant } from "../../api/merger";
+import { uploadFile } from "../../api/merger";
 import { RcFile } from "antd/lib/upload";
 import { message } from "antd";
 import { useMutation, useQueryClient } from "react-query";
@@ -12,13 +12,8 @@ export const useUploadFile = ({ onSuccess }: useUploadFileProps) => {
 
   return useMutation({
     mutationKey: "upload-file",
-    mutationFn: ({
-      file,
-      variant,
-    }: {
-      file: RcFile;
-      variant: UploadFileVariant;
-    }) => uploadFile(file, variant),
+    mutationFn: ({ file, parser }: { file: RcFile; parser: string }) =>
+      uploadFile(file, parser),
     onSuccess: ({ new_entries }) => {
       message.info({
         content: `Uploaded ${new_entries} new records.`,
