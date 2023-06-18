@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 from io import BytesIO
-from typing import TypedDict, List
+from typing import TypedDict, List, Tuple
 
 import pandas as pd
 
@@ -12,23 +12,35 @@ class Entry(TypedDict):
     amount: int
 
 
-def get_header_index(header_prefix: str, file: BytesIO, encoding: str) -> int:
+def get_start_stop_indexes(header_prefix: str, file: BytesIO, encoding: str) -> Tuple[int, int]:
     # stores the whole uploaded file in memory. it's not a problem until we reach a certain file size
     file_lines = file.read().decode(encoding).split("\n")
-    header_index = next(
-        (i for i, line in enumerate(file_lines) if line.startswith(header_prefix)), None)
+    start_index = None
+    stop_index = None
+    for i, line in enumerate(file_lines):
+        if line.startswith(header_prefix):
+            start_index = i
+        elif start_index is not None and line == '':
+            stop_index = i - 1
+            break
+
     file.seek(0)
-    return header_index
+    return start_index, stop_index
 
 
 class BaseCSVParser(ABC):
-    def __init__(self, symbol: str, label: str):
+    def __init__(self, symbol: str, label: str, encoding: str, header_prefix: str, column_separator: str):
         self.symbol = symbol
         self.label = label
+        self.encoding = encoding
+        self.header_prefix = header_prefix
+        self.column_separator = column_separator
 
-    @abstractmethod
     def _read_csv(self, file: BytesIO) -> pd.DataFrame:
-        pass
+        start_index, stop_index = get_start_stop_indexes(self.header_prefix, file, self.encoding)
+        rows_to_read = stop_index - start_index
+        return pd.read_csv(file, skiprows=start_index, skip_blank_lines=False, nrows=rows_to_read,
+                           sep=self.column_separator, index_col=False, encoding=self.encoding)
 
     @abstractmethod
     def _transform_dataframe(self, df: pd.DataFrame) -> List[Entry]:
@@ -54,13 +66,8 @@ class BaseCSVParser(ABC):
 
 class MBankCSVParser(BaseCSVParser):
     def __init__(self):
-        super().__init__(symbol='mbank', label='mBank')
-
-    def _read_csv(self, file: BytesIO) -> pd.DataFrame:
-        encoding = 'utf8'
-        header_prefix = '#Data operacji;#'
-        header_index = get_header_index(header_prefix, file, encoding)
-        return pd.read_csv(file, skiprows=header_index, sep=';', index_col=False, encoding=encoding)
+        super().__init__(symbol='mbank', label='mBank', encoding='utf8', header_prefix='#Data operacji;#',
+                         column_separator=';')
 
     def _transform_dataframe(self, df: pd.DataFrame) -> List[Entry]:
         # take only necessary columns
@@ -94,13 +101,8 @@ class MBankCSVParser(BaseCSVParser):
 
 class MBankSavingsCSVParser(BaseCSVParser):
     def __init__(self):
-        super().__init__(symbol='mbank-savings', label='mBank Cele')
-
-    def _read_csv(self, file: BytesIO) -> pd.DataFrame:
-        encoding = 'windows-1250'
-        header_prefix = '#Data księgowania;#' # todo extract this to base class
-        header_index = get_header_index(header_prefix, file, encoding)
-        return pd.read_csv(file, skiprows=header_index, skipfooter=5, sep=';', index_col=False, encoding=encoding)
+        super().__init__(symbol='mbank-savings', label='mBank Cele', encoding='windows-1250',
+                         header_prefix='#Data księgowania;#', column_separator=';')
 
     def _transform_dataframe(self, df: pd.DataFrame) -> List[Entry]:
         my_df = df
@@ -134,10 +136,8 @@ class MBankSavingsCSVParser(BaseCSVParser):
 
 class PKOCSVParser(BaseCSVParser):
     def __init__(self):
-        super().__init__(symbol='pko', label='PKO')
-
-    def _read_csv(self, file: BytesIO) -> pd.DataFrame:
-        return pd.read_csv(file, sep=',', index_col=False, encoding='cp1250')
+        super().__init__(symbol='pko', label='PKO', encoding='windows-1250', header_prefix='"Data operacji"',
+                         column_separator=',')
 
     def _transform_dataframe(self, df: pd.DataFrame) -> List[Entry]:
         # rename headers
@@ -172,13 +172,8 @@ class PKOCSVParser(BaseCSVParser):
 
 class INGCSVParser(BaseCSVParser):
     def __init__(self):
-        super().__init__(symbol='ing', label='ING Bank Śląski')
-
-    def _read_csv(self, file: BytesIO) -> pd.DataFrame:
-        encoding = 'windows-1250'
-        header_prefix = '"Data transakcji";"Data księgowania";'
-        header_index = get_header_index(header_prefix, file, encoding)
-        return pd.read_csv(file, skiprows=header_index, skipfooter=3, sep=';', index_col=False, encoding=encoding)
+        super().__init__(symbol='ing', label='ING Bank Śląski', encoding='windows-1250',
+                         header_prefix='"Data transakcji";"Data księgowania";', column_separator=';')
 
     def _transform_dataframe(self, df: pd.DataFrame) -> List[Entry]:
         my_df = df
