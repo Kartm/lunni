@@ -19,6 +19,7 @@ Feel free to [run the project](<#production-environment-(recommended)>) and impo
    - mBank [UTF-8]
    - mBank savings (so-called "Cele") [Windows-1250]
    - PKO [Windows-1250]
+   - ING Bank Śląski [Windows-1250]
 2. Transaction Table
    - View transaction chronologically sorted in a table
 3. Transaction Notes
