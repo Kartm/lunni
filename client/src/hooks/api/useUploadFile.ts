@@ -27,5 +27,11 @@ export const useUploadFile = ({ onSuccess }: useUploadFileProps) => {
 
       onSuccess();
     },
+    onError: () => {
+      message.info({
+        content: `Failed to upload file.`,
+        duration: 5,
+      });
+    },
   });
 };
