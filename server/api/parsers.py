@@ -20,7 +20,9 @@ def get_start_stop_indexes(header_prefix: str, file: BytesIO, encoding: str) -> 
     for i, line in enumerate(file_lines):
         if line.startswith(header_prefix):
             start_index = i
-        elif start_index is not None and line == '':
+
+        # strip to interpret '\r' as empty lines
+        elif start_index is not None and line.strip() == '':
             stop_index = i - 1
             break
 
