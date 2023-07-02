@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.ant-select-selection-item > button {
+  display: none;
+}
