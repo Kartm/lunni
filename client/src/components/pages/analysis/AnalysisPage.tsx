@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useUploadFileToAnalyse } from "../../../hooks/api/useUploadFileToAnalyse";
 import { Chart, registerables } from 'chart.js'
 import { Bar } from "react-chartjs-2";
+import { Button, Empty } from "antd";
+import { Link } from "react-router-dom";
 
 
 export const AnalysisPage = () => {
@@ -72,7 +74,15 @@ export const AnalysisPage = () => {
 
   return (
     <>
-      {graphData && options && <Bar options={options} data={graphData} />};
+      {data && !data.length ?
+        <Empty>
+          <Link to={'/merger'}>
+            <Button type="primary">Upload data</Button>
+          </Link>
+        </Empty>
+        :
+        <Bar options={options} data={graphData} />
+      }
     </>
   );
 };
