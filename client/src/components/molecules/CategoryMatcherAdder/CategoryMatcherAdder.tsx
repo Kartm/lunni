@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, List, Space } from "antd";
+import { Button, Drawer, Form, List, Space, Tooltip } from "antd";
 import React, { useEffect } from "react";
 import { DataType } from "../../organisms/EntryTable";
 import TextArea from "antd/es/input/TextArea";
@@ -9,6 +9,7 @@ import { useCreateCategoryMatcher } from "../../../hooks/api";
 import { CategoryMatcherCreateRequest } from "../../../api/merger";
 import { useGetRegexMatches } from "../../../hooks/api";
 import { useDebouncedFormValue } from "../../../hooks/common";
+import { DeleteOutlined } from "@ant-design/icons";
 
 type CategoryAddDrawerProps = {
   record?: DataType;
@@ -49,6 +50,10 @@ export const CategoryMatcherAdder = ({
     onClose();
   };
 
+  const handleDelete = (e: any) => {
+    e.stopPropagation()
+  }
+
   return (
     <Drawer
       title="New category matcher"
@@ -84,7 +89,14 @@ export const CategoryMatcherAdder = ({
             placeholder="Category"
             loading={isListLoading}
             options={data?.results?.map((d) => ({
-              label: `${d.name} (${d.variant})`,
+              label: <>
+                {d.name} {d.variant}
+                {
+                  <Tooltip title="Delete category">
+                    <Button type="text" icon={<DeleteOutlined />} onClick={handleDelete}></Button>
+                  </Tooltip>
+                }
+              </>,
               value: d.id,
             }))}
             onAddOption={(name, variant) => mutate({ name, variant })}
