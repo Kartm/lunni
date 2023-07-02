@@ -14,15 +14,8 @@ export const useDebouncedFormValue = <T>(
     handleEagerValueChange(eagerValue);
   }, [eagerValue]);
 
-  const parseSpecialChar = (value: any) =>{
-    if(typeof value === "string"){
-      return value.replaceAll("*", "[*]")
-    }
-    return value
-  }
-
   const handleEagerValueChange = useCallback(
-    debounce((eagerValue: T) => setDebouncedValue(parseSpecialChar(eagerValue)), 250),
+    debounce((eagerValue: T) => setDebouncedValue(eagerValue), 250),
     [setDebouncedValue]
   );
 
