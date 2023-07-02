@@ -35,7 +35,7 @@ export const CategoryMatcherAdder = ({
     }
 
     form.setFieldsValue({
-      regexExpression: `${record.date} ${record.description}`,
+      regexExpression: `${record.description}`,
     });
   }, [record]);
 
@@ -70,6 +70,7 @@ export const CategoryMatcherAdder = ({
         <Form.Item
           name="regexExpression"
           label="REGEX to select records"
+          tooltip={`To match only this specific record you need to provide date in the beggining: ${record?.date} ${record?.description}`}
           rules={[{ required: true, message: "Please enter regex expression" }]}
         >
           <TextArea placeholder="Please enter regex expression" autoSize />
