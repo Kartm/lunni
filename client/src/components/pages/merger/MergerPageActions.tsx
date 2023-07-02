@@ -3,6 +3,7 @@ import { BankStatementUploadModal } from "../../molecules/BankStatementUploadMod
 import { RematchCategoriesButton } from "../../molecules/RematchCategoriesButton";
 import { Space } from "antd";
 import { ExportButton } from "../../molecules/ExportButton";
+import { AnalyseButton } from "../../molecules/AnalyseButton";
 
 export const MergerPageActions = () => {
   return (
@@ -12,6 +13,8 @@ export const MergerPageActions = () => {
       <RematchCategoriesButton />
 
       <ExportButton />
+
+      <AnalyseButton />
     </Space>
   );
 };

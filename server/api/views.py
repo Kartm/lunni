@@ -1,4 +1,6 @@
 import csv
+import requests
+from django.urls import reverse
 from collections import Counter
 from io import BytesIO
 
@@ -16,6 +18,7 @@ from api.models import Transaction, TransactionMerge, CategoryMatcher, Category
 from api.parsers import PARSERS, Entry
 from api.serializers import TransactionSerializer, TransactionMergeSerializer, TransactionCategorySerializer, \
     TransactionCategoryMatcherSerializer, TransactionExportSerializer, UploadParserSerializer
+from api.analysis import analyseExportedCVS
 
 
 class UploadAPIView(CreateAPIView):
@@ -158,3 +161,24 @@ class TransactionsCSVExportView(View):
             writer.writerow(row)
 
         return response
+    
+class UploadCSVtoAnalyseView(APIView):
+    def get_serializer(self, queryset, many=True):
+        return self.serializer_class(
+            queryset,
+            many=many,
+        )
+    def get(self, request, *args, **kwargs):
+        export_url = reverse('transactions-export')
+
+        response = requests.get(request.build_absolute_uri(export_url))
+        if response.status_code == 200:
+            csv_data = response.content
+            csv_file = BytesIO(csv_data)
+        
+        parsedFile = analyseExportedCVS(csv_file)
+
+        return JsonResponse(
+            data={'json' : parsedFile},
+            status=status.HTTP_200_OK,
+        )
