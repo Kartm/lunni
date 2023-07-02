@@ -7,17 +7,12 @@ type EntryTableNoteCellProps = {
 	onNoteChange: (note: Transaction['note']) => void;
 };
 
-function EntryTableNoteCell({
-	defaultNote,
-	onNoteChange,
-}: EntryTableNoteCellProps) {
-	return (
+export const EntryTableNoteCell = memo(
+	({ defaultNote, onNoteChange }: EntryTableNoteCellProps) => (
 		<Input
 			defaultValue={defaultNote}
 			onChange={(e) => onNoteChange(e.target.value)}
 			allowClear
 		/>
-	);
-}
-
-export default memo(EntryTableNoteCell);
+	)
+);

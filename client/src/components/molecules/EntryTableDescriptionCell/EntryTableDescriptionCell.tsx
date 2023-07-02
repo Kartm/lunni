@@ -5,10 +5,8 @@ type EntryTableDescriptionCellProps = {
 	description: Transaction['description'];
 };
 
-function EntryTableDescriptionCell({
-	description,
-}: EntryTableDescriptionCellProps) {
-	return <span title={description}>{description}</span>;
-}
-
-export default memo(EntryTableDescriptionCell);
+export const EntryTableDescriptionCell = memo(
+	({ description }: EntryTableDescriptionCellProps) => (
+		<span title={description}>{description}</span>
+	)
+);

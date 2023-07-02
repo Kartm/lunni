@@ -10,11 +10,8 @@ type EntryTableCategoryCellProps = {
 	onClickAdd: () => void;
 };
 
-function EntryTableCategoryCell({
-	category,
-	onClickAdd,
-}: EntryTableCategoryCellProps) {
-	return (
+export const EntryTableCategoryCell = memo(
+	({ category, onClickAdd }: EntryTableCategoryCellProps) => (
 		<Text
 			type={
 				category?.variant === 'POS'
@@ -34,7 +31,5 @@ function EntryTableCategoryCell({
 				/>
 			)}
 		</Text>
-	);
-}
-
-export default memo(EntryTableCategoryCell);
+	)
+);

@@ -8,12 +8,10 @@ type EntryTableAmountCellProps = {
 	amount: Transaction['amount'];
 };
 
-function EntryTableAmountCell({ amount }: EntryTableAmountCellProps) {
-	return (
+export const EntryTableAmountCell = memo(
+	({ amount }: EntryTableAmountCellProps) => (
 		<Text type={amount > 0 ? 'success' : 'danger'}>
 			{`${(amount / 100).toFixed(2)} PLN`}
 		</Text>
-	);
-}
-
-export default memo(EntryTableAmountCell);
+	)
+);
