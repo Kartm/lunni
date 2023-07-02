@@ -6,8 +6,5 @@ export const useUploadFileToAnalyse = () => {
     mutationKey: "analyse-upload",
     mutationFn: (file) =>
       uploadFileToAnalyse(file),
-    onSuccess: (data) => {
-        console.log(data)
-    },
   });
 };

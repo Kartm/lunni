@@ -12,6 +12,7 @@ import {
   TransactionUpdateResponse,
   UploadFileResponse,
   UploadParsersResponse,
+  UploadFileToAnalyseResponse,
 } from "./merger.dto";
 import { AxiosResponse } from "axios";
 
@@ -37,8 +38,8 @@ export const uploadFile = async (file: RcFile, parser: string) => {
 
 export const uploadFileToAnalyse = (file?:any) =>{
   return axios
-    .post<UploadFileResponse>("/analyse/")
-    .then((response) => response.data);
+    .get<UploadFileToAnalyseResponse>("/analyse/")
+    .then((response) => JSON.parse(response.data.json));
 }
 
 export const getTransactions = (page: number, pageSize: number) =>

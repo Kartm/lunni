@@ -3,7 +3,7 @@ import calendar
 
 
 def analyseExportedCVS(file):
-    df = file
+    df = pd.read_csv(file)
     df.columns = df.columns.str.strip()
 
     # Convert 'date' column to datetime type
@@ -18,5 +18,4 @@ def analyseExportedCVS(file):
     # Convert the result to JSON
     json_data = total_amount_per_category_per_month.reset_index().to_json(orient='records')
 
-    # Display the JSON data
-    print(json_data)
+    return json_data
