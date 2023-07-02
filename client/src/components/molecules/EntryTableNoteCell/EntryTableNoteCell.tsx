@@ -1,18 +1,23 @@
-import { Input } from "antd";
-import React, { memo } from "react";
-import { Transaction } from "../../../models/merger";
+import { Input } from 'antd';
+import React, { memo } from 'react';
+import { Transaction } from '../../../models/merger';
 
 type EntryTableNoteCellProps = {
-  defaultNote: Transaction["note"];
-  onNoteChange: (note: Transaction["note"]) => void;
+	defaultNote: Transaction['note'];
+	onNoteChange: (note: Transaction['note']) => void;
 };
 
-export const EntryTableNoteCell = memo(
-  ({ defaultNote, onNoteChange }: EntryTableNoteCellProps) => (
-    <Input
-      defaultValue={defaultNote}
-      onChange={(e) => onNoteChange(e.target.value)}
-      allowClear
-    />
-  )
-);
+function EntryTableNoteCell({
+	defaultNote,
+	onNoteChange,
+}: EntryTableNoteCellProps) {
+	return (
+		<Input
+			defaultValue={defaultNote}
+			onChange={(e) => onNoteChange(e.target.value)}
+			allowClear
+		/>
+	);
+}
+
+export default memo(EntryTableNoteCell);

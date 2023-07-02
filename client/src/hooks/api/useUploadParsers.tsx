@@ -1,14 +1,9 @@
-import { useQuery } from "react-query";
-import {
-  getCategories,
-  getTransactions,
-  getUploadParsers,
-} from "../../api/merger";
-import { message } from "antd";
+import { useQuery } from 'react-query';
+import { getUploadParsers } from '../../api/merger';
 
 export const useUploadParsers = () => {
-  return useQuery({
-    queryKey: ["get-upload-parsers"],
-    queryFn: () => getUploadParsers(),
-  });
+	return useQuery({
+		queryKey: ['get-upload-parsers'],
+		queryFn: () => getUploadParsers(),
+	});
 };

@@ -1,1 +1,1 @@
-export * from "./BankStatementUploadModal";
+export * from './BankStatementUploadModal';

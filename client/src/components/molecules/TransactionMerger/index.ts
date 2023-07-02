@@ -1,1 +1,1 @@
-export * from "./TransactionMerger";
+export * from './TransactionMerger';
