@@ -5,6 +5,7 @@ import {
   CategoryCreateRequest,
   CategoryMatcherCreateRequest,
   CategoryStatsResponse,
+  RemoveCategoryRequest,
   TransactionMergeRequest,
   TransactionPartial,
   TransactionResponse,
@@ -58,6 +59,11 @@ export const getCategoryStats = () =>
 export const getCategories = () =>
   axios
     .get<CategoriesResponse>(`/categories/`)
+    .then((response) => response.data);
+    
+export const removeCategory = (data: RemoveCategoryRequest) =>
+  axios
+    .post<CategoriesResponse>(`/categories/remove/`, data)
     .then((response) => response.data);
 
 export const createCategory = (data: CategoryCreateRequest) =>

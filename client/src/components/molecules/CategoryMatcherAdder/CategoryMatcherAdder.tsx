@@ -10,6 +10,7 @@ import { CategoryMatcherCreateRequest } from "../../../api/merger";
 import { useGetRegexMatches } from "../../../hooks/api";
 import { useDebouncedFormValue } from "../../../hooks/common";
 import { DeleteOutlined } from "@ant-design/icons";
+import { useRemoveCategory } from "../../../hooks/api/useRemoveCategory";
 
 type CategoryAddDrawerProps = {
   record?: DataType;
@@ -24,6 +25,7 @@ export const CategoryMatcherAdder = ({
 
   const { data, isLoading: isListLoading } = useCategoryList();
   const { mutate } = useCreateCategory();
+  const { mutate: removeCategory } = useRemoveCategory();
 
   const { mutate: createMatcher } = useCreateCategoryMatcher();
 
@@ -50,8 +52,9 @@ export const CategoryMatcherAdder = ({
     onClose();
   };
 
-  const handleDelete = (e: any) => {
+  const handleDelete = (id: number, e: any) => {
     e.stopPropagation()
+    removeCategory({id})
   }
 
   return (
@@ -93,7 +96,7 @@ export const CategoryMatcherAdder = ({
                 {d.name} {d.variant}
                 {
                   <Tooltip title="Delete category">
-                    <Button type="text" icon={<DeleteOutlined />} onClick={handleDelete}></Button>
+                    <Button type="text" icon={<DeleteOutlined />} onClick={ (e) => handleDelete(d.id, e)}></Button>
                   </Tooltip>
                 }
               </>,
