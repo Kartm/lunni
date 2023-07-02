@@ -6,7 +6,7 @@ export const useGetRegexMatches = (regexExpression?: string) => {
 
   //Enable search for values containing regex special character *
   const parseSpecialChar = (value: string) => {
-    return value.replaceAll("*", "[*]")
+    return value.replaceAll(/(?<![\[\]])\*(?![\[\]])/g, "[*]")
   }
 
   if(regexExpression){
