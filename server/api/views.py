@@ -61,6 +61,15 @@ class UploadAPIView(CreateAPIView):
             status=status.HTTP_201_CREATED,
         )
 
+class UploadCSVtoAnalyseView(CreateAPIView):
+    def create(self, request, *args, **kwargs):
+        in_memory_file: InMemoryUploadedFile = request.FILES.get('file')
+
+        return JsonResponse(
+            data={},
+            status=status.HTTP_200_OK,
+        )
+
 
 class UploadVariantsListView(ListAPIView):
     queryset = PARSERS

@@ -35,6 +35,12 @@ export const uploadFile = async (file: RcFile, parser: string) => {
     .then((response) => response.data);
 };
 
+export const uploadFileToAnalyse = (file?:any) =>{
+  return axios
+    .post<UploadFileResponse>("/analyse/")
+    .then((response) => response.data);
+}
+
 export const getTransactions = (page: number, pageSize: number) =>
   axios
     .get<TransactionResponse>(

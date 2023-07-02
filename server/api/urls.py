@@ -2,7 +2,8 @@ from django.urls import path
 
 from api.views import TransactionsListView, TransactionsMergeCreateView, TransactionCategoryListCreateView, \
     TransactionCategoryMatcherListCreateView, TransactionCategoryStatsView, TransactionLogRegexMatchListView, \
-    TransactionDetailView, TransactionsCSVExportView, UploadAPIView, CategoryRematchView, UploadVariantsListView
+    TransactionDetailView, TransactionsCSVExportView, UploadAPIView, CategoryRematchView, UploadVariantsListView, \
+    UploadCSVtoAnalyseView
 
 urlpatterns = [
     path('categories/', TransactionCategoryListCreateView.as_view(), name='categories'),
@@ -15,5 +16,6 @@ urlpatterns = [
     path('transactions/upload/parsers/', UploadVariantsListView.as_view(), name='upload-parsers-list'),
     path('transactions/regex-match/', TransactionLogRegexMatchListView.as_view(), name='transactions-matching-regex'),
     path('transactions/export/', TransactionsCSVExportView.as_view(), name='transactions-export'),
-    path('transactions/merge/', TransactionsMergeCreateView.as_view(), name='transactions-merge')
+    path('transactions/merge/', TransactionsMergeCreateView.as_view(), name='transactions-merge'),
+    path('analyse/', UploadCSVtoAnalyseView.as_view(), name="analyse-upload")
 ]
