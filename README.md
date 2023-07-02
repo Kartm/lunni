@@ -78,12 +78,15 @@ ENV_NAME=production
 
 ### Server
 
-Python 3.11 is required.
+Python 3.11 is required. Please note the following guide assumes you're using Unix/macOS.
 
 1. Change directory to `/server`
-2. `python manage.py migrate`
-3. `python manage.py runserver`
-4. Back-end server is running at http://localhost:8000
+2. Create a virtual Python environment in order to install all packages locally: `python3 -m venv env`
+3. Activate the virtual environment: `source env/bin/activate`
+4. Install dependencies: `python3 -m pip install -r requirements.txt`
+5. `python3 manage.py migrate`
+6. `python3 manage.py runserver`
+7. Back-end server is running at http://localhost:8000
 
 ### Client
 
