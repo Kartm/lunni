@@ -35,7 +35,7 @@ export const CategoryMatcherAdder = ({
     }
 
     form.setFieldsValue({
-      regexExpression: `${record.date} ${record.description}`,
+      regexExpression: `${record.description}`,
     });
   }, [record]);
 
