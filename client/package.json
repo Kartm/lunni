@@ -21,7 +21,6 @@
     "react-router-dom": "^6.8.1",
     "react-scripts": "5.0.1",
     "styled-components": "^5.3.10",
-    "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -37,8 +36,8 @@
       "react-app/jest"
     ]
   },
-  "lint-staged":{
-    "src/**/*.{js,jsx,ts,tsx}":[
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx}": [
       "npx prettier --write",
       "npx eslint --fix"
     ]
@@ -70,6 +69,7 @@
     "eslint-plugin-react": "^7.32.2",
     "husky": "^8.0.0",
     "lint-staged": "^13.2.3",
-    "prettier": "2.8.4"
+    "prettier": "2.8.4",
+    "typescript": "^5.1.6"
   }
 }
