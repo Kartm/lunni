@@ -1,21 +1,21 @@
 import { axios } from '../../config';
 import { RcFile } from 'antd/lib/upload';
 import {
-  CategoriesResponse,
-  CategoryCreateRequest,
-  CategoryMatcherCreateRequest,
-  CategoryMatcherGetRequest,
-  CategoryStatsResponse,
-  RemoveCategoryRequest,
-  TransactionMergeRequest,
-  TransactionPartial,
-  TransactionResponse,
-  TransactionUpdateRequest,
-  TransactionUpdateResponse,
-  UploadFileResponse,
-  UploadParsersResponse,
-} from "./merger.dto";
-import { AxiosResponse } from "axios";
+	CategoriesResponse,
+	CategoryCreateRequest,
+	CategoryMatcherCreateRequest,
+	CategoryMatcherGetRequest,
+	CategoryStatsResponse,
+	RemoveCategoryRequest,
+	TransactionMergeRequest,
+	TransactionPartial,
+	TransactionResponse,
+	TransactionUpdateRequest,
+	TransactionUpdateResponse,
+	UploadFileResponse,
+	UploadParsersResponse,
+} from './merger.dto';
+import { AxiosResponse } from 'axios';
 
 export const getUploadParsers = () =>
 	axios
@@ -58,14 +58,14 @@ export const getCategoryStats = () =>
 		.then((response) => response.data);
 
 export const getCategories = () =>
-  axios
-    .get<CategoriesResponse>(`/categories/`)
-    .then((response) => response.data);
+	axios
+		.get<CategoriesResponse>('/categories/')
+		.then((response) => response.data);
     
 export const removeCategory = (data: RemoveCategoryRequest) =>
-  axios
-    .delete<CategoriesResponse>(`/categories/remove/?id=${data.id}`)
-    .then((response) => response.data);
+	axios
+		.delete<CategoriesResponse>(`/categories/remove/?id=${data.id}`)
+		.then((response) => response.data);
 
 export const createCategory = (data: CategoryCreateRequest) =>
 	axios
@@ -78,9 +78,9 @@ export const createCategoryMatcher = (data: CategoryMatcherCreateRequest) =>
 		.then((response) => response.data);
 
 export const getCategoryMatchers = () =>
-    axios
-      .get<CategoryMatcherGetRequest>(`/categories/matchers/`)
-      .then((response) => response.data);
+	axios
+		.get<CategoryMatcherGetRequest>('/categories/matchers/')
+		.then((response) => response.data);
 
 export const getRegexMatches = (regexExpression: string) =>
 	axios

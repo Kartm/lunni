@@ -42,7 +42,7 @@ export type CategoryMatcherGetRequest = {
   results: CategoryMatcher[]
 }
 
-export type TransactionPartial = Pick<Transaction, "id"> & Partial<Transaction>;
+export type TransactionPartial = Pick<Transaction, 'id'> & Partial<Transaction>;
 
 export type TransactionUpdateRequest = Omit<Partial<Transaction>, 'id'>;
 
