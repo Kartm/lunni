@@ -67,7 +67,7 @@ export const CategoryMatcherAdder = ({
 		return matchersWithCategories?.filter(matcher => matcher.category.id === id);
 	};
 
-	const handleDelete = (id: number, e: any) => {
+	const handleDelete = (id: number, e: React.MouseEvent<HTMLElement>) => {
 		e.stopPropagation();
 
 		const matchersWithCategory = getMatchersWithProvidedCategory(id);
