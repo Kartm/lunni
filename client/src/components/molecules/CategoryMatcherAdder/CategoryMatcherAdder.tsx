@@ -61,23 +61,23 @@ export const CategoryMatcherAdder = ({
 		onClose();
 	};
 
-	const getMatchersWithProvidedCategory = (id: number) => {
+	const getMatchersWithProvidedCategory = (categoryId: number) => {
 		const matchersWithCategories = categoryMatchers?.results.filter(matcher => matcher.category);
 
-		return matchersWithCategories?.filter(matcher => matcher.category.id === id);
+		return matchersWithCategories?.filter(matcher => matcher.category.id === categoryId);
 	};
 
-	const handleDelete = (id: number, e: React.MouseEvent<HTMLElement>) => {
+	const handleDelete = (categoryId: number, e: React.MouseEvent<HTMLElement>) => {
 		e.stopPropagation();
 
-		const matchersWithCategory = getMatchersWithProvidedCategory(id);
+		const matchersWithCategory = getMatchersWithProvidedCategory(categoryId);
 
-		setCategoryToRemove(id);
+		setCategoryToRemove(categoryId);
 		if (matchersWithCategory?.length) {
 			setFoundMatchersToRemove(matchersWithCategory.map(matcher => matcher.regex_expression));
 			setRemoveModalOpen(true);
 		} else {
-			handleRemoveCategory(id);
+			handleRemoveCategory(categoryId);
 		}
 	};
 
