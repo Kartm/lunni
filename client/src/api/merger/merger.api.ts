@@ -4,6 +4,7 @@ import {
   CategoriesResponse,
   CategoryCreateRequest,
   CategoryMatcherCreateRequest,
+  CategoryMatcherGetRequest,
   CategoryStatsResponse,
   RemoveCategoryRequest,
   TransactionMergeRequest,
@@ -63,7 +64,7 @@ export const getCategories = () =>
     
 export const removeCategory = (data: RemoveCategoryRequest) =>
   axios
-    .post<CategoriesResponse>(`/categories/remove/`, data)
+    .delete<CategoriesResponse>(`/categories/remove/?id=${data.id}`)
     .then((response) => response.data);
 
 export const createCategory = (data: CategoryCreateRequest) =>
@@ -75,6 +76,11 @@ export const createCategoryMatcher = (data: CategoryMatcherCreateRequest) =>
   axios
     .post<CategoryMatcherCreateRequest>(`/categories/matchers/`, data)
     .then((response) => response.data);
+
+export const getCategoryMatchers = () =>
+    axios
+      .get<CategoryMatcherGetRequest>(`/categories/matchers/`)
+      .then((response) => response.data);
 
 export const getRegexMatches = (regexExpression: string) =>
   axios

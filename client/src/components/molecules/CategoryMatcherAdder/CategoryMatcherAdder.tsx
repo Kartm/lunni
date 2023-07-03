@@ -1,9 +1,9 @@
-import { Button, Drawer, Form, List, Space, Tooltip } from "antd";
-import React, { useEffect } from "react";
+import { Button, Drawer, Form, List, Modal, Space, Tooltip } from "antd";
+import React, { useEffect, useState } from "react";
 import { DataType } from "../../organisms/EntryTable";
 import TextArea from "antd/es/input/TextArea";
 import { CategorySelect } from "../CategorySelect";
-import { useCreateCategory } from "../../../hooks/api";
+import { useCreateCategory, useRematchCategories } from "../../../hooks/api";
 import { useCategoryList } from "../../../hooks/api";
 import { useCreateCategoryMatcher } from "../../../hooks/api";
 import { CategoryMatcherCreateRequest } from "../../../api/merger";
@@ -11,6 +11,10 @@ import { useGetRegexMatches } from "../../../hooks/api";
 import { useDebouncedFormValue } from "../../../hooks/common";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useRemoveCategory } from "../../../hooks/api/useRemoveCategory";
+import { useGetCategoryMatchers } from "../../../hooks/api/useGetCategoryMatchers";
+import { Typography } from 'antd';
+
+const { Text } = Typography;
 
 type CategoryAddDrawerProps = {
   record?: DataType;
@@ -22,6 +26,9 @@ export const CategoryMatcherAdder = ({
   onClose,
 }: CategoryAddDrawerProps) => {
   const [form] = Form.useForm();
+  const [removeModalOpen, setRemoveModalOpen] = useState(false);
+  const [foundMatchersToRemove, setFoundMatchersToRemove] = useState<string[]>([]);
+  const [categoryToRemove, setCategoryToRemove] = useState<number>();
 
   const { data, isLoading: isListLoading } = useCategoryList();
   const { mutate } = useCreateCategory();
@@ -31,6 +38,8 @@ export const CategoryMatcherAdder = ({
 
   const regex = useDebouncedFormValue<string>(["regexExpression"], form);
   const { data: regexMatchesList } = useGetRegexMatches(regex);
+  const { data: categoryMatchers, isLoading: categoryMatchersLoading } = useGetCategoryMatchers();
+  const { mutate: rematchCategories } = useRematchCategories();
 
   useEffect(() => {
     if (!record) {
@@ -52,9 +61,31 @@ export const CategoryMatcherAdder = ({
     onClose();
   };
 
+  const getMatchersWithProvidedCategory = (id: number) => {
+    const matchersWithCategories = categoryMatchers?.results.filter(matcher => matcher.category)
+
+    return matchersWithCategories?.filter(matcher => matcher.category.id === id)
+  }
+
   const handleDelete = (id: number, e: any) => {
     e.stopPropagation()
-    removeCategory({id})
+
+    const matchersWithCategory = getMatchersWithProvidedCategory(id)
+
+    setCategoryToRemove(id)
+    if (matchersWithCategory?.length) {
+      setFoundMatchersToRemove(matchersWithCategory.map(matcher => matcher.regex_expression))
+      setRemoveModalOpen(true)
+    } else {
+      handleRemoveCategory()
+    }
+  }
+
+  const handleRemoveCategory = () => {
+    if (categoryToRemove) {
+      removeCategory({ id: categoryToRemove })
+      setCategoryToRemove(undefined)
+    }
   }
 
   return (
@@ -90,13 +121,13 @@ export const CategoryMatcherAdder = ({
         >
           <CategorySelect
             placeholder="Category"
-            loading={isListLoading}
+            loading={isListLoading || categoryMatchersLoading}
             options={data?.results?.map((d) => ({
               label: <>
                 {d.name} {d.variant}
                 {
                   <Tooltip title="Delete category">
-                    <Button type="text" icon={<DeleteOutlined />} onClick={ (e) => handleDelete(d.id, e)}></Button>
+                    <Button type="text" icon={<DeleteOutlined />} onClick={(e) => handleDelete(d.id, e)}></Button>
                   </Tooltip>
                 }
               </>,
@@ -120,6 +151,17 @@ export const CategoryMatcherAdder = ({
           )}
         />
       </Form>
+      <Modal title="Remove matchers" open={removeModalOpen} okText={"Remove category"} onOk={() => {
+        handleRemoveCategory()
+        rematchCategories()
+        setRemoveModalOpen(false)
+      }}
+        onCancel={() => setRemoveModalOpen(open => !open)}>
+        <p>This category is used in the following category matchers that will also be removed:</p>
+        <Space direction="vertical">
+          {foundMatchersToRemove.map(matcher => <Text type="secondary" key={matcher}>{matcher}</Text>)}
+        </Space>
+      </Modal>
     </Drawer>
   );
 };
