@@ -19,7 +19,6 @@ export const CategorySelect = ({
     variant: TransactionCategory["variant"]
   ) => {
     onAddOption(name, variant);
-    setOpen(false);
   };
 
   return (
