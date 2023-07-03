@@ -37,8 +37,7 @@ export type CategoryMatcherCreateRequest = Omit<
 	category_id: TransactionCategory['id'];
 };
 
-export type CategoryMatcherGetRequest = {
-  count: number,
+export type CategoryMatchersResponse = {
   results: CategoryMatcher[]
 }
 

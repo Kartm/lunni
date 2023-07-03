@@ -9,7 +9,7 @@ export const useRemoveCategory = () => {
 
 	return useMutation({
 		mutationKey: 'remove-category',
-		mutationFn: (data: RemoveCategoryRequest) => removeCategory(data),
+		mutationFn: (id: number) => removeCategory(id),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['get-categories'] });
 		},

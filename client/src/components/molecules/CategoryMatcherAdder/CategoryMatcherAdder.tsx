@@ -83,7 +83,7 @@ export const CategoryMatcherAdder = ({
 
 	const handleRemoveCategory = () => {
 		if (categoryToRemove) {
-			removeCategory({ id: categoryToRemove });
+			removeCategory(categoryToRemove);
 			setCategoryToRemove(undefined);
 		}
 	};
