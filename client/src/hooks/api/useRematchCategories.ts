@@ -1,21 +1,15 @@
-import { useMutation, useQueryClient } from "react-query";
-import {
-  postMergeTransactions,
-  postRematchCategories,
-  TransactionMergeRequest,
-  uploadFile,
-} from "../../api/merger";
-import { RcFile } from "antd/lib/upload";
+import { useMutation, useQueryClient } from 'react-query';
+import { postRematchCategories } from '../../api/merger';
 
 export const useRematchCategories = () => {
-  const queryClient = useQueryClient();
+	const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationKey: "rematch-categories",
-    mutationFn: () => postRematchCategories(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-transactions"] });
-      queryClient.invalidateQueries({ queryKey: ["categories-stats"] });
-    },
-  });
+	return useMutation({
+		mutationKey: 'rematch-categories',
+		mutationFn: () => postRematchCategories(),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['get-transactions'] });
+			queryClient.invalidateQueries({ queryKey: ['categories-stats'] });
+		},
+	});
 };

@@ -1,1 +1,1 @@
-export * from "./CategoryMatcherAdder";
+export * from './CategoryMatcherAdder';
