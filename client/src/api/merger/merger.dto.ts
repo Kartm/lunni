@@ -26,10 +26,6 @@ export type CategoriesResponse = Paginated<TransactionCategory>;
 
 export type CategoryCreateRequest = Omit<TransactionCategory, 'id'>;
 
-export type RemoveCategoryRequest = {
-  id: number;
-}
-
 export type CategoryMatcherCreateRequest = Omit<
 	CategoryMatcher,
 	'id' | 'category'

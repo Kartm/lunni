@@ -77,12 +77,16 @@ export const CategoryMatcherAdder = ({
 			setFoundMatchersToRemove(matchersWithCategory.map(matcher => matcher.regex_expression));
 			setRemoveModalOpen(true);
 		} else {
-			handleRemoveCategory();
+			handleRemoveCategory(id);
 		}
 	};
 
-	const handleRemoveCategory = () => {
-		if (categoryToRemove) {
+	const handleRemoveCategory = (id?:number) => {
+		if(id){
+			removeCategory(id);
+		}
+
+		if(categoryToRemove){
 			removeCategory(categoryToRemove);
 			setCategoryToRemove(undefined);
 		}

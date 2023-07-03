@@ -6,7 +6,6 @@ import {
 	CategoryMatcherCreateRequest,
 	CategoryMatchersResponse,
 	CategoryStatsResponse,
-	RemoveCategoryRequest,
 	TransactionMergeRequest,
 	TransactionPartial,
 	TransactionResponse,

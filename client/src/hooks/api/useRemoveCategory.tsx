@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
 import {
-	RemoveCategoryRequest,
 	removeCategory,
 } from '../../api/merger';
 
