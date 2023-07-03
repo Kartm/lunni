@@ -3,12 +3,12 @@ from collections import Counter
 from io import BytesIO
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db.models import Q, Value, CharField
+from django.db.models import Q, Value, CharField, RestrictedError
 from django.db.models.functions import Concat
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.views import View
 from rest_framework import status
-from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView, DestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -158,3 +158,23 @@ class TransactionsCSVExportView(View):
             writer.writerow(row)
 
         return response
+
+class CategoryRemovalView(APIView):
+    def delete(self, request):
+        category_id = request.GET.get('id')
+        if not category_id:
+            return JsonResponse({'error': 'Missing category_id'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            category = Category.objects.get(pk=category_id)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        Transaction.objects.filter(category=category).update(category=None)
+        try:
+            category.delete()
+        except RestrictedError:
+            CategoryMatcher.objects.filter(category=category).delete()
+            category.delete()
+        
+        return JsonResponse({'message': 'Category removed successfully'}, status=status.HTTP_200_OK)
