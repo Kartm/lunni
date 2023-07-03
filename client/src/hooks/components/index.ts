@@ -1,2 +1,2 @@
-export * from "./useEntryTableRows";
-export * from "./useEntryTableColumns";
+export * from './useEntryTableRows';
+export * from './useEntryTableColumns';

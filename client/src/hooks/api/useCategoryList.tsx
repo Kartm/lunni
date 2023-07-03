@@ -1,10 +1,9 @@
-import { useQuery } from "react-query";
-import { getCategories, getTransactions } from "../../api/merger";
-import { message } from "antd";
+import { useQuery } from 'react-query';
+import { getCategories } from '../../api/merger';
 
 export const useCategoryList = () => {
-  return useQuery({
-    queryKey: ["get-categories"],
-    queryFn: () => getCategories(),
-  });
+	return useQuery({
+		queryKey: ['get-categories'],
+		queryFn: () => getCategories(),
+	});
 };

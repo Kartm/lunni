@@ -1,1 +1,1 @@
-export * from "./EntryTableAmountCell";
+export * from './EntryTableAmountCell';

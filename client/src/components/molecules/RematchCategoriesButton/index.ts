@@ -1,1 +1,1 @@
-export * from "./RematchCategoriesButton";
+export * from './RematchCategoriesButton';

@@ -17,13 +17,13 @@ import { Typography } from 'antd';
 const { Text } = Typography;
 
 type CategoryAddDrawerProps = {
-  record?: DataType;
-  onClose: () => void;
+	record?: DataType;
+	onClose: () => void;
 };
 
 export const CategoryMatcherAdder = ({
-  record,
-  onClose,
+	record,
+	onClose,
 }: CategoryAddDrawerProps) => {
   const [form] = Form.useForm();
   const [removeModalOpen, setRemoveModalOpen] = useState(false);
@@ -34,32 +34,32 @@ export const CategoryMatcherAdder = ({
   const { mutate } = useCreateCategory();
   const { mutate: removeCategory } = useRemoveCategory();
 
-  const { mutate: createMatcher } = useCreateCategoryMatcher();
+	const { mutate: createMatcher } = useCreateCategoryMatcher();
 
   const regex = useDebouncedFormValue<string>(["regexExpression"], form);
   const { data: regexMatchesList } = useGetRegexMatches(regex);
   const { data: categoryMatchers, isLoading: categoryMatchersLoading } = useGetCategoryMatchers();
   const { mutate: rematchCategories } = useRematchCategories();
 
-  useEffect(() => {
-    if (!record) {
-      return;
-    }
+	useEffect(() => {
+		if (!record) {
+			return;
+		}
 
-    form.setFieldsValue({
-      regexExpression: `${record.description}`,
-    });
-  }, [record]);
+		form.setFieldsValue({
+			regexExpression: `${record.description}`,
+		});
+	}, [record]);
 
-  const onSubmit = () => {
-    const matcher: CategoryMatcherCreateRequest = {
-      regex_expression: form.getFieldValue(["regexExpression"]),
-      category_id: form.getFieldValue(["category"]),
-    };
+	const onSubmit = () => {
+		const matcher: CategoryMatcherCreateRequest = {
+			regex_expression: form.getFieldValue(['regexExpression']),
+			category_id: form.getFieldValue(['category']),
+		};
 
-    createMatcher(matcher);
-    onClose();
-  };
+		createMatcher(matcher);
+		onClose();
+	};
 
   const getMatchersWithProvidedCategory = (id: number) => {
     const matchersWithCategories = categoryMatchers?.results.filter(matcher => matcher.category)
