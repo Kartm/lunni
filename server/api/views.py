@@ -7,11 +7,13 @@ from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.views import View
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.filters import TransactionFilter
 from api.models import Transaction, TransactionMerge, CategoryMatcher, Category
 from api.parsers import PARSERS, Entry
 from api.serializers import TransactionSerializer, TransactionMergeSerializer, TransactionCategorySerializer, \
@@ -71,6 +73,8 @@ class UploadVariantsListView(ListAPIView):
 class TransactionsListView(ListAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TransactionFilter
 
 
 class TransactionDetailView(RetrieveUpdateAPIView):
