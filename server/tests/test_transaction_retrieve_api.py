@@ -13,7 +13,6 @@ class TestTransactionRetrieveAPI(APITestCase):
         url = reverse('transactions')
 
         response = self.client.get(path=url)
-
         response_json = response.json()
 
         self.assertEqual(response_json['count'], 2)
@@ -40,6 +39,37 @@ class TestTransactionRetrieveAPI(APITestCase):
         self.assertEqual(second_result['category']['id'], 1)
         self.assertEqual(second_result['category']['name'], 'food')
         self.assertEqual(second_result['category']['variant'], 'NEG')
+
+    def test_get_categories_stats(self):
+        income_category = CategoryFactory.create(name="Income", variant="POS")
+        food_category = CategoryFactory.create(name="Food", variant="NEG")
+        rent_category = CategoryFactory.create(name="Rent", variant="NEG")
+
+        TransactionFactory.create(id=1, amount=500, category=income_category)
+        TransactionFactory.create(id=2, amount=-50, category=food_category)
+        TransactionFactory.create(id=3, amount=-15, category=food_category)
+        TransactionFactory.create(id=4, amount=-2000, category=rent_category)
+        TransactionFactory.create(id=5, amount=1, category=None)
+
+        url = reverse('categories-stats')
+
+        response = self.client.get(path=url)
+        response_json = response.json()
+
+        self.assertEqual(len(response_json), 4)
+        category_1, category_2, category_3, category_4 = response_json
+
+        self.assertEqual(category_1['categoryName'], income_category.name)
+        self.assertEqual(category_1['totalCount'], 1)
+
+        self.assertEqual(category_2['categoryName'], food_category.name)
+        self.assertEqual(category_2['totalCount'], 2)
+
+        self.assertEqual(category_3['categoryName'], rent_category.name)
+        self.assertEqual(category_3['totalCount'], 1)
+
+        self.assertIsNone(category_4['categoryName'])
+        self.assertEqual(category_4['totalCount'], 1)
 
     def test_get_transactions_filter_by_category(self):
         income_category = CategoryFactory.create(name="Income", variant="POS")

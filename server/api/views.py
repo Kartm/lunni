@@ -117,7 +117,7 @@ class CategoryRematchView(CreateAPIView):
 
 class TransactionCategoryStatsView(APIView):
     def get(self, request):
-        qs = Transaction.objects.all()
+        qs = Transaction.objects.all().order_by('created')
 
         count_summary = [{'categoryName': count[0], 'totalCount': count[1]} for count in
                          Counter(list(qs.values_list('category__name', flat=True))).items()]
