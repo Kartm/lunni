@@ -14,7 +14,7 @@
     "plugins": ["react", "@typescript-eslint"],
     "parser": "@typescript-eslint/parser",
     "rules": {
-        "indent": ["warn", "tab"],
+        "indent": ["warn", 4],
         "quotes": ["error", "single"],
         "semi": ["error", "always"],
         "no-unused-vars": "off",
