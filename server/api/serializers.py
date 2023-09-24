@@ -3,12 +3,22 @@ from rest_framework import serializers
 from api.models import Transaction, TransactionMerge, Category, CategoryMatcher
 
 
-class UploadParserSerializer(serializers.Serializer): # noqa because I don't need update(), create() methods
+class UploadParserSerializer(serializers.Serializer):  # noqa because I don't need update(), create() methods
     symbol = serializers.CharField()
     label = serializers.CharField()
 
 
 class TransactionCategorySerializer(serializers.ModelSerializer):
+    def validate(self, data):
+        name = data.get('name')
+        forbidden_category_names = ["None"]
+
+        if name in forbidden_category_names:
+            raise serializers.ValidationError(
+                'Forbidden category name')
+
+        return data
+
     class Meta:
         model = Category
         fields = ['id', 'name', 'variant']
@@ -44,8 +54,10 @@ class TransactionExportSerializer(TransactionSerializer):
 
     class Meta:
         model = Transaction
-        fields = ['id', 'date', 'description', 'note', 'account', 'category_name', 'category_variant', 'calculated_amount']
-        read_only_fields = ['id', 'date', 'description', 'account', 'category_name', 'category_variant', 'calculated_amount']
+        fields = ['id', 'date', 'description', 'note', 'account', 'category_name', 'category_variant',
+                  'calculated_amount']
+        read_only_fields = ['id', 'date', 'description', 'account', 'category_name', 'category_variant',
+                            'calculated_amount']
 
     @staticmethod
     def get_calculated_amount(instance):

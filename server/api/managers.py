@@ -22,4 +22,4 @@ class TransactionsMergedManager(models.Manager):
                 Sum('tomerge__amount', filter=Q(tomerge__to_transaction=F('id'))),
                 0
             )
-        ).exclude(calculated_amount__exact=0).exclude(category__variant__exact='IGN').order_by('-date', 'amount')
+        ).exclude(calculated_amount__exact=0).exclude(category__variant__exact='IGN').order_by('-date', '-created')

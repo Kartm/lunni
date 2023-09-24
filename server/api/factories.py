@@ -1,4 +1,5 @@
 import factory
+from factory.fuzzy import FuzzyText
 
 
 class CategoryFactory(factory.django.DjangoModelFactory):
