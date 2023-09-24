@@ -40,7 +40,7 @@ export const LunniLayout: typeof Layout = styled(Layout)`
 `;
 
 type LunniRouteWrapperProps = {
-	background: string;
+    background: string;
 };
 export const LunniRouteWrapper = styled.div<LunniRouteWrapperProps>`
 	background: ${(p) => p.background};

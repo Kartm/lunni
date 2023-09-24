@@ -1,28 +1,22 @@
 {
   "compilerOptions": {
-    "target": "es2015",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true, // // Process & infer types from .js files.
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
     "skipLibCheck": true,
-    "esModuleInterop": true, // Import non-ES modules as default imports.
+    "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
-    "strict": true, // Enable strict settings like strictNullChecks & noImplicitAny.
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext", // Target latest version of ECMAScript.
-    "moduleResolution": "node", // Search under node_modules for non-relative imports.
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
-    "isolatedModules": true, // Ensure that Babel can safely transpile files in the TypeScript project
-    "noEmit": true, // Don't emit; allow Babel to transform files.
+    "isolatedModules": true,
+    "noEmit": true,
     "jsx": "react-jsx",
-    "declaration": true, // Ensure that .d.ts files are created by tsc, but not .js files
-    "emitDeclarationOnly": true // Ensure that .d.ts files are created by tsc, but not .js files
+    "types": ["vitest/globals"]
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

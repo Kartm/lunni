@@ -5,13 +5,13 @@ import { Space } from 'antd';
 import { ExportButton } from '../../molecules/ExportButton';
 
 export const MergerPageActions = () => {
-	return (
-		<Space>
-			<BankStatementUploadModal />
+    return (
+        <Space>
+            <BankStatementUploadModal />
 
-			<RematchCategoriesButton />
+            <RematchCategoriesButton />
 
-			<ExportButton />
-		</Space>
-	);
+            <ExportButton />
+        </Space>
+    );
 };

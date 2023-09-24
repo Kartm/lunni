@@ -7,24 +7,24 @@ import { ArrowRightOutlined } from '@ant-design/icons';
 const { Title, Paragraph } = Typography;
 
 export const HomePage = () => {
-	const navigate = useNavigate();
+    const navigate = useNavigate();
 
-	return (
-		<>
-			<Title level={2}>Lunni - a tool for managing personal finances.</Title>
+    return (
+        <>
+            <Title level={2}>Lunni - a tool for managing personal finances.</Title>
 
-			<Paragraph>
-				If you frequently make shared orders with friends or utilize many bank
-				accounts, then Lunni can help you to better organize and analyze your
-				finance data.
-			</Paragraph>
+            <Paragraph>
+                If you frequently make shared orders with friends or utilize many bank
+                accounts, then Lunni can help you to better organize and analyze your
+                finance data.
+            </Paragraph>
 
-			<div style={{ height: '32px' }}></div>
+            <div style={{ height: '32px' }}></div>
 
-			<Button type='primary' onClick={() => navigate(Object.keys(routes)[1])}>
-				Get started
-				<ArrowRightOutlined />
-			</Button>
-		</>
-	);
+            <Button type='primary' onClick={() => navigate(Object.keys(routes)[1])}>
+                Get started
+                <ArrowRightOutlined />
+            </Button>
+        </>
+    );
 };
