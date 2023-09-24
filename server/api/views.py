@@ -122,6 +122,12 @@ class TransactionCategoryStatsView(APIView):
         count_summary = [{'categoryName': count[0], 'totalCount': count[1]} for count in
                          Counter(list(qs.values_list('category__name', flat=True))).items()]
 
+        # move "None" (meaning uncategorized) to top of the list
+        none_indexes = [i for i, el in enumerate(count_summary) if el['categoryName'] is None]
+        if (len(none_indexes) > 0):
+            none_index, = none_indexes
+            count_summary.insert(0, count_summary.pop(none_index))
+
         return Response(count_summary)
 
 
