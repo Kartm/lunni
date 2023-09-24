@@ -181,7 +181,7 @@ class TestTransactionMergeAPI(APITestCase):
 
         self.assertEqual(response_json['count'], 2)
         self.assertEqual(response_json['total_pages'], 1)
-        self.assertEqual(response_json['results'][0]['id'], 1)
-        self.assertEqual(response_json['results'][0]['calculated_amount'], -25)
-        self.assertEqual(response_json['results'][1]['id'], 2)
-        self.assertEqual(response_json['results'][1]['calculated_amount'], 25)
+        self.assertEqual(response_json['results'][0]['id'], 2)
+        self.assertEqual(response_json['results'][0]['calculated_amount'], 25)
+        self.assertEqual(response_json['results'][1]['id'], 1)
+        self.assertEqual(response_json['results'][1]['calculated_amount'], -25)

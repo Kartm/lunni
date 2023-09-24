@@ -35,12 +35,11 @@ export const uploadFile = async (file: RcFile, parser: string) => {
 		.then((response) => response.data);
 };
 
-export const getTransactions = (page: number, pageSize: number) =>
-	axios
-		.get<TransactionResponse>(
-			`/transactions/?page=${page}&page_size=${pageSize}`
-		)
-		.then((response) => response.data);
+export const getTransactions = (urlParams: URLSearchParams) => axios
+	.get<TransactionResponse>(
+		`/transactions/?${urlParams.toString()}`
+	)
+	.then((response) => response.data);
 
 export const postMergeTransactions = (merge: TransactionMergeRequest) =>
 	axios

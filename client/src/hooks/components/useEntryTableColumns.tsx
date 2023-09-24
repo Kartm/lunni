@@ -6,6 +6,7 @@ import { EntryTableDescriptionCell } from '../../components/molecules/EntryTable
 import { EntryTableCategoryCell } from '../../components/molecules/EntryTableCategoryCell';
 import { EntryTableNoteCell } from '../../components/molecules/EntryTableNoteCell';
 import { EntryTableAmountCell } from '../../components/molecules/EntryTableAmountCell';
+import {useCategoryStats} from '../api';
 
 type useEntryTableColumnsProps = {
 	onCategoryAdd: (record: DataType) => void;
@@ -15,8 +16,19 @@ type useEntryTableColumnsProps = {
 export const useEntryTableColumns = ({
 	onCategoryAdd,
 	onRecordUpdate,
-}: useEntryTableColumnsProps): ColumnsType<DataType> =>
-	useMemo(
+}: useEntryTableColumnsProps): ColumnsType<DataType> => {
+	const { data : categoryStats } = useCategoryStats();
+
+	const categoryFilters = useMemo(
+		() => categoryStats?.map(
+			category => ({
+				text: `${category.categoryName || '(None)'} (${category.totalCount})`,
+				value: category.categoryName || 'None'
+			})
+		) || [],
+		[categoryStats]);
+
+	return useMemo(
 		(): ColumnsType<DataType> => [
 			{
 				title: 'Date',
@@ -45,6 +57,7 @@ export const useEntryTableColumns = ({
 						onClickAdd={() => onCategoryAdd(record)}
 					/>
 				),
+				filters: categoryFilters,
 			},
 			{
 				title: 'Note',
@@ -76,3 +89,4 @@ export const useEntryTableColumns = ({
 		],
 		[onCategoryAdd, onRecordUpdate]
 	);
+};

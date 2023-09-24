@@ -1,4 +1,4 @@
-import { DataType, EntryTable } from '../../organisms/EntryTable';
+import {DataType, EntryTable, TableParams} from '../../organisms/EntryTable';
 import React, { useState } from 'react';
 import {
 	useGetTransactions,
@@ -9,19 +9,18 @@ import { TransactionMerger } from '../../molecules/TransactionMerger';
 import { CategoryMatcherAdder } from '../../molecules/CategoryMatcherAdder';
 import { Divider, Space } from 'antd';
 import { TransactionPartial } from '../../../api/merger';
-import { usePagination } from '../../../hooks/common/usePagination';
 import { MergerPageActions } from './MergerPageActions';
 
 export const MergerPage = () => {
-	const { pagination, setPagination } = usePagination();
+	const [tableParams, setTableParams] = useState<TableParams>({});
 
-	const { selection, setSelection, isLoading, mergeTransactions } =
+	const { selection, setSelection, mergeTransactions } =
 		useMergeTransactions();
 	const [categoryAddRecord, setCategoryAddRecord] = useState<DataType>();
 	const { mutate: updateTransaction } = useUpdateTransaction();
 
 	const { data, isLoading: isGetTransactionsLoading } =
-		useGetTransactions(pagination);
+		useGetTransactions(tableParams);
 
 	const handleMerge = (sourceId: number, targetId: number, amount: number) => {
 		mergeTransactions({
@@ -51,13 +50,13 @@ export const MergerPage = () => {
 			<Divider />
 
 			<EntryTable
-				isLoading={isGetTransactionsLoading || isLoading}
+				isLoading={isGetTransactionsLoading}
 				totalEntries={data?.count}
 				data={data?.results || []}
 				selection={selection}
 				onSelectionChange={setSelection}
-				onPaginationChange={(page, pageSize) =>
-					setPagination({ page, pageSize })
+				onChange={(params) =>
+					setTableParams(params)
 				}
 				onCategoryAdd={onCategoryAdd}
 				onRecordUpdate={onRecordUpdate}

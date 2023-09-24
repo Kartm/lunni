@@ -85,7 +85,7 @@ class TransactionDetailView(RetrieveUpdateAPIView):
 class TransactionCategoryListCreateView(ListCreateAPIView):
     queryset = Category.objects.all().order_by('-created')
     serializer_class = TransactionCategorySerializer
-    page_size = 1000
+    page_size = 1000 # todo block None
 
 
 class TransactionCategoryMatcherListCreateView(ListCreateAPIView):
