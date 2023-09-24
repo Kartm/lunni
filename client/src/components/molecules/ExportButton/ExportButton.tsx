@@ -4,7 +4,7 @@ import { Button } from 'antd';
 import { exportFileUrl } from '../../../api/merger';
 
 export const ExportButton = () => (
-	<Button icon={<DownloadOutlined />} href={exportFileUrl}>
-		Export
-	</Button>
+    <Button icon={<DownloadOutlined />} href={exportFileUrl}>
+        Export
+    </Button>
 );

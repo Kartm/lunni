@@ -16,75 +16,75 @@ import {
 import { AxiosResponse } from 'axios';
 
 export const getUploadParsers = () =>
-	axios
-		.get<UploadParsersResponse>('/transactions/upload/parsers/')
-		.then((response) => response.data);
+    axios
+        .get<UploadParsersResponse>('/transactions/upload/parsers/')
+        .then((response) => response.data);
 
 export const uploadFile = async (file: RcFile, parser: string) => {
-	const formData = new FormData();
-	// @ts-ignore probably types are outdated, I know it's there...
-	formData.append('file', await file.originFileObj);
-	formData.append('parser', parser);
+    const formData = new FormData();
+    // @ts-ignore probably types are outdated, I know it's there...
+    formData.append('file', await file.originFileObj);
+    formData.append('parser', parser);
 
-	return axios
-		.post<UploadFileResponse>('/transactions/upload/', formData, {
-			headers: {
-				'Content-Type': 'multipart/form-data; boundary=WebAppBoundary',
-			},
-		})
-		.then((response) => response.data);
+    return axios
+        .post<UploadFileResponse>('/transactions/upload/', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data; boundary=WebAppBoundary',
+            },
+        })
+        .then((response) => response.data);
 };
 
 export const getTransactions = (urlParams: URLSearchParams) => axios
-	.get<TransactionResponse>(
-		`/transactions/?${urlParams.toString()}`
-	)
-	.then((response) => response.data);
+    .get<TransactionResponse>(
+        `/transactions/?${urlParams.toString()}`,
+    )
+    .then((response) => response.data);
 
 export const postMergeTransactions = (merge: TransactionMergeRequest) =>
-	axios
-		.post<TransactionResponse>('/transactions/merge/', merge)
-		.then((response) => response.data);
+    axios
+        .post<TransactionResponse>('/transactions/merge/', merge)
+        .then((response) => response.data);
 
 export const postRematchCategories = () =>
-	axios.post('/categories/rematch/').then((response) => response.data);
+    axios.post('/categories/rematch/').then((response) => response.data);
 
 export const getCategoryStats = () =>
-	axios
-		.get<CategoryStatsResponse>('/categories/stats/')
-		.then((response) => response.data);
+    axios
+        .get<CategoryStatsResponse>('/categories/stats/')
+        .then((response) => response.data);
 
 export const getCategories = () =>
-	axios
-		.get<CategoriesResponse>('/categories/')
-		.then((response) => response.data);
+    axios
+        .get<CategoriesResponse>('/categories/')
+        .then((response) => response.data);
 
 export const createCategory = (data: CategoryCreateRequest) =>
-	axios
-		.post<CategoryCreateRequest>('/categories/', data)
-		.then((response) => response.data);
+    axios
+        .post<CategoryCreateRequest>('/categories/', data)
+        .then((response) => response.data);
 
 export const createCategoryMatcher = (data: CategoryMatcherCreateRequest) =>
-	axios
-		.post<CategoryMatcherCreateRequest>('/categories/matchers/', data)
-		.then((response) => response.data);
+    axios
+        .post<CategoryMatcherCreateRequest>('/categories/matchers/', data)
+        .then((response) => response.data);
 
 export const getRegexMatches = (regexExpression: string) =>
-	axios
-		.get<TransactionResponse>(
-			`/transactions/regex-match/?regex_expression=${regexExpression}`
-		)
-		.then((response) => response.data);
+    axios
+        .get<TransactionResponse>(
+            `/transactions/regex-match/?regex_expression=${regexExpression}`,
+        )
+        .then((response) => response.data);
 
 export const updateTransaction = ({
-	id,
-	...partialTransaction
+    id,
+    ...partialTransaction
 }: TransactionPartial) =>
-	axios
-		.patch<TransactionUpdateRequest, AxiosResponse<TransactionUpdateResponse>>(
-			`/transactions/${id}/`,
-			partialTransaction
-		)
-		.then((response) => response.data);
+    axios
+        .patch<TransactionUpdateRequest, AxiosResponse<TransactionUpdateResponse>>(
+            `/transactions/${id}/`,
+            partialTransaction,
+        )
+        .then((response) => response.data);
 
 export const exportFileUrl = `${axios.defaults.baseURL}/transactions/export/`;

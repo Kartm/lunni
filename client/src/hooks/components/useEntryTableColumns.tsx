@@ -6,87 +6,87 @@ import { EntryTableDescriptionCell } from '../../components/molecules/EntryTable
 import { EntryTableCategoryCell } from '../../components/molecules/EntryTableCategoryCell';
 import { EntryTableNoteCell } from '../../components/molecules/EntryTableNoteCell';
 import { EntryTableAmountCell } from '../../components/molecules/EntryTableAmountCell';
-import {useCategoryStats} from '../api';
+import { useCategoryStats } from '../api';
 
 type useEntryTableColumnsProps = {
-	onCategoryAdd: (record: DataType) => void;
-	onRecordUpdate: (transactionPartial: TransactionPartial) => void;
+    onCategoryAdd: (record: DataType) => void;
+    onRecordUpdate: (transactionPartial: TransactionPartial) => void;
 };
 
 export const useEntryTableColumns = ({
-	onCategoryAdd,
-	onRecordUpdate,
+    onCategoryAdd,
+    onRecordUpdate,
 }: useEntryTableColumnsProps): ColumnsType<DataType> => {
-	const { data : categoryStats } = useCategoryStats();
+    const { data: categoryStats } = useCategoryStats();
 
-	const categoryFilters = useMemo(
-		() => categoryStats?.map(
-			category => ({
-				text: `${category.categoryName || '(None)'} (${category.totalCount})`,
-				value: category.categoryName || 'None'
-			})
-		) || [],
-		[categoryStats]);
+    const categoryFilters = useMemo(
+        () => categoryStats?.map(
+            category => ({
+                text: `${category.categoryName || '(None)'} (${category.totalCount})`,
+                value: category.categoryName || 'None',
+            }),
+        ) || [],
+        [categoryStats]);
 
-	return useMemo(
-		(): ColumnsType<DataType> => [
-			{
-				title: 'Date',
-				dataIndex: 'date',
-				key: 'date',
-				width: 115,
-			},
-			{
-				title: 'Description',
-				dataIndex: 'description',
-				key: 'description',
-				ellipsis: true,
-				render: (description: string) => (
-					<EntryTableDescriptionCell description={description} />
-				),
-			},
-			{
-				title: 'Category',
-				dataIndex: 'category',
-				key: 'category',
-				width: 140,
-				ellipsis: true,
-				render: (category: DataType['category'], record) => (
-					<EntryTableCategoryCell
-						category={category}
-						onClickAdd={() => onCategoryAdd(record)}
-					/>
-				),
-				filters: categoryFilters,
-			},
-			{
-				title: 'Note',
-				dataIndex: 'note',
-				key: 'note',
-				width: 150,
-				render: (_, record) => (
-					<EntryTableNoteCell
-						defaultNote={record.note}
-						onNoteChange={(note) => onRecordUpdate({ id: record.id, note })}
-					/>
-				),
-			},
-			{
-				title: 'Account',
-				dataIndex: 'account',
-				key: 'account',
-				width: 80,
-				ellipsis: true,
-			},
-			{
-				title: 'Amount',
-				dataIndex: 'calculated_amount',
-				key: 'amount',
-				width: 150,
-				align: 'right',
-				render: (amount: number) => <EntryTableAmountCell amount={amount} />,
-			},
-		],
-		[onCategoryAdd, onRecordUpdate]
-	);
+    return useMemo(
+        (): ColumnsType<DataType> => [
+            {
+                title: 'Date',
+                dataIndex: 'date',
+                key: 'date',
+                width: 115,
+            },
+            {
+                title: 'Description',
+                dataIndex: 'description',
+                key: 'description',
+                ellipsis: true,
+                render: (description: string) => (
+                    <EntryTableDescriptionCell description={description} />
+                ),
+            },
+            {
+                title: 'Category',
+                dataIndex: 'category',
+                key: 'category',
+                width: 140,
+                ellipsis: true,
+                render: (category: DataType['category'], record) => (
+                    <EntryTableCategoryCell
+                        category={category}
+                        onClickAdd={() => onCategoryAdd(record)}
+                    />
+                ),
+                filters: categoryFilters,
+            },
+            {
+                title: 'Note',
+                dataIndex: 'note',
+                key: 'note',
+                width: 150,
+                render: (_, record) => (
+                    <EntryTableNoteCell
+                        defaultNote={record.note}
+                        onNoteChange={(note) => onRecordUpdate({ id: record.id, note })}
+                    />
+                ),
+            },
+            {
+                title: 'Account',
+                dataIndex: 'account',
+                key: 'account',
+                width: 80,
+                ellipsis: true,
+            },
+            {
+                title: 'Amount',
+                dataIndex: 'calculated_amount',
+                key: 'amount',
+                width: 150,
+                align: 'right',
+                render: (amount: number) => <EntryTableAmountCell amount={amount} />,
+            },
+        ],
+        [onCategoryAdd, onRecordUpdate],
+    );
 };
