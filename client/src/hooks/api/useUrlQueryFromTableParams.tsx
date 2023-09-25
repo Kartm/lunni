@@ -38,8 +38,12 @@ export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
                 column = `-${column}`;
             }
 
-            entries.push(['ordering', column.toString()])
+            entries.push(['ordering', column.toString()]);
         }
+    }
+
+    if (tableParams.searchRegex) {
+        entries.push(['search', tableParams.searchRegex]);
     }
 
     return useMemo(() => new URLSearchParams(entries), [tableParams]);

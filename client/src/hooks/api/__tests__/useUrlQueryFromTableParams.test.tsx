@@ -40,5 +40,22 @@ describe('useUrlQueryFromTableParams', () => {
 
         expect(result.current?.toString()).toBe('ordering=-date');
     });
+
+    test('converts table search to URL query', async () => {
+        const props: TableParams = {
+            searchRegex: '2023-01-05 (CompCo|Polex)'
+        };
+
+        const { result } = renderHook<unknown, TableParams>(() => useUrlQueryFromTableParams(props));
+
+        const encodeRFC3986URIComponent = (str: string) => {
+            return encodeURIComponent(str).replace(
+                /[!'()*]/g,
+                (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
+            );
+        }
+
+        expect(result.current?.toString()).toBe(`search=2023-01-05+%28CompCo%7CPolex%29`); // todo encode properly
+    });
 });
 
