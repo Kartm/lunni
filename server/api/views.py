@@ -6,10 +6,11 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.utils.decorators import method_decorator
 from django.views import View
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -72,11 +73,14 @@ class UploadVariantsListView(ListAPIView):
 
 
 class TransactionsListView(ListAPIView):
-    queryset = Transaction.objects.all()
+    queryset = Transaction.objects.all().annotate(
+        search_field=Concat('date', Value(' '), 'description', output_field=CharField())
+    )
     serializer_class = TransactionSerializer
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = TransactionFilter
     ordering_fields = ['calculated_amount', 'date']
+    search_fields = ['$search_field']
 
 
 class TransactionDetailView(RetrieveUpdateAPIView):
@@ -131,18 +135,6 @@ class TransactionCategoryStatsView(APIView):
             count_summary.insert(0, count_summary.pop(none_index))
 
         return Response(count_summary)
-
-
-class TransactionLogRegexMatchListView(ListAPIView):
-    serializer_class = TransactionSerializer
-
-    def get_queryset(self):
-        regex_expression = self.request.query_params.get('regex_expression')
-
-        qs = Transaction.objects.all().annotate(
-            search_field=Concat('date', Value(' '), 'description', output_field=CharField())
-        )
-        return qs.filter(search_field__iregex=regex_expression)
 
 
 class TransactionsCSVExportView(View):
