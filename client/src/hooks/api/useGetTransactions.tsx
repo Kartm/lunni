@@ -13,5 +13,6 @@ export const useGetTransactions = (tableParams: TableParams) => {
             tableParams],
         queryFn: () => getTransactions(urlParams),
         onError: (e) => message.error({ content: e?.toString() }),
+        keepPreviousData: true,
     });
 };
