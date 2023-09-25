@@ -9,6 +9,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.views import View
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
+from rest_framework.filters import OrderingFilter
 from rest_framework.generics import ListAPIView, CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -73,8 +74,9 @@ class UploadVariantsListView(ListAPIView):
 class TransactionsListView(ListAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_class = TransactionFilter
+    ordering_fields = ['calculated_amount', 'date']
 
 
 class TransactionDetailView(RetrieveUpdateAPIView):

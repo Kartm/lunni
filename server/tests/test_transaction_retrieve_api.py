@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
@@ -175,3 +177,66 @@ class TestTransactionRetrieveAPI(APITestCase):
         self.assertEqual(income_transaction['category']['name'], income_category.name)
         self.assertEqual(income_transaction['category']['variant'], income_category.variant)
 
+    def test_get_transactions_order_by_date_asc(self):
+        TransactionFactory.create(id=1, category=None, date=date(2022, 12, 25))
+        TransactionFactory.create(id=2, category=None, date=date(2022, 12, 26))
+
+        url = reverse('transactions')
+
+        transactions = self.client.get(url, {'ordering': 'date'})
+        transactions_json = transactions.json()
+        self.assertEqual(transactions_json['count'], 2)
+        transaction_1, transaction_2 = transactions_json['results']
+
+        self.assertEqual(transaction_1['id'], 1)
+        self.assertEqual(transaction_1['date'], '2022-12-25')
+        self.assertEqual(transaction_2['id'], 2)
+        self.assertEqual(transaction_2['date'], '2022-12-26')
+
+    def test_get_transactions_order_by_date_desc(self):
+        TransactionFactory.create(id=1, category=None, date=date(2022, 12, 25))
+        TransactionFactory.create(id=2, category=None, date=date(2022, 12, 26))
+
+        url = reverse('transactions')
+
+        transactions = self.client.get(url, {'ordering': '-date'})
+        transactions_json = transactions.json()
+        self.assertEqual(transactions_json['count'], 2)
+        transaction_1, transaction_2 = transactions_json['results']
+
+        self.assertEqual(transaction_1['id'], 2)
+        self.assertEqual(transaction_1['date'], '2022-12-26')
+        self.assertEqual(transaction_2['id'], 1)
+        self.assertEqual(transaction_2['date'], '2022-12-25')
+
+    def test_get_transactions_order_by_calculated_amount_asc(self):
+        TransactionFactory.create(id=1, category=None, amount=1)
+        TransactionFactory.create(id=2, category=None, amount=2)
+
+        url = reverse('transactions')
+
+        transactions = self.client.get(url, {'ordering': 'calculated_amount'})
+        transactions_json = transactions.json()
+        self.assertEqual(transactions_json['count'], 2)
+        transaction_1, transaction_2 = transactions_json['results']
+
+        self.assertEqual(transaction_1['id'], 1)
+        self.assertEqual(transaction_1['amount'], 1)
+        self.assertEqual(transaction_2['id'], 2)
+        self.assertEqual(transaction_2['amount'], 2)
+
+    def test_get_transactions_order_by_calculated_amount_desc(self):
+        TransactionFactory.create(id=1, category=None, amount=1)
+        TransactionFactory.create(id=2, category=None, amount=2)
+
+        url = reverse('transactions')
+
+        transactions = self.client.get(url, {'ordering': '-calculated_amount'})
+        transactions_json = transactions.json()
+        self.assertEqual(transactions_json['count'], 2)
+        transaction_1, transaction_2 = transactions_json['results']
+
+        self.assertEqual(transaction_1['id'], 2)
+        self.assertEqual(transaction_1['amount'], 2)
+        self.assertEqual(transaction_2['id'], 1)
+        self.assertEqual(transaction_2['amount'], 1)
