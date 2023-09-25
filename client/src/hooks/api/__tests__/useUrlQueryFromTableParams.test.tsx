@@ -3,12 +3,21 @@ import { TableParams } from '../../../components/organisms/EntryTable';
 import { useUrlQueryFromTableParams } from '../useUrlQueryFromTableParams';
 
 describe('useUrlQueryFromTableParams', () => {
-    test('converts table params to URL query', async () => {
+    test('converts table pagination to URL query', async () => {
         const props: TableParams = {
             pagination: {
                 current: 1,
                 pageSize: 50,
             },
+        };
+
+        const { result } = renderHook<unknown, TableParams>(() => useUrlQueryFromTableParams(props));
+
+        expect(result.current?.toString()).toBe('page=1&page_size=50');
+    });
+
+    test('converts table filters to URL query', async () => {
+        const props: TableParams = {
             filters: {
                 category: ['Income', 'None'],
             },
@@ -16,7 +25,20 @@ describe('useUrlQueryFromTableParams', () => {
 
         const { result } = renderHook<unknown, TableParams>(() => useUrlQueryFromTableParams(props));
 
-        expect(result.current?.toString()).toBe('page=1&page_size=50&category=Income&category=None');
+        expect(result.current?.toString()).toBe('category=Income&category=None');
+    });
+
+    test('converts table sorter to URL query', async () => {
+        const props: TableParams = {
+            sorter: {
+                field: 'date',
+                order: 'descend'
+            }
+        };
+
+        const { result } = renderHook<unknown, TableParams>(() => useUrlQueryFromTableParams(props));
+
+        expect(result.current?.toString()).toBe('ordering=-date');
     });
 });
 

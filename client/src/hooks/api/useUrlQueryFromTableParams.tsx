@@ -1,5 +1,5 @@
 import { TableParams } from '../../components/organisms/EntryTable';
-import { useMemo } from 'react';
+import { Key, useMemo } from 'react';
 
 export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
     const entries: [string, string][] = [];
@@ -27,6 +27,18 @@ export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
                     entries.push([column, filterValue.toString()]);
                 }
             });
+        }
+    }
+
+    if (tableParams.sorter?.field) {
+        const columns: Key[] = Array.isArray(tableParams.sorter.field) ? tableParams.sorter.field : [tableParams.sorter.field];
+
+        for (let column of columns) {
+            if (tableParams.sorter.order === 'descend') {
+                column = `-${column}`;
+            }
+
+            entries.push(['ordering', column.toString()])
         }
     }
 
