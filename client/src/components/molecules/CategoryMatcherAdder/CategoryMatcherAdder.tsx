@@ -87,10 +87,10 @@ export const CategoryMatcherAdder = ({
                         onAddOption={(name, variant) => mutate({ name, variant })}
                     />
                 </Form.Item>
-                Currently matches {regexMatchesList?.count} records:
+                Currently matches {regexMatchesList?.length} records:
                 <List
                     bordered
-                    dataSource={regexMatchesList?.results}
+                    dataSource={regexMatchesList}
                     itemLayout='horizontal'
                     renderItem={(item) => (
                         <List.Item>

@@ -9,6 +9,8 @@ export type UploadParsersResponse = Array<{ symbol: string; label: string }>;
 
 export type TransactionResponse = Paginated<Transaction>;
 
+export type UnpaginatedTransactionResponse = Array<Transaction>;
+
 export type TransactionMergeRequest = {
     from_transaction: number;
     to_transaction: number;

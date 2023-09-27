@@ -1,17 +1,17 @@
 import { axios } from '../../config';
 import { RcFile } from 'antd/lib/upload';
 import {
-	CategoriesResponse,
-	CategoryCreateRequest,
-	CategoryMatcherCreateRequest,
-	CategoryStatsResponse,
-	TransactionMergeRequest,
-	TransactionPartial,
-	TransactionResponse,
-	TransactionUpdateRequest,
-	TransactionUpdateResponse,
-	UploadFileResponse,
-	UploadParsersResponse,
+    CategoriesResponse,
+    CategoryCreateRequest,
+    CategoryMatcherCreateRequest,
+    CategoryStatsResponse,
+    TransactionMergeRequest,
+    TransactionPartial,
+    TransactionResponse,
+    TransactionUpdateRequest,
+    TransactionUpdateResponse, UnpaginatedTransactionResponse,
+    UploadFileResponse,
+    UploadParsersResponse,
 } from './merger.dto';
 import { AxiosResponse } from 'axios';
 
@@ -37,6 +37,12 @@ export const uploadFile = async (file: RcFile, parser: string) => {
 
 export const getTransactions = (urlParams: URLSearchParams) => axios
     .get<TransactionResponse>(
+        `/transactions/?${urlParams.toString()}`,
+    )
+    .then((response) => response.data);
+
+export const getUnpaginatedTransactions = (urlParams: URLSearchParams) => axios
+    .get<UnpaginatedTransactionResponse>(
         `/transactions/?${urlParams.toString()}`,
     )
     .then((response) => response.data);
@@ -67,13 +73,6 @@ export const createCategory = (data: CategoryCreateRequest) =>
 export const createCategoryMatcher = (data: CategoryMatcherCreateRequest) =>
     axios
         .post<CategoryMatcherCreateRequest>('/categories/matchers/', data)
-        .then((response) => response.data);
-
-export const getRegexMatches = (regexExpression: string) =>
-    axios
-        .get<TransactionResponse>(
-            `/transactions/regex-match/?regex_expression=${regexExpression}`,
-        )
         .then((response) => response.data);
 
 export const updateTransaction = ({

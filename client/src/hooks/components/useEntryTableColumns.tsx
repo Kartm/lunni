@@ -35,6 +35,7 @@ export const useEntryTableColumns = ({
                 dataIndex: 'date',
                 key: 'date',
                 width: 115,
+                sorter: true,
             },
             {
                 title: 'Description',
@@ -57,7 +58,7 @@ export const useEntryTableColumns = ({
                         onClickAdd={() => onCategoryAdd(record)}
                     />
                 ),
-                filters: categoryFilters,
+                filters: categoryFilters
             },
             {
                 title: 'Note',
@@ -85,6 +86,7 @@ export const useEntryTableColumns = ({
                 width: 150,
                 align: 'right',
                 render: (amount: number) => <EntryTableAmountCell amount={amount} />,
+                sorter: true,
             },
         ],
         [onCategoryAdd, onRecordUpdate],

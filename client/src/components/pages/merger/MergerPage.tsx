@@ -15,7 +15,7 @@ export const MergerPage = () => {
     const [categoryAddRecord, setCategoryAddRecord] = useState<DataType>();
     const { mutate: updateTransaction } = useUpdateTransaction();
 
-    const { data, isLoading: isGetTransactionsLoading } =
+    const { data, isLoading: isGetTransactionsLoading, isPreviousData } =
         useGetTransactions(tableParams);
 
     const handleMerge = (sourceId: number, targetId: number, amount: number) => {
@@ -46,7 +46,7 @@ export const MergerPage = () => {
             <Divider />
 
             <EntryTable
-                isLoading={isGetTransactionsLoading}
+                isLoading={isGetTransactionsLoading || isPreviousData}
                 totalEntries={data?.count}
                 data={data?.results || []}
                 selection={selection}

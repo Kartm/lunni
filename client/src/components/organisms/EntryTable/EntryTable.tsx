@@ -14,6 +14,7 @@ export type TableParams = {
     pagination?: TablePaginationConfig;
     filters?: Record<string, FilterValue | null>;
     sorter?: SorterResult<DataType>;
+    searchRegex?: string;
 }
 
 type EntryTableProps = {
