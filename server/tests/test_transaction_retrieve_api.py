@@ -178,6 +178,25 @@ class TestTransactionRetrieveAPI(APITestCase):
         self.assertEqual(income_transaction['category']['name'], income_category.name)
         self.assertEqual(income_transaction['category']['variant'], income_category.variant)
 
+    def test_get_transactions_filter_by_date_range(self):
+        TransactionFactory.create(id=1, category=None, date='2023-01-01')
+        TransactionFactory.create(id=2, category=None, date='2023-01-02')
+        TransactionFactory.create(id=3, category=None, date='2023-01-03')
+        TransactionFactory.create(id=4, category=None, date='2023-01-04')
+        TransactionFactory.create(id=5, category=None, date='2023-01-05')
+
+        url = reverse('transactions')
+
+        # inclusive
+        transactions = self.client.get(url, {'date_after': '2023-01-02', 'date_before': '2023-01-04'})
+        transactions_json = transactions.json()
+        self.assertEqual(transactions_json['count'], 3)
+        transaction_4, transaction_3, transaction_2 = transactions_json['results']
+
+        self.assertEqual(transaction_2['id'], 2)
+        self.assertEqual(transaction_3['id'], 3)
+        self.assertEqual(transaction_4['id'], 4)
+
     def test_get_transactions_order_by_date_asc(self):
         TransactionFactory.create(id=1, category=None, date=date(2022, 12, 25))
         TransactionFactory.create(id=2, category=None, date=date(2022, 12, 26))
