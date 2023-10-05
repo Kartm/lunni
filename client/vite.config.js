@@ -7,6 +7,7 @@ export default defineConfig(() => {
     return {
         build: {
             outDir: 'build',
+            sourcemap: true,
         },
         plugins: [react(), eslint()],
         test: {
