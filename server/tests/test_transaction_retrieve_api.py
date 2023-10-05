@@ -188,10 +188,10 @@ class TestTransactionRetrieveAPI(APITestCase):
         url = reverse('transactions')
 
         # inclusive
-        transactions = self.client.get(url, {'date_after': '2023-01-02', 'date_before': '2023-01-04'})
+        transactions = self.client.get(url, {'page_size': 100, 'ordering': 'date', 'date_after': '2023-01-02', 'date_before': '2023-01-04'})
         transactions_json = transactions.json()
         self.assertEqual(transactions_json['count'], 3)
-        transaction_4, transaction_3, transaction_2 = transactions_json['results']
+        transaction_2, transaction_3, transaction_4 = transactions_json['results']
 
         self.assertEqual(transaction_2['id'], 2)
         self.assertEqual(transaction_3['id'], 3)

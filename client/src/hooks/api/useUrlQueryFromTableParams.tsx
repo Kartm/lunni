@@ -41,8 +41,8 @@ export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
         }
     }
 
-    if (tableParams.customFilters?.searchRegex) {
-        entries.push(['search', tableParams.customFilters.searchRegex]);
+    if (tableParams?.searchRegex) {
+        entries.push(['search', tableParams.searchRegex]);
     }
 
     return useMemo(() => new URLSearchParams(entries), [tableParams]);
