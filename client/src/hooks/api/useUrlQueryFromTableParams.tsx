@@ -1,7 +1,7 @@
 import { TableParams } from '../../components/organisms/EntryTable';
 import { Key, useMemo } from 'react';
 
-const DATE_FORMAT = 'YYYY-MM-DD';
+
 
 export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
     const entries: [string, string][] = [];
@@ -15,8 +15,8 @@ export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
     }
 
     if (tableParams.customFilters?.date) {
-        entries.push(['date_after', tableParams.customFilters.date.after.format(DATE_FORMAT)]);
-        entries.push(['date_before', tableParams.customFilters.date.before.format(DATE_FORMAT)]);
+        entries.push(['date_after', tableParams.customFilters.date.after]);
+        entries.push(['date_before', tableParams.customFilters.date.before]);
     }
 
     if (tableParams.customFilters?.categories) {

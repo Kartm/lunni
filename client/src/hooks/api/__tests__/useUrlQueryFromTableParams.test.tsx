@@ -16,7 +16,7 @@ describe('useUrlQueryFromTableParams', () => {
         expect(result.current?.toString()).toBe('page=1&page_size=50');
     });
 
-    test('converts table filters to URL query', async () => {
+    test('converts table categories filters to URL query', async () => {
         const props: TableParams = {
             customFilters: {
                 categories: ['Income', 'None'],
@@ -26,6 +26,21 @@ describe('useUrlQueryFromTableParams', () => {
         const { result } = renderHook<unknown, TableParams>(() => useUrlQueryFromTableParams(props));
 
         expect(result.current?.toString()).toBe('category=Income&category=None');
+    });
+
+    test('converts table date range filters to URL query', async () => {
+        const props: TableParams = {
+            customFilters: {
+                date: {
+                    after: '2023-01-10',
+                    before: '2023-01-20',
+                },
+            },
+        };
+
+        const { result } = renderHook<unknown, TableParams>(() => useUrlQueryFromTableParams(props));
+
+        expect(result.current?.toString()).toBe('date_after=2023-01-10&date_before=2023-01-20');
     });
 
     test('converts table sorter to URL query', async () => {

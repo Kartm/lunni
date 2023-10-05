@@ -1,7 +1,7 @@
-import { DataType } from '../../components/organisms/EntryTable';
+import { DataType, Filters } from '../../components/organisms/EntryTable';
 import React, { useEffect, useMemo, useState } from 'react';
 import { TransactionPartial } from '../../api/merger';
-import { ColumnType, ColumnsType } from 'antd/lib/table';
+import { ColumnsType, ColumnType } from 'antd/lib/table';
 import { EntryTableDescriptionCell } from '../../components/molecules/EntryTableDescriptionCell';
 import { EntryTableCategoryCell } from '../../components/molecules/EntryTableCategoryCell';
 import { EntryTableNoteCell } from '../../components/molecules/EntryTableNoteCell';
@@ -14,14 +14,13 @@ import { Dayjs } from 'dayjs';
 
 const { RangePicker } = DatePicker;
 
-export type Filters = { date?: {before: Dayjs, after: Dayjs}, searchRegex?: string, categories?: (string | null)[] };
-
 type useEntryTableColumnsProps = {
     onCategoryAdd: (record: DataType) => void;
     onRecordUpdate: (transactionPartial: TransactionPartial) => void;
     onFiltersChange: (filters: Filters) => void;
 };
 
+const DATE_FORMAT = 'YYYY-MM-DD';
 
 export const useEntryTableColumns = ({
     onCategoryAdd,
@@ -55,7 +54,7 @@ export const useEntryTableColumns = ({
         } else if (range[0] && range[1]) {
             const [after, before] = range;
             setFilters(prev => ({ ...prev,
-                date: { after, before }
+                date: { after: after.format(DATE_FORMAT), before: before.format(DATE_FORMAT) }
             }));
         }
     };

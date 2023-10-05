@@ -4,11 +4,13 @@ import { Transaction } from '../../../models/merger';
 import { FilterValue, Key, SorterResult } from 'antd/es/table/interface';
 import { TransactionPartial } from '../../../api/merger';
 import { debounce } from 'lodash';
-import { Filters, useEntryTableColumns, useEntryTableRows } from '../../../hooks/components';
+import { useEntryTableColumns, useEntryTableRows } from '../../../hooks/components';
 
 export type DataType = Transaction & {
     key: Key;
 };
+
+export type Filters = { date?: { before: string, after: string }, searchRegex?: string, categories?: (string | null)[] };
 
 export type TableParams = {
     pagination?: TablePaginationConfig;
