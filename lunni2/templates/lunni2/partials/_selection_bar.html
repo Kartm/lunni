@@ -1,0 +1,65 @@
+{# lunni2/templates/lunni2/partials/_selection_bar.html #}
+{% if s.tx_count or s.group_count %}
+  <div style="position:fixed; bottom:16px; right:16px; background:white; border:1px solid #ddd; border-radius:10px; padding:10px 12px; width:520px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+      <div>
+        <strong>Selected:</strong> {{ s.tx_count|add:s.group_count }}
+        {% if s.currency %}<span style="opacity:.7;">({{ s.currency }})</span>{% endif %}
+      </div>
+      <form hx-post="{% url 'clear_selection' %}" hx-swap="none" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit">Clear</button>
+      </form>
+    </div>
+
+    {% if s.errors %}
+      <div style="margin-top:8px; padding:8px; border:1px solid #f0c; border-radius:8px;">
+        {% for e in s.errors %}{{ e }}<br>{% endfor %}
+      </div>
+    {% endif %}
+
+    <div style="margin-top:10px; max-height:160px; overflow:auto; border-top:1px solid #eee; padding-top:8px;">
+      <table width="100%" cellpadding="4" cellspacing="0" style="border-collapse:collapse;">
+        {% for it in s.items %}
+          <tr>
+            <td style="width:70px; opacity:.7;">{{ it.kind }}</td>
+            <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 320px;">
+              {{ it.label }}
+            </td>
+            <td style="text-align:right; width:110px;">{{ it.amount }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-top:8px;">
+      <div><strong>Total:</strong> {% if s.total is not None %}{{ s.total }}{% else %}—{% endif %}</div>
+    </div>
+
+    <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+      {% if s.mode == "CREATE_GROUP" and not s.errors %}
+        <form hx-post="{% url 'create_group_from_selection' %}" hx-swap="none" style="display:flex; gap:8px; margin:0;">
+          {% csrf_token %}
+          <input name="title" placeholder="Group name" required>
+          <button type="submit">Create group</button>
+        </form>
+
+      {% elif s.mode == "ADD_TO_GROUP" and not s.errors %}
+        <form hx-post="{% url 'add_selection_to_group' %}" hx-swap="none" style="display:flex; gap:8px; margin:0;">
+          {% csrf_token %}
+          <button type="submit">Add to group “{{ s.add_to_group_name }}”</button>
+        </form>
+
+      {% elif s.mode == "MERGE_ALL" and not s.errors %}
+        <form hx-post="{% url 'merge_selection_into_new_group' %}" hx-swap="none" style="display:flex; gap:8px; margin:0;">
+          {% csrf_token %}
+          <input name="title" placeholder="New group name" required>
+          <button type="submit">Merge all</button>
+        </form>
+
+      {% else %}
+        <span style="opacity:.7;">Select transactions to create a group, or pick a group + transactions to add.</span>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

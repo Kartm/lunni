@@ -183,3 +183,6 @@ fabric.properties
 
 # idea folder, uncomment if you don't need it
 # .idea
+**/.idea/workspace.xml **/.idea/tasks.xml
+
+*.sqlite3

@@ -1,0 +1,10 @@
+[project]
+name = "lunni"
+version = "2.0.0"
+description = "Add your description here"
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.0.1",
+    "django-debug-toolbar>=6.2.0",
+    "polars>=1.37.1",
+]

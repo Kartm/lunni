@@ -1,0 +1,15 @@
+<div id="group-toggle-{{ group_id }}" style="display:inline;">
+  <button
+    hx-get="{% url 'hx_group_collapse' group_id %}{% if querystring %}?{{ querystring }}{% endif %}"
+    hx-target="#group-toggle-{{ group_id }}"
+    hx-swap="outerHTML"
+    style="margin-left:6px;"
+  >▾</button>
+</div>
+
+<div
+  hx-get="{% url 'hx_group_members' group_id %}{% if querystring %}?{{ querystring }}{% endif %}"
+  hx-target="#group-members-{{ group_id }}"
+  hx-swap="innerHTML"
+  hx-trigger="load">
+</div>

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Monthly Category Breakdown</h1>
+
+<form method="get" style="display:flex; gap:10px; align-items:flex-end; margin: 12px 0;">
+  <div style="display:flex; flex-direction:column; gap:4px;">
+    <label for="breakdown-start" style="font-size:12px; opacity:.7;">Start date</label>
+    <input id="breakdown-start" type="date" name="start_date" value="{{ start_date }}">
+  </div>
+  <div style="display:flex; flex-direction:column; gap:4px;">
+    <label for="breakdown-end" style="font-size:12px; opacity:.7;">End date</label>
+    <input id="breakdown-end" type="date" name="end_date" value="{{ end_date }}">
+  </div>
+  <button type="submit">Apply</button>
+</form>
+
+{% if months %}
+  {% for month in months %}
+    <div style="margin: 18px 0 8px;">
+      <h2 style="margin: 0 0 6px;">{{ month.month_label }}</h2>
+      <div style="display:flex; gap:24px; flex-wrap:wrap;">
+        <section style="min-width: 320px; flex:1;">
+          <h3 style="margin: 6px 0;">Positive</h3>
+          <table border="1" cellpadding="6" cellspacing="0" width="100%">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th style="text-align:right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in month.pos.categories %}
+                <tr>
+                  <td>{{ row.name }}</td>
+                  <td style="text-align:right;">
+                    {% for amt in row.amounts %}
+                      <div>{{ amt.amount }} {{ amt.currency }}</div>
+                    {% endfor %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="2">No positive categories.</td></tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>Total</th>
+                <th style="text-align:right;">
+                  {% for total in month.pos.totals %}
+                    <div>{{ total.amount }} {{ total.currency }}</div>
+                  {% empty %}
+                    <div>0.00</div>
+                  {% endfor %}
+                </th>
+              </tr>
+            </tfoot>
+          </table>
+        </section>
+
+        <section style="min-width: 320px; flex:1;">
+          <h3 style="margin: 6px 0;">Expenses</h3>
+          <table border="1" cellpadding="6" cellspacing="0" width="100%">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th style="text-align:right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in month.neg.categories %}
+                <tr>
+                  <td>{{ row.name }}</td>
+                  <td style="text-align:right;">
+                    {% for amt in row.amounts %}
+                      <div>{{ amt.amount }} {{ amt.currency }}</div>
+                    {% endfor %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="2">No expense categories.</td></tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>Total</th>
+                <th style="text-align:right;">
+                  {% for total in month.neg.totals %}
+                    <div>{{ total.amount }} {{ total.currency }}</div>
+                  {% empty %}
+                    <div>0.00</div>
+                  {% endfor %}
+                </th>
+              </tr>
+            </tfoot>
+          </table>
+        </section>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>No categorized transactions found for the selected range.</p>
+{% endif %}
+
+{% endblock %}

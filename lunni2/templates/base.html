@@ -1,0 +1,55 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Lunni2{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
+
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+    {% block head %}{% endblock %}
+  </head>
+
+  <body>
+    <header style="padding: 12px 16px; border-bottom: 1px solid #ddd;">
+      <nav style="display:flex; gap:12px;">
+        <a href="{% url 'transactions' %}">Transactions</a>
+        <a href="{% url 'breakdown' %}">Breakdown</a>
+      </nav>
+    </header>
+
+    <main style="padding: 16px;">
+      {% if messages %}
+        <div style="margin-bottom: 12px;">
+          {% for message in messages %}
+            <div style="padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px;">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+  </body>
+
+<script> function getCookie(name) { const value = `; ${document.cookie}`; const parts = value.split(`; ${name}=`); if (parts.length === 2) return parts.pop().split(';').shift(); } document.body.addEventListener('htmx:configRequest', (event) => { event.detail.headers['X-CSRFToken'] = getCookie('csrftoken'); }); </script>
+    <script>
+        {% if debug %}
+    if (typeof window.htmx !== "undefined") {
+        htmx.on("htmx:afterSettle", function(detail) {
+            if (
+                typeof window.djdt !== "undefined"
+                && detail.target instanceof HTMLBodyElement
+            ) {
+                djdt.show_toolbar();
+            }
+        });
+    }
+{% endif %}
+    </script>
+</html>

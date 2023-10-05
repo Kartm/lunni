@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/docs/example_mbank.csv" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/server/tests/resources/mbank_statement_file.csv" charset="windows-1250" />
+    <file url="file://$USER_HOME$/Downloads/77363099_050131_190208.csv" charset="windows-1250" />
+  </component>
+</project>

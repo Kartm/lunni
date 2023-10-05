@@ -1,0 +1,118 @@
+<div style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; background:#fafafa; margin-bottom:12px;">
+
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+    <div>
+      <strong>Categorization</strong>
+      <span style="opacity:.7;">— {{ uncat_count }} uncategorized</span>
+   {% if not categories %}
+     <div style="margin-top:6px; opacity:.7;">
+       No categories yet. Create one below in “Categories”.
+     </div>
+   {% endif %}
+    </div>
+
+    <button
+      {% if uncat_count == 0 %}disabled{% endif %}
+      hx-get="{% url 'hx_transactions_table' %}?only_uncategorized=1"
+      hx-target="#tx-table"
+      hx-swap="innerHTML"
+      hx-include="#tx-filter"
+      hx-vals='{"page": 1}'
+    >
+      Categorize {{ uncat_count }} uncategorized
+    </button>
+  </div>
+
+  <hr style="margin:10px 0;">
+
+  {# Manual categorize selection #}
+  <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+    <div style="min-width:200px; font-weight:600;">Categorize selection</div>
+
+    <form hx-post="{% url 'categorize_selection_action' %}"
+          hx-target="#action-result"
+          hx-swap="innerHTML"
+          style="display:flex; gap:8px; align-items:center; margin:0;">
+      {% csrf_token %}
+      <select name="category_id" {% if not has_selection or not categories %}disabled{% endif %}>
+        <option value="">— choose —</option>
+        {% for c in categories %}
+          <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" {% if not has_selection or not categories %}disabled{% endif %}>Apply</button>
+    </form>
+  </div>
+
+  <hr style="margin:10px 0;">
+
+  {# Rule builder + preview #}
+  <div style="display:flex; gap:12px; align-items:flex-start;">
+    <div style="flex: 0 0 360px;">
+      <div style="font-weight:600; margin-bottom:6px;">Create rule</div>
+
+      <form id="rule-form"
+            hx-post="{% url 'create_rule_action' %}"
+            hx-target="#action-result"
+            hx-swap="innerHTML"
+            style="display:flex; flex-direction:column; gap:8px; margin:0;">
+        {% csrf_token %}
+
+        <input name="name" placeholder="Rule name (optional)">
+
+        <div style="display:flex; gap:8px;">
+          <select name="field" hx-get="{% url 'hx_categorize_preview' %}"
+                  hx-trigger="change, keyup changed delay:400ms from:#rule-value"
+                  hx-include="#rule-form"
+                  hx-target="#rule-preview"
+                  hx-swap="innerHTML"
+                  {% if not categories %}disabled{% endif %}
+          >
+            <option value="description">description</option>
+            <option value="group_title">group title</option>
+          </select>
+
+          <select name="op"
+                  hx-get="{% url 'hx_categorize_preview' %}"
+                  hx-trigger="change, keyup changed delay:400ms from:#rule-value"
+                  hx-include="#rule-form"
+                  hx-target="#rule-preview"
+                  hx-swap="innerHTML">
+            <option value="contains">contains</option>
+          </select>
+        </div>
+
+      <select name="category_id"
+            hx-get="{% url 'hx_categorize_preview' %}"
+            hx-trigger="change"
+            hx-include="#rule-form"
+            hx-target="#rule-preview"
+            hx-swap="innerHTML">
+      <option value="">— target category —</option>
+      {% for c in categories %}
+        <option value="{{ c.id }}">{{ c.name }}</option>
+      {% endfor %}
+    </select>
+
+        <input id="rule-value" name="value" placeholder="value…"
+               hx-get="{% url 'hx_categorize_preview' %}"
+               hx-trigger="keyup changed delay:400ms"
+               hx-include="#rule-form"
+               hx-target="#rule-preview"
+               hx-swap="innerHTML">
+
+
+
+        <input type="hidden" name="priority" value="100">
+
+        <button type="submit" {% if not categories %}disabled{% endif %}>Save rule</button>
+      </form>
+    </div>
+
+    <div style="flex:1;">
+      <div id="rule-preview">
+        {% include "lunni2/partials/_categorize_preview.html" with matches=None count=0 %}
+      </div>
+    </div>
+  </div>
+</div>

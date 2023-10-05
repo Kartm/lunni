@@ -1,0 +1,61 @@
+<div style="padding:10px 12px; border:1px solid #ddd; border-radius:10px; background:#fafafa; margin-bottom:12px;">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <strong>Categories</strong>
+    <span style="opacity:.7;">Manage add/remove</span>
+  </div>
+
+  <div style="display:flex; gap:12px; margin-top:10px; align-items:flex-end;">
+    <form hx-post="{% url 'create_category_action' %}"
+          hx-target="#action-result"
+          hx-swap="innerHTML"
+          style="display:flex; gap:8px; align-items:flex-end; margin:0;">
+      {% csrf_token %}
+      <div>
+        <div style="font-size:12px; opacity:.7;">Name</div>
+        <input name="name" placeholder="e.g. Eating outside">
+      </div>
+
+      <div>
+        <div style="font-size:12px; opacity:.7;">Kind</div>
+        <select name="kind">
+          <option value="NEG">Expense (NEG)</option>
+          <option value="POS">Positive (POS)</option>
+          <option value="IGN">Ignore (IGN)</option>
+        </select>
+      </div>
+
+      <button type="submit">Add</button>
+    </form>
+  </div>
+
+  <div style="margin-top:12px;">
+    <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse; background:white; border:1px solid #eee;">
+      <thead>
+        <tr style="opacity:.7;">
+          <th align="left">Name</th>
+          <th align="left">Kind</th>
+          <th align="right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in categories %}
+          <tr>
+            <td>{{ c.name }}</td>
+            <td>{{ c.kind }}</td>
+            <td align="right">
+              <form hx-post="{% url 'delete_category_action' c.id %}"
+                    hx-target="#action-result"
+                    hx-swap="innerHTML"
+                    style="margin:0; display:inline;">
+                {% csrf_token %}
+                <button type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="3">No categories yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

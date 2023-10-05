@@ -1,0 +1,31 @@
+<div style="padding:10px 12px; border:1px solid #eee; border-radius:10px; background:white;">
+  <div style="margin-bottom:8px;">
+    <strong>Preview</strong>
+    <span style="opacity:.7;">— {{ count }} matching uncategorized</span>
+  </div>
+
+  {% if not count %}
+    <div style="opacity:.7;">No matches yet.</div>
+  {% else %}
+    <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+      <thead>
+        <tr style="opacity:.7;">
+          <th align="left">Date</th>
+          <th align="left">Description</th>
+          <th align="right">Amount</th>
+          <th align="left">Cur</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in matches %}
+          <tr>
+            <td>{{ r.date }}</td>
+            <td>{{ r.description }}</td>
+            <td align="right">{{ r.amount }}</td>
+            <td>{{ r.currency }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</div>

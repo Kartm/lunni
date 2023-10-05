@@ -1,0 +1,37 @@
+<div style="padding: 10px 12px; background: #fafafa; border-top: 1px solid #eee;">
+  <div style="margin-bottom:8px; font-weight:600;">Group members</div>
+
+  <table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+    <thead>
+      <tr style="opacity:.7;">
+        <th align="left">Date</th>
+        <th align="left">Description</th>
+        <th align="right">Amount</th>
+        <th align="left">Currency</th>
+          <th align="right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tx in txs %}
+          <tr>
+            <td>{{ tx.date }}</td>
+            <td>{{ tx.description }}</td>
+            <td align="right">{{ tx.amount }}</td>
+            <td>{{ tx.currency }}</td>
+            <td align="right">
+              <form
+  hx-post="{% url 'ungroup_member' group_id|stringformat:'s' %}"
+  hx-target="#action-result"
+  hx-swap="innerHTML"
+  style="margin:0;"
+>
+  {% csrf_token %}
+  <input type="hidden" name="tx_id" value="{{ tx.id }}">
+  <button type="submit">Remove</button>
+</form>
+            </td>
+          </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</div>

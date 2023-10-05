@@ -1,0 +1,101 @@
+<input type="hidden" id="tx-page" name="page" value="{{ page_obj.number }}" hx-swap-oob="true">
+<input type="hidden" id="tx-only-uncat" name="only_uncategorized" value="{% if only_uncategorized %}1{% endif %}" hx-swap-oob="true">
+
+<table border="1" cellpadding="6" cellspacing="0" width="100%">
+  <thead>
+    <tr>
+      <th>x</th>
+      <th>Date</th>
+      <th>Description</th>
+      <th>Amount</th>
+      <th>Currency</th>
+      <th>Category</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in page_obj.object_list %}
+      {% if row.kind == "GROUP" %}
+        <tr>
+          <td style="width:80px; white-space:nowrap;">
+              <form hx-post="{% url 'toggle_selection' %}" hx-swap="none" style="display:inline; margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="kind" value="group">
+                <input type="hidden" name="id" value="{{ row.group_id }}">
+                <input type="checkbox"
+                       {% if row.group_id in selected_group_ids %}checked{% endif %}
+                       onchange="this.form.requestSubmit()">
+              </form>
+
+              <div id="group-toggle-{{ row.group_id }}" style="display:inline;">
+                  <button
+                    hx-get="{% url 'hx_group_expand' row.group_id %}{% if querystring %}?{{ querystring }}{% endif %}"
+                    hx-target="#group-toggle-{{ row.group_id }}"
+                    hx-swap="outerHTML"
+                    style="margin-left:6px;"
+                  >▸</button>
+                </div>
+            </td>
+          <td>{{ row.date }}</td>
+          <td><strong>{{ row.description }}</strong> <span style="opacity:.6;">(group)</span></td>
+          <td style="text-align:right;"><strong>{{ row.amount }}</strong></td>
+          <td>{{ row.currency }}</td>
+          <td>Uncategorized</td>
+<!--            todo groups can have categories!-->
+        </tr>
+
+        <tr>
+          <td colspan="6" style="padding:0;">
+            <div id="group-members-{{ row.group_id }}"></div>
+          </td>
+        </tr>
+
+      {% else %}
+        <tr>
+          <td style="width:40px;">
+              <form hx-post="{% url 'toggle_selection' %}" hx-swap="none" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="kind" value="tx">
+                <input type="hidden" name="id" value="{{ row.tx_id }}">
+                <input type="checkbox"
+                       {% if row.tx_id in selected_tx_ids %}checked{% endif %}
+                       onchange="this.form.requestSubmit()">
+              </form>
+            </td>
+          <td>{{ row.date }}</td>
+          <td>{{ row.description }}</td>
+          <td style="text-align:right;">{{ row.amount }}</td>
+          <td>{{ row.currency }}</td>
+          <td><span class="cat-pill {{ row.category_css }}">
+  {{ row.category_name|default:"Uncategorized" }}
+</span></td>
+        </tr>
+      {% endif %}
+    {% empty %}
+      <tr><td colspan="6">No transactions.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div style="display:flex; gap: 10px; align-items:center; margin-top: 10px;">
+  {% if page_obj.has_previous %}
+    <a class="tx-page-link"
+       hx-get="{% url 'hx_transactions_table' %}?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
+       hx-include="#tx-filter input[name='start_date'], #tx-filter input[name='end_date'], #tx-filter input[name='only_uncategorized']"
+       hx-target="#tx-table"
+       hx-swap="innerHTML">
+      ← Prev
+    </a>
+  {% endif %}
+
+  <span>Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+  {% if page_obj.has_next %}
+    <a class="tx-page-link"
+       hx-get="{% url 'hx_transactions_table' %}?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}"
+       hx-include="#tx-filter input[name='start_date'], #tx-filter input[name='end_date'], #tx-filter input[name='only_uncategorized']"
+       hx-target="#tx-table"
+       hx-swap="innerHTML">
+      Next →
+    </a>
+  {% endif %}
+</div>

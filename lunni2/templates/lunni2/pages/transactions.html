@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Transactions</h1>
+
+<div id="action-result" style="margin: 10px 0;"></div>
+
+<div style="display:flex; gap: 12px; align-items:center;">
+  <form id="upload-form"
+        hx-post="{% url 'upload_transactions_csv' %}"
+        hx-encoding="multipart/form-data"
+        hx-target="#upload-result"
+        hx-swap="innerHTML">
+    {% csrf_token %}
+
+    <label style="cursor:pointer;">
+      <span style="padding:6px 10px; border:1px solid #ccc; border-radius:6px;">Upload CSV</span>
+      <input type="file" name="file" accept=".csv" hidden
+             onchange="this.form.requestSubmit()">
+    </label>
+  </form>
+
+  <div id="upload-result"></div>
+</div>
+
+<hr>
+
+<form id="tx-filter"
+      hx-get="{% url 'hx_transactions_table' %}"
+      hx-target="#tx-table"
+      hx-swap="innerHTML"
+      hx-vals='{"page": 1}'
+      style="display:flex; gap:10px; align-items:flex-end; margin: 12px 0;">
+  <div style="display:flex; flex-direction:column; gap:4px;">
+    <label for="tx-filter-start" style="font-size:12px; opacity:.7;">Start date</label>
+    <input id="tx-filter-start" type="date" name="start_date" value="{{ start_date }}">
+  </div>
+  <div style="display:flex; flex-direction:column; gap:4px;">
+    <label for="tx-filter-end" style="font-size:12px; opacity:.7;">End date</label>
+    <input id="tx-filter-end" type="date" name="end_date" value="{{ end_date }}">
+  </div>
+  <input type="hidden" id="tx-page" name="page" value="{{ page }}">
+  <input type="hidden" id="tx-only-uncat" name="only_uncategorized" value="{% if only_uncategorized %}1{% endif %}">
+  <button type="submit">Apply</button>
+</form>
+
+<div id="categories-panel"
+     hx-get="{% url 'hx_categories_panel' %}"
+     hx-trigger="load, categories-changed from:body"
+     hx-swap="innerHTML">
+</div>
+
+<div id="categorize-panel"
+     hx-get="{% url 'hx_categorize_panel' %}"
+     hx-trigger="load, transactions-changed from:body, selection-changed from:body, categories-changed from:body"
+     hx-swap="innerHTML">
+</div>
+
+<div id="tx-table"
+     hx-get="{% url 'hx_transactions_table' %}?page={{ page }}{% if querystring %}&{{ querystring }}{% endif %}"
+     hx-trigger="load, transactions-changed from:body"
+     hx-target="this"
+     hx-include="#tx-filter"
+     hx-swap="innerHTML">
+</div>
+
+<div id="selection-bar"
+     hx-get="{% url 'hx_selection_bar' %}"
+     hx-trigger="load, selection-changed from:body"
+     hx-swap="innerHTML">
+</div>
+
+{% endblock %}
