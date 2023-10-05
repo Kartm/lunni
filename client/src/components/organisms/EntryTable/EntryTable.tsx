@@ -1,24 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Input, Table, TablePaginationConfig, DatePicker, Pagination } from 'antd';
+import { Table, TablePaginationConfig } from 'antd';
 import { Transaction } from '../../../models/merger';
 import { FilterValue, Key, SorterResult } from 'antd/es/table/interface';
 import { TransactionPartial } from '../../../api/merger';
 import { debounce } from 'lodash';
-import { useEntryTableColumns, useEntryTableRows } from '../../../hooks/components';
-import { RangeValue } from 'rc-picker/lib/interface';
-import dayjs from 'dayjs';
-
-const { RangePicker } = DatePicker;
+import { Filters, useEntryTableColumns, useEntryTableRows } from '../../../hooks/components';
 
 export type DataType = Transaction & {
     key: Key;
 };
 
-type DateFilters = 'date_after' | 'date_before';
-
 export type TableParams = {
     pagination?: TablePaginationConfig;
-    filters?: Record<string | DateFilters, FilterValue | null>;
+    customFilters?: Filters; // custom because not from AntDesign
     sorter?: SorterResult<DataType>;
     searchRegex?: string;
 }
@@ -58,14 +52,23 @@ export const EntryTable = ({
             total: totalEntries,
             showSizeChanger: true,
             pageSizeOptions: [50, 100, 500, 1000],
-            position: ['topRight'],
+            position: ['bottomCenter'],
         },
     });
+
+    const onFiltersChange = (filters: Filters) => {
+        setTableParams(prev => ({
+            ...prev,
+            pagination: { ...prev.pagination },
+            customFilters: filters,
+        }));
+    };
 
     const onRecordUpdateDebounced = debounce(onRecordUpdate, 250);
     const columns = useEntryTableColumns({
         onCategoryAdd,
         onRecordUpdate: onRecordUpdateDebounced,
+        onFiltersChange
     });
 
     useEffect(() => {
@@ -79,92 +82,37 @@ export const EntryTable = ({
 
     const handleTableChange = (
         pagination: TablePaginationConfig,
-        filters: Record<string, FilterValue | null>,
+        filters: Record<string, FilterValue | null>, // ignored because we use customFilters
         sorter: SorterResult<DataType> | SorterResult<DataType>[],
     ) => {
         setTableParams(prev => ({
-            pagination: { ...prev.pagination },
-            filters: { ...prev.filters, ...filters },
+            ...prev,
+            pagination: { ...prev.pagination, pagination },
             sorter: { ...prev.sorter, ...sorter },
         }));
     };
 
-    const onSearchChange = (searchRegex?: string) => {
-        setTableParams(p => ({ ...p, searchRegex }))
-    }
-
-    const onSearchChangeDebounced = debounce(onSearchChange, 250);
- // todo pagination extract and put separately. use HOC to reduce rerenders
-
-    const onDateFilterChange = (range: RangeValue<dayjs.Dayjs>) => {
-        console.log(range);
-
-        if (range == null) {
-            setTableParams(prev => {
-                if (!prev.filters) {
-                    return prev;
-                }
-
-                const {date_after, date_before, ...filtersWithoutDate} = prev.filters;
-
-                return {
-                    pagination: { ...prev.pagination },
-                    filters: { ...filtersWithoutDate },
-                    sorter: { ...prev.sorter },
-                }
-            });
-        } else if (range[0] && range[1]) {
-            setTableParams(prev => ({
-                pagination: { ...prev.pagination },
-                filters: { ...prev.filters, 'date_after': [range[0]!.format('YYYY-MM-DD')], 'date_before': [range[1]!.format('YYYY-MM-DD')] },
-                sorter: { ...prev.sorter },
-            }));
-        }
-    };
-
-    const onPaginationChange = (page: number, pageSize: number) => {
-        setTableParams(prev => {
-            const hasPageSizeChanged = pageSize !== prev.pagination?.pageSize;
-
-            return {
-                ...prev,
-                pagination: { ...prev.pagination, current: hasPageSizeChanged ? 1 : page, pageSize: pageSize },
-            }
-        });
-    }
-
     return (
         <>
             <Table
-            title={() => <>
-                <Input placeholder={'Visit to (museum|restaurant)'} allowClear
-                       onChange={(e) => onSearchChangeDebounced(e.target.value)}></Input>
-                <RangePicker onChange={(range) => onDateFilterChange(range)} />
-                <Pagination
-                    showSizeChanger
-                    onChange={onPaginationChange}
-                    total={totalEntries}
-                    current={tableParams.pagination?.current}
-                    pageSize={tableParams.pagination?.pageSize}
-                />
-            </>}
-            loading={isLoading}
-            dataSource={dataSource}
-            columns={columns}
-            rowSelection={{
-                type: 'checkbox',
-                hideSelectAll: true,
-                onChange: (selectedRowKeys) => onRowSelectionChange(selectedRowKeys),
-                selectedRowKeys: selection,
-                getCheckboxProps: (record) => ({
-                    disabled: disabledRows.has(record),
-                }),
-            }}
-            onChange={handleTableChange}
-            expandable={{
-                showExpandColumn: false,
-                expandedRowRender: (record) => <div>{mergeComponent({ record })}</div>,
-                expandedRowKeys: selection.length === 2 ? [selection[0]] : [],
-            }} /></>
+                loading={isLoading}
+                dataSource={dataSource}
+                columns={columns}
+                rowSelection={{
+                    type: 'checkbox',
+                    hideSelectAll: true,
+                    onChange: (selectedRowKeys) => onRowSelectionChange(selectedRowKeys),
+                    selectedRowKeys: selection,
+                    getCheckboxProps: (record) => ({
+                        disabled: disabledRows.has(record),
+                    }),
+                }}
+                pagination={tableParams.pagination}
+                onChange={handleTableChange}
+                expandable={{
+                    showExpandColumn: false,
+                    expandedRowRender: (record) => <div>{mergeComponent({ record })}</div>,
+                    expandedRowKeys: selection.length === 2 ? [selection[0]] : [],
+                }} /></>
     );
 };

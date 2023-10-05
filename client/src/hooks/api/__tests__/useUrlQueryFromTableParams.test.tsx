@@ -18,8 +18,8 @@ describe('useUrlQueryFromTableParams', () => {
 
     test('converts table filters to URL query', async () => {
         const props: TableParams = {
-            filters: {
-                category: ['Income', 'None'],
+            customFilters: {
+                categories: ['Income', 'None'],
             },
         };
 

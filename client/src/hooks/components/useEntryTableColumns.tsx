@@ -1,23 +1,40 @@
 import { DataType } from '../../components/organisms/EntryTable';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { TransactionPartial } from '../../api/merger';
-import { ColumnsType } from 'antd/lib/table';
+import { ColumnType, ColumnsType } from 'antd/lib/table';
 import { EntryTableDescriptionCell } from '../../components/molecules/EntryTableDescriptionCell';
 import { EntryTableCategoryCell } from '../../components/molecules/EntryTableCategoryCell';
 import { EntryTableNoteCell } from '../../components/molecules/EntryTableNoteCell';
 import { EntryTableAmountCell } from '../../components/molecules/EntryTableAmountCell';
 import { useCategoryStats } from '../api';
+import { DatePicker, Input } from 'antd';
+import { debounce } from 'lodash';
+import { RangeValue } from 'rc-picker/lib/interface';
+import { Dayjs } from 'dayjs';
+
+const { RangePicker } = DatePicker;
+
+export type Filters = { date?: {before: Dayjs, after: Dayjs}, searchRegex?: string, categories?: (string | null)[] };
 
 type useEntryTableColumnsProps = {
     onCategoryAdd: (record: DataType) => void;
     onRecordUpdate: (transactionPartial: TransactionPartial) => void;
+    onFiltersChange: (filters: Filters) => void;
 };
+
 
 export const useEntryTableColumns = ({
     onCategoryAdd,
     onRecordUpdate,
+    onFiltersChange
 }: useEntryTableColumnsProps): ColumnsType<DataType> => {
     const { data: categoryStats } = useCategoryStats();
+
+    const [filters, setFilters] = useState<Filters>({});
+
+    useEffect(() => {
+        onFiltersChange(filters);
+    }, [filters]);
 
     const categoryFilters = useMemo(
         () => categoryStats?.map(
@@ -28,6 +45,38 @@ export const useEntryTableColumns = ({
         ) || [],
         [categoryStats]);
 
+    const onSearchChange = (searchRegex?: string) => {
+        setFilters(prev => ({ ...prev, searchRegex: searchRegex}));
+    };
+
+    const onDateFiltersChange = (range: RangeValue<Dayjs>) => {
+        if (range === null) {
+            setFilters(({ date, ...prevWithoutDate }) => (prevWithoutDate));
+        } else if (range[0] && range[1]) {
+            const [after, before] = range;
+            setFilters(prev => ({ ...prev,
+                date: { after, before }
+            }));
+        }
+    };
+
+    const onSearchChangeDebounced = debounce(onSearchChange, 250);
+
+    const dateFilterDropdown: ColumnType<DataType>['filterDropdown'] = () =>
+        <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+            <RangePicker
+                placeholder={['From date', 'To date']}
+                onChange={onDateFiltersChange}
+            />
+        </div>;
+
+    const descriptionFilterDropdown: ColumnType<DataType>['filterDropdown'] = () =>
+        <Input
+            placeholder={'Visit to (museum|restaurant)'}
+            allowClear
+            onChange={(e) => onSearchChangeDebounced(e.target.value)}
+        />;
+
     return useMemo(
         (): ColumnsType<DataType> => [
             {
@@ -36,6 +85,8 @@ export const useEntryTableColumns = ({
                 key: 'date',
                 width: 115,
                 sorter: true,
+                filterDropdown: dateFilterDropdown,
+                filtered: !!filters.date
             },
             {
                 title: 'Description',
@@ -45,6 +96,8 @@ export const useEntryTableColumns = ({
                 render: (description: string) => (
                     <EntryTableDescriptionCell description={description} />
                 ),
+                filterDropdown: descriptionFilterDropdown,
+                filtered: !!filters.searchRegex?.length
             },
             {
                 title: 'Category',
@@ -58,7 +111,8 @@ export const useEntryTableColumns = ({
                         onClickAdd={() => onCategoryAdd(record)}
                     />
                 ),
-                filters: categoryFilters
+                filters: categoryFilters,
+                filtered: !!filters.categories?.length
             },
             {
                 title: 'Note',

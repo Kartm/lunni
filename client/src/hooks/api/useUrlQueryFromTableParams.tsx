@@ -1,6 +1,8 @@
 import { TableParams } from '../../components/organisms/EntryTable';
 import { Key, useMemo } from 'react';
 
+const DATE_FORMAT = 'YYYY-MM-DD';
+
 export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
     const entries: [string, string][] = [];
 
@@ -12,21 +14,18 @@ export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
         entries.push(['page_size', tableParams.pagination.pageSize.toString()]);
     }
 
-    if (tableParams.filters) {
-        for (const [column, filterValues] of Object.entries(tableParams.filters)) {
-            if (filterValues === null || filterValues.length === 0) {
-                continue;
-            }
+    if (tableParams.customFilters?.date) {
+        entries.push(['date_after', tableParams.customFilters.date.after.format(DATE_FORMAT)]);
+        entries.push(['date_before', tableParams.customFilters.date.before.format(DATE_FORMAT)]);
+    }
 
-            filterValues.forEach(filterValue => {
-                if (typeof filterValue === 'boolean') {
-                    if (!filterValue) {
-                        entries.push(['uncategorized', 'true']);
-                    }
-                } else {
-                    entries.push([column, filterValue.toString()]);
-                }
-            });
+    if (tableParams.customFilters?.categories) {
+        for (const category of tableParams.customFilters.categories) {
+            if (category === null) {
+                entries.push(['uncategorized', 'true']);
+            } else {
+                entries.push(['category', category]);
+            }
         }
     }
 
@@ -42,8 +41,8 @@ export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
         }
     }
 
-    if (tableParams.searchRegex) {
-        entries.push(['search', tableParams.searchRegex]);
+    if (tableParams.customFilters?.searchRegex) {
+        entries.push(['search', tableParams.customFilters.searchRegex]);
     }
 
     return useMemo(() => new URLSearchParams(entries), [tableParams]);
