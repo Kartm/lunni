@@ -6,11 +6,8 @@ import { Key, useMemo } from 'react';
 export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
     const entries: [string, string][] = [];
 
-    if (tableParams.pagination?.current) {
-        entries.push(['page', tableParams.pagination.current.toString()]);
-    }
-
-    if (tableParams.pagination?.pageSize) {
+    if (tableParams.pagination) {
+        entries.push(['page', tableParams.pagination.page.toString()]);
         entries.push(['page_size', tableParams.pagination.pageSize.toString()]);
     }
 
@@ -29,6 +26,10 @@ export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
         }
     }
 
+    if (tableParams.customFilters?.search) {
+        entries.push(['search', tableParams.customFilters.search]);
+    }
+
     if (tableParams.sorter) {
         const columnsWithOrder: string[] = [];
 
@@ -37,10 +38,6 @@ export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
         }
 
         entries.push(['ordering', columnsWithOrder.join(',')]);
-    }
-
-    if (tableParams.searchRegex) {
-        entries.push(['search', tableParams.searchRegex]);
     }
 
     return useMemo(() => new URLSearchParams(entries), [tableParams]);

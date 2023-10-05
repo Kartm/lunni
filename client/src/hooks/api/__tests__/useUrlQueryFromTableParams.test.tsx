@@ -6,7 +6,7 @@ describe('useUrlQueryFromTableParams', () => {
     test('converts table pagination to URL query', async () => {
         const props: TableParams = {
             pagination: {
-                current: 1,
+                page: 1,
                 pageSize: 50,
             },
         };
@@ -58,7 +58,9 @@ describe('useUrlQueryFromTableParams', () => {
 
     test('converts table search to URL query', async () => {
         const props: TableParams = {
-            searchRegex: '2023-01-05 (CompCo|Polex)'
+            customFilters: {
+                search: '2023-01-05 (CompCo|Polex)'
+            }
         };
 
         const { result } = renderHook<unknown, TableParams>(() => useUrlQueryFromTableParams(props));

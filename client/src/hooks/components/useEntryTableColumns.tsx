@@ -11,6 +11,7 @@ import { DatePicker, Input } from 'antd';
 import { debounce } from 'lodash';
 import { RangeValue } from 'rc-picker/lib/interface';
 import { Dayjs } from 'dayjs';
+import { SearchOutlined } from '@ant-design/icons';
 
 const { RangePicker } = DatePicker;
 
@@ -45,7 +46,7 @@ export const useEntryTableColumns = ({
         [categoryStats]);
 
     const onSearchChange = (searchRegex?: string) => {
-        setFilters(prev => ({ ...prev, searchRegex: searchRegex}));
+        setFilters(prev => ({ ...prev, search: searchRegex}));
     };
 
     const onDateFiltersChange = (range: RangeValue<Dayjs>) => {
@@ -70,11 +71,13 @@ export const useEntryTableColumns = ({
         </div>;
 
     const descriptionFilterDropdown: ColumnType<DataType>['filterDropdown'] = () =>
-        <Input
-            placeholder={'Visit to (museum|restaurant)'}
-            allowClear
-            onChange={(e) => onSearchChangeDebounced(e.target.value)}
-        />;
+        <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+            <Input
+                placeholder={'Visit to (museum|restaurant)'}
+                allowClear
+                onChange={(e) => onSearchChangeDebounced(e.target.value)}
+            />
+        </div>;
 
     return useMemo(
         (): ColumnsType<DataType> => [
@@ -96,7 +99,8 @@ export const useEntryTableColumns = ({
                     <EntryTableDescriptionCell description={description} />
                 ),
                 filterDropdown: descriptionFilterDropdown,
-                filtered: !!filters.searchRegex?.length
+                filtered: !!filters.search?.length,
+                filterIcon: filtered => <SearchOutlined style={{ fontSize: '16px', color: filtered ? '#1890ff' : undefined }} />
             },
             {
                 title: 'Category',
