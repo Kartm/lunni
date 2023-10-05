@@ -1,49 +1,43 @@
 import { TableParams } from '../../components/organisms/EntryTable';
 import { Key, useMemo } from 'react';
 
+
+
 export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
     const entries: [string, string][] = [];
 
-    if (tableParams.pagination?.current) {
-        entries.push(['page', tableParams.pagination.current.toString()]);
-    }
-
-    if (tableParams.pagination?.pageSize) {
+    if (tableParams.pagination) {
+        entries.push(['page', tableParams.pagination.page.toString()]);
         entries.push(['page_size', tableParams.pagination.pageSize.toString()]);
     }
 
-    if (tableParams.filters) {
-        for (const [column, filterValues] of Object.entries(tableParams.filters)) {
-            if (filterValues === null || filterValues.length === 0) {
-                continue;
-            }
+    if (tableParams.customFilters?.date) {
+        entries.push(['date_after', tableParams.customFilters.date.after]);
+        entries.push(['date_before', tableParams.customFilters.date.before]);
+    }
 
-            filterValues.forEach(filterValue => {
-                if (typeof filterValue === 'boolean') {
-                    if (!filterValue) {
-                        entries.push(['uncategorized', 'true']);
-                    }
-                } else {
-                    entries.push([column, filterValue.toString()]);
-                }
-            });
+    if (tableParams.customFilters?.categories) {
+        for (const category of tableParams.customFilters.categories) {
+            if (category === null) {
+                entries.push(['uncategorized', 'true']);
+            } else {
+                entries.push(['category', category]);
+            }
         }
     }
 
-    if (tableParams.sorter?.field) {
-        const columns: Key[] = Array.isArray(tableParams.sorter.field) ? tableParams.sorter.field : [tableParams.sorter.field];
-
-        for (let column of columns) {
-            if (tableParams.sorter.order === 'descend') {
-                column = `-${column}`;
-            }
-
-            entries.push(['ordering', column.toString()]);
-        }
+    if (tableParams.customFilters?.search) {
+        entries.push(['search', tableParams.customFilters.search]);
     }
 
-    if (tableParams.searchRegex) {
-        entries.push(['search', tableParams.searchRegex]);
+    if (tableParams.sorter) {
+        const columnsWithOrder: string[] = [];
+
+        for (const [column, ordering] of Object.entries(tableParams.sorter)) {
+            columnsWithOrder.push(ordering === 'ascend' ? column : `-${column}`);
+        }
+
+        entries.push(['ordering', columnsWithOrder.join(',')]);
     }
 
     return useMemo(() => new URLSearchParams(entries), [tableParams]);

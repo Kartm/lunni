@@ -1,4 +1,5 @@
 import django_filters
+from django_filters import DateFromToRangeFilter
 
 from api.models import Transaction, Category
 
@@ -23,20 +24,6 @@ class CustomModelMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
 
 
 class TransactionFilter(django_filters.FilterSet):
-    # category = django_filters.CharFilter(field_name='category', lookup_expr='name')
-    # uncategorized = django_filters.BooleanFilter(field_name='category', lookup_expr='isnull')
-
-    # category = django_filters.ModelChoiceFilter(
-    #     field_name='category', lookup_expr='isnull',
-    #     null_label='None',
-    #     queryset=Category.objects.all(),
-    # )
-
-    # category = django_filters.MultipleChoiceFilter(
-    #     field_name='category', lookup_expr='name',
-    #     null_label='None',
-    # )
-
     category = CustomModelMultipleChoiceFilter(
         field_name='category__name',
         to_field_name='name',
@@ -46,12 +33,8 @@ class TransactionFilter(django_filters.FilterSet):
         conjoined=False
     )
 
-    # tags = CustomModelMultipleChoiceFilter(name='tags__text',
-    #                                        to_field_name='text',
-    #                                        queryset=Tag.objects.all(),
-    #                                        conjoined=False, )
-
+    date = DateFromToRangeFilter()
 
     class Meta:
         model = Transaction
-        fields = ['category']
+        fields = ['category', 'date']

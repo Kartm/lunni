@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "vite --open",
+    "start": "vite --open --port 3030",
     "build": "vite build",
     "test": "vitest",
     "coverage": "vitest run --coverage",
