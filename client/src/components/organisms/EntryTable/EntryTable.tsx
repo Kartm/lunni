@@ -15,7 +15,8 @@ export type Filters = { date?: { before: string, after: string }, searchRegex?: 
 export type TableParams = {
     pagination?: TablePaginationConfig;
     customFilters?: Filters; // custom because not from AntDesign
-    sorter?: SorterResult<DataType>;
+    sorter?: { [Key in keyof Transaction]?: 'ascend' | 'descend' };
+    // sorter?: Record<Partial<keyof Transaction>, 'ascend' | 'descend'>;
     searchRegex?: string;
 }
 
@@ -84,13 +85,15 @@ export const EntryTable = ({
 
     const handleTableChange = (
         pagination: TablePaginationConfig,
-        filters: Record<string, FilterValue | null>, // ignored because we use customFilters
-        sorter: SorterResult<DataType> | SorterResult<DataType>[],
+        filters: Record<string, FilterValue | null>,
+        sorterResult: SorterResult<DataType> | SorterResult<DataType>[],
     ) => {
+        const sorterResults: SorterResult<DataType>[] = Array.isArray(sorterResult) ? sorterResult : [sorterResult];
+        const simplifiedSorter = sorterResults.reduce((prev, curr) => ({...prev, [curr.field as string]: curr.order}), {} as TableParams['sorter']);
         setTableParams(prev => ({
             ...prev,
             pagination: { ...prev.pagination, pagination },
-            sorter: { ...prev.sorter, ...sorter },
+            sorter: simplifiedSorter,
         }));
     };
 

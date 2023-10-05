@@ -29,19 +29,17 @@ export const useUrlQueryFromTableParams = (tableParams: TableParams) => {
         }
     }
 
-    if (tableParams.sorter?.field) {
-        const columns: Key[] = Array.isArray(tableParams.sorter.field) ? tableParams.sorter.field : [tableParams.sorter.field];
+    if (tableParams.sorter) {
+        const columnsWithOrder: string[] = [];
 
-        for (let column of columns) {
-            if (tableParams.sorter.order === 'descend') {
-                column = `-${column}`;
-            }
-
-            entries.push(['ordering', column.toString()]);
+        for (const [column, ordering] of Object.entries(tableParams.sorter)) {
+            columnsWithOrder.push(ordering === 'ascend' ? column : `-${column}`);
         }
+
+        entries.push(['ordering', columnsWithOrder.join(',')]);
     }
 
-    if (tableParams?.searchRegex) {
+    if (tableParams.searchRegex) {
         entries.push(['search', tableParams.searchRegex]);
     }
 

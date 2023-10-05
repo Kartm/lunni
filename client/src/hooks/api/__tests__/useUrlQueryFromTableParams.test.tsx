@@ -46,14 +46,14 @@ describe('useUrlQueryFromTableParams', () => {
     test('converts table sorter to URL query', async () => {
         const props: TableParams = {
             sorter: {
-                field: 'date',
-                order: 'descend'
+                date: 'descend',
+                calculated_amount: 'ascend'
             }
         };
 
         const { result } = renderHook<unknown, TableParams>(() => useUrlQueryFromTableParams(props));
 
-        expect(result.current?.toString()).toBe('ordering=-date');
+        expect(result.current?.toString()).toBe('ordering=-date%2Ccalculated_amount');
     });
 
     test('converts table search to URL query', async () => {
@@ -62,15 +62,7 @@ describe('useUrlQueryFromTableParams', () => {
         };
 
         const { result } = renderHook<unknown, TableParams>(() => useUrlQueryFromTableParams(props));
-
-        const encodeRFC3986URIComponent = (str: string) => {
-            return encodeURIComponent(str).replace(
-                /[!'()*]/g,
-                (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
-            );
-        }
-
-        expect(result.current?.toString()).toBe(`search=2023-01-05+%28CompCo%7CPolex%29`); // todo encode properly
+        expect(result.current?.toString()).toBe('search=2023-01-05+%28CompCo%7CPolex%29');
     });
 });
 
