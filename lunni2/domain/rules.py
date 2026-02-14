@@ -3,42 +3,45 @@ from typing import Iterable
 
 from lunni2.models import CategorizationRule, RuleCondition, RawTransaction
 
+import line_profiler
+import atexit
+profile = line_profiler.LineProfiler()
+atexit.register(profile.print_stats)
+
 @dataclass(frozen=True)
 class RowCtx:
     kind: str                    # "TX" or "GROUP"
     tx: RawTransaction | None    # TX row only
     group_id: str | None         # GROUP row only (string uuid)
     group_title: str | None
+    description_norm: str | None
 
-def _norm(s: str) -> str:
-    return " ".join((s or "").strip().lower().split())
 
+
+@profile
 def matches_condition(cond: RuleCondition, ctx: RowCtx) -> bool:
-    v = cond.value
-
     if cond.field == RuleCondition.Field.DESCRIPTION:
-        if not ctx.tx: return False
-        hay = _norm(ctx.tx.description)
+        if not ctx.description_norm: return False
         if cond.operator == RuleCondition.Operator.CONTAINS:
-            return _norm(v) in hay
+            return cond.normalized_value in ctx.description_norm
         return False
 
     if cond.field == RuleCondition.Field.FINGERPRINT:
         if not ctx.tx: return False
         if cond.operator == RuleCondition.Operator.EQUALS:
-            return ctx.tx.fingerprint == v
+            return ctx.tx.fingerprint == cond.normalized_value
         return False
 
     if cond.field == RuleCondition.Field.GROUP_ID:
         if ctx.kind != "GROUP": return False
         if cond.operator == RuleCondition.Operator.EQUALS:
-            return (ctx.group_id or "") == v
+            return (ctx.group_id or "") == cond.normalized_value
         return False
 
     if cond.field == RuleCondition.Field.GROUP_TITLE:
         if ctx.kind != "GROUP": return False
         if cond.operator == RuleCondition.Operator.CONTAINS:
-            return _norm(v) in _norm(ctx.group_title or "")
+            return cond.normalized_value in ctx.group_title or ""
         return False
 
     return False
@@ -69,8 +72,9 @@ def matches_category_sign(*, category_kind: str, ctx: RowCtx) -> bool:
     # Unknown kind: be safe
     return False
 
+@profile
 def matches_rule(rule: CategorizationRule, ctx: RowCtx) -> bool:
-    conds = list(rule.conditions.all())
     if not matches_category_sign(category_kind=rule.target_category.kind, ctx=ctx):
         return False
-    return all(matches_condition(c, ctx) for c in conds)
+
+    return all(matches_condition(c, ctx) for c in rule.conditions.all())

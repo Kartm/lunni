@@ -1,5 +1,7 @@
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
+from django.utils.functional import cached_property
+
 
 
 class TimestampedModel(models.Model):
@@ -9,6 +11,9 @@ class TimestampedModel(models.Model):
     class Meta:
         abstract = True
 
+# todo deduplicate
+def _norm(s: str) -> str:
+    return " ".join((s or "").strip().lower().split())
 
 class RawTransaction(TimestampedModel):
     date = models.DateField()
@@ -85,6 +90,10 @@ class RuleCondition(models.Model):
     field = models.CharField(max_length=32, choices=Field.choices)
     operator = models.CharField(max_length=16, choices=Operator.choices)
     value = models.TextField()
+
+    @cached_property
+    def normalized_value(self) -> str:
+        return _norm(self.value)
 
     class Meta:
         indexes = [

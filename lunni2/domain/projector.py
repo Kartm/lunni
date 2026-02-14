@@ -7,11 +7,19 @@ from .rules import RowCtx, matches_rule
 from .types import EffectiveRow
 from ..models import RawTransaction, DomainEvent, Category, CategorizationRule
 
+import line_profiler
+import atexit
+profile = line_profiler.LineProfiler()
+atexit.register(profile.print_stats)
+
+
+def _norm(s: str) -> str:
+    return " ".join((s or "").strip().lower().split())
 
 def _parse_uuid(s: str) -> uuid.UUID:
     return uuid.UUID(s)
 
-
+@profile
 def build_effective_rows(
     *,
     start_date: date | None = None,
@@ -165,6 +173,7 @@ def build_effective_rows(
         .order_by("priority", "id")
         .select_related("target_category")
         .prefetch_related("conditions")
+        # todo rule.conditions.all()
     )
 
     def _apply_category(row: EffectiveRow, category_id: int | None) -> EffectiveRow:
@@ -205,18 +214,18 @@ def build_effective_rows(
             if r.group_id and r.group_id in group_category_override:
                 cat_id = group_category_override[r.group_id]
             else:
-                ctx = RowCtx(kind="GROUP", tx=None, group_id=str(r.group_id), group_title=r.description)
+                ctx = RowCtx(kind="GROUP", tx=None, group_id=str(r.group_id), group_title=_norm(r.description), description_norm=None)
                 for rule in rules:
                     if matches_rule(rule, ctx):
                         cat_id = rule.target_category_id
                         break
 
-        else:  # TX
+        else:
             if r.tx_id and r.tx_id in tx_category_override:
                 cat_id = tx_category_override[r.tx_id]
             else:
                 tx = tx_by_id.get(r.tx_id) if r.tx_id else None
-                ctx = RowCtx(kind="TX", tx=tx, group_id=None, group_title=None)
+                ctx = RowCtx(kind="TX", tx=tx, group_id=None, group_title=None, description_norm=_norm(tx.description))
                 for rule in rules:
                     if matches_rule(rule, ctx):
                         cat_id = rule.target_category_id
