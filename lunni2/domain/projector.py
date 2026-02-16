@@ -3,6 +3,9 @@ from decimal import Decimal
 import uuid
 from collections import defaultdict
 
+from django.db.models import Q, Count, OuterRef, F, Subquery, Window
+from django.db.models.functions import RowNumber
+
 from .rules import RowCtx, matches_rule
 from .types import EffectiveRow
 from ..models import RawTransaction, DomainEvent, Category, CategorizationRule
@@ -19,12 +22,77 @@ def _norm(s: str) -> str:
 def _parse_uuid(s: str) -> uuid.UUID:
     return uuid.UUID(s)
 
+
+
+
+
+
 @profile
 def build_effective_rows(
     *,
     start_date: date | None = None,
     end_date: date | None = None,
 ) -> tuple[list[EffectiveRow], dict[uuid.UUID, list[int]]]:
+    membership_events = DomainEvent.objects.filter(
+        type__in=[DomainEvent.Type.GROUP_MEMBERS_ADDED, DomainEvent.Type.GROUP_MEMBERS_REMOVED]
+    )
+
+    # GROUP_MEMBERS_ADDED → assign group
+    # GROUP_MEMBERS_REMOVED → treat as null
+
+    membership_events = DomainEvent.objects.filter(
+        type__in=[
+            DomainEvent.Type.GROUP_MEMBERS_ADDED,
+            DomainEvent.Type.GROUP_MEMBERS_REMOVED
+        ],
+        raw_transaction_id__isnull=False
+    ).annotate(
+        # Extract group_id from JSON payload
+        payload_group_id=F('payload__group_id')
+    ).annotate(
+        rn=Window(
+            expression=RowNumber(),
+            partition_by=[F('raw_transaction_id')],
+            order_by=[F('created_at').desc(), F('id').desc()]
+        )
+    ).filter(rn=1)
+
+    # next, find the latest group title
+    title_events = DomainEvent.objects.filter(
+        type__in=[
+            DomainEvent.Type.GROUP_CREATED,
+            DomainEvent.Type.GROUP_RENAMED
+        ],
+        group_id__isnull=False
+    ).annotate(
+        payload_title=F('payload__title')
+    ).annotate(
+        rn=Window(
+            expression=RowNumber(),
+            partition_by=[F('group_id')],
+            order_by=[F('created_at').desc(), F('id').desc()]
+        )
+    ).filter(rn=1)
+
+    last_membership_subquery = Subquery(
+        membership_events.filter(raw_transaction_id=OuterRef('pk')).values('payload_group_id')[:1]
+    )
+
+    last_title_subquery = Subquery(
+        title_events.filter(group_id=OuterRef('payload_group_id')).values('payload_title')[:1]
+    )
+
+    txs_with_group = RawTransaction.objects.annotate(
+        group_id=last_membership_subquery,
+        group_title=last_title_subquery
+    )
+
+    print(txs_with_group)
+
+
+
+
+
     """
     Returns:
       rows: list of group rows + ungrouped tx rows
@@ -39,7 +107,6 @@ def build_effective_rows(
     # newest first; id tie-breaker for stable ordering
     txs = list(tx_qs.order_by("-date", "-id"))
 
-    # replay only grouping events (fast enough for 10k)
     grouping_events = list(
         DomainEvent.objects.filter(
             type__in=[
